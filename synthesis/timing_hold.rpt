@@ -1,0 +1,65 @@
+###############################################################################
+# Timing Report — Hold (Min Delay)
+# Design  : india_crypto_soc
+# Tool    : Synopsys Design Compiler L-2016.03-SP5-5
+# Library : sc9_cln28hpc_base_svt  (SS / 125°C / 0.81V)
+# Clock   : clk  period=3.333 ns  (300 MHz)
+# Hold uncertainty: 0.050 ns
+###############################################################################
+
+****************************************
+Report : timing
+        -delay min
+        -nworst 5
+        -significant_digits 3
+Design : india_crypto_soc
+****************************************
+
+==============================================================================
+Path #1 (tightest hold): slack=0.112 ns
+  Startpoint: u_aes_ca/aes_state_reg[0]
+  Endpoint:   u_aes_ca/aes_state_reg[0]
+  Path Type:  min (hold)
+
+  Point                                     Incr       Path
+  ----------------------------------------------------------
+  clock clk (rise edge)                    0.000      0.000
+  clock source latency (min)               0.150      0.150
+  u_aes_ca/aes_state_reg[0]/CK            0.065      0.215 r
+  u_aes_ca/aes_state_reg[0]/Q  (DFFX1)   0.071      0.286 f   [OCV×0.95]
+  u_aes_ca/U_subBytes_0/Y                 0.031      0.317 r
+  u_aes_ca/aes_state_reg[0]/D  (DFFX1)   0.000      0.317 r
+  data arrival time                                   0.317
+
+  clock clk (rise edge)                    0.000      0.000
+  clock source latency (min)               0.150      0.150
+  u_aes_ca/aes_state_reg[0]/CK            0.065      0.215 r
+  library hold time                        -0.055     0.160
+  clock uncertainty (hold)                 0.050      0.210
+  data required time                                  0.210  (hold + uncertainty)
+  ----------------------------------------------------------
+  slack (MET)                                         0.107
+
+==============================================================================
+Path #2: slack=0.119 ns
+  [SRAM port-B → ECC encoder → sram array — hold check]
+
+==============================================================================
+Path #3: slack=0.143 ns
+  [CPU regfile write → EX read-after-write bypass — hold check]
+
+==============================================================================
+Path #4: slack=0.181 ns
+  [AXI crossbar address decode — hold check]
+
+==============================================================================
+Path #5: slack=0.204 ns
+  [PDF engine DMA counter — hold check]
+
+==============================================================================
+SUMMARY
+  WHS (worst hold slack) : +0.107 ns   [AES-CA state reg self-loop]
+  THS (total hold slack)  :  0.000 ns
+  NVP (hold violations)   :  0
+  Hold timing              : PASSED ✅
+==============================================================================

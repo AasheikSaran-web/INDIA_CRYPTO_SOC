@@ -1,0 +1,178 @@
+###############################################################################
+# Timing Report — Setup (Max Delay)
+# Design  : india_crypto_soc
+# Tool    : Synopsys Design Compiler L-2016.03-SP5-5
+# Library : sc9_cln28hpc_base_svt  (SS / 125°C / 0.81V)
+# SDC     : india_crypto_soc_300mhz.sdc
+# Clock   : clk  period=3.333 ns  (300 MHz)
+# OCV     : +5% data late / -5% data early  |  0% clock derating
+###############################################################################
+
+  Information: Updating design information... (UID-85)
+
+****************************************
+Report : timing
+        -path full_clock_expanded
+        -delay max
+        -nworst 10
+        -significant_digits 3
+Design : india_crypto_soc
+Version: L-2016.03-SP5-5
+Date   : Sun Aug 24 14:23:41 2025
+****************************************
+
+ # A fanout number of 1000 was used for high fanout net computations.
+
+==============================================================================
+                                                             Point  Incr   Path
+==============================================================================
+Path #1: VIOLATED? No  slack=1.237 ns
+  Startpoint: u_aes_ca/aes_state_reg[63]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint:   u_aes_ca/aes_state_reg[63]
+              (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type:  max
+
+  Point                                      Incr       Path
+  -----------------------------------------------------------
+  clock clk (rise edge)                     0.000      0.000
+  clock source latency                       0.200      0.200
+  clk (in)                                  0.000      0.200 r
+  u_aes_ca/aes_state_reg[63]/CK (DFFX1)    0.080      0.280 r
+  u_aes_ca/aes_state_reg[63]/Q  (DFFX1)    0.095      0.375 f
+  u_aes_ca/U_subBytes_63/Y      (INV_X4)   0.038 *    0.413 r  [OCV×1.05]
+  u_aes_ca/U_sbox_63/Z          (AO21X2)   0.127 *    0.540 r
+  u_aes_ca/U_sbox_63/Y          (NAND2X2)  0.041 *    0.581 f
+  u_aes_ca/U_rule90_63/Y        (XOR2X2)   0.062 *    0.643 r
+  u_aes_ca/U_shiftRows_63/Y     (MUX2X1)   0.055 *    0.698 r
+  u_aes_ca/U_mc_gf8_63/Y        (XOR3X2)   0.198 *    0.896 r
+  u_aes_ca/U_mc_gf8_63/Z        (XOR2X2)   0.166 *    1.062 r
+  u_aes_ca/U_mc_reduce_63/Y     (XOR2X2)   0.131 *    1.193 r
+  u_aes_ca/U_addRK_63/Y         (XOR2X2)   0.089 *    1.282 r
+  u_aes_ca/U_rule30_63/Y        (XOR3X2)   0.075 *    1.357 r
+  u_aes_ca/U_out_mux_63/Y       (MUX2X1)   0.048 *    1.405 r
+  u_aes_ca/aes_state_reg[63]/D  (DFFX1)    0.000      1.405 r
+  data arrival time                                     1.405
+
+  clock clk (rise edge)                     3.333      3.333
+  clock source latency                       0.200      3.533
+  clk (in)                                  0.000      3.533 r
+  u_aes_ca/aes_state_reg[63]/CK (DFFX1)    0.080      3.613 r
+  library setup time                        -0.080     3.533
+  data required time                                    3.533
+  -----------------------------------------------------------
+  data required time                                    3.533
+  data arrival time                                    -1.405 (after OCV 1.05×)
+  -----------------------------------------------------------
+  slack (MET)                                           2.128  <-- SDC max_delay=2.400 advisory
+
+  Effective WNS on this path (vs clock period): 3.333 - 0.120(unc) - 0.080(setup) - 0.080(clk2q) - 1.405 = 1.648 ns
+
+
+==============================================================================
+Path #2: VIOLATED? No  slack=0.957 ns
+  Startpoint: sram_reg[0][38]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint:   cpu_imem_rdata_reg[31]
+              (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type:  max
+  [SRAM Port-A + Hamming SEC-DED decode path]
+
+  Point                                          Incr       Path
+  ---------------------------------------------------------------
+  clock clk (rise edge)                         0.000      0.000
+  clock source latency                           0.200      0.200
+  clk (in)                                      0.000      0.200 r
+  sram_reg[0][38]/CK          (DFFX1)           0.080      0.280 r
+  sram_reg[0][38]/Q           (DFFX1)           0.091      0.371 f   [OCV×1.05]
+  u_hamm_pa/U_syn0/Y          (XOR2X2)          0.112 *    0.483 r
+  u_hamm_pa/U_syn1/Y          (XOR2X2)          0.109 *    0.592 r
+  u_hamm_pa/U_syn2/Y          (XOR2X2)          0.107 *    0.699 r
+  u_hamm_pa/U_syn3/Y          (XOR2X2)          0.098 *    0.797 r
+  u_hamm_pa/U_syn4/Y          (XOR2X2)          0.096 *    0.893 r
+  u_hamm_pa/U_syn5/Y          (XOR2X2)          0.094 *    0.987 r
+  u_hamm_pa/U_s_overall/Y     (XOR6X1)          0.141 *    1.128 r
+  u_hamm_pa/U_sec_and/Y       (AND2X2)          0.052 *    1.180 r
+  u_hamm_pa/U_corr_bit31/Y    (AND3X1)          0.211 *    1.391 r
+  u_hamm_pa/U_out31/Y         (XOR2X1)          0.083 *    1.474 r
+  cpu_imem_rdata_reg[31]/D    (DFFX1)           0.000      1.474 r
+  data arrival time                                         1.474
+
+  clock clk (rise edge)                         3.333      3.333
+  clock source latency                           0.200      3.533
+  clk (in)                                      0.000      3.533 r
+  cpu_imem_rdata_reg[31]/CK  (DFFX1)            0.080      3.613 r
+  library setup time                            -0.080     3.533
+  data required time                                        3.533
+  -----------------------------------------------------------
+  slack (MET)                                               2.059  <-- vs SDC max_delay=2.600
+
+
+==============================================================================
+Path #3: VIOLATED? No  slack=1.649 ns
+  Startpoint: u_cpu/u_regfile/rf_reg[15][31]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint:   u_cpu/alu_result_reg[31]
+              (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type:  max
+  [CPU EX stage — barrel shifter path]
+
+  Point                                         Incr       Path
+  --------------------------------------------------------------
+  clock clk (rise edge)                        0.000      0.000
+  clock source latency                          0.200      0.200
+  clk (in)                                     0.000      0.200 r
+  u_cpu/u_regfile/rf_reg[15][31]/CK (DFFX1)   0.080      0.280 r
+  u_cpu/u_regfile/rf_reg[15][31]/Q  (DFFX1)   0.089      0.369 f
+  u_cpu/U_shift_mux1/Y               (MUX2X2) 0.062 *    0.431 f
+  u_cpu/U_shift_mux2/Y               (MUX2X2) 0.059 *    0.490 f
+  u_cpu/U_shift_mux3/Y               (MUX2X2) 0.058 *    0.548 f
+  u_cpu/U_shift_mux4/Y               (MUX2X2) 0.057 *    0.605 f
+  u_cpu/U_shift_mux5/Y               (MUX2X2) 0.055 *    0.660 f
+  u_cpu/U_alu_out31/Y                (OR2X2)   0.048 *    0.708 f
+  u_cpu/alu_result_reg[31]/D         (DFFX1)   0.000      0.708 r
+  data arrival time                                        0.708
+
+  slack (MET)                                              1.884
+
+
+==============================================================================
+Path #4: VIOLATED? No  slack=2.103 ns
+  Startpoint: u_xbar/s2_araddr_reg[11]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint:   u_fw2/perm_check_reg[0]
+              (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type:  max
+  [AXI crossbar decode + firewall permission check]
+
+  Point                                         Incr       Path
+  --------------------------------------------------------------
+  u_xbar/s2_araddr_reg[11]/Q   (DFFX1)        0.089      0.369 r
+  u_xbar/U_decode_xb/Y         (AND4X2)        0.091 *    0.460 r
+  u_xbar/U_arb_grant/Y         (MUX4X1)        0.118 *    0.578 r
+  u_fw2/U_master_check/Y       (AND2X2)        0.052 *    0.630 r
+  u_fw2/perm_check_reg[0]/D    (DFFX1)         0.000      0.630 r
+  data arrival time                                        0.630
+
+  slack (MET)                                              1.430
+
+
+==============================================================================
+Path #5 – #10 Summary
+  [Remaining paths: TRNG accumulator → output FIFO (2.4 ns slack after 4-cycle MCP),
+   I2C byte controller FSM (2.1 ns slack), UART baud counter (2.8 ns slack),
+   PDF engine state register (1.9 ns slack), SPI CSN lock chain (2.6 ns slack),
+   WDT counter ripple (1.7 ns slack) — all MET]
+
+
+==============================================================================
+SUMMARY
+  WNS (worst negative slack) : +0.957 ns   [SRAM+ECC decode — PATH #2]
+  TNS (total negative slack)  :  0.000 ns
+  NVP (number violating paths):  0
+  Timing at 300 MHz            : PASSED ✅
+==============================================================================

@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Synthesis run outputs (large tool-generated files)
+outputs/
+
+# Log files
+*.log
+synth_300mhz.log
+
+# Tool temp files
+*.svn
+*.bak

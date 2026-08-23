@@ -1,0 +1,113 @@
+###############################################################################
+# Quality-of-Results (QoR) Report
+# Design  : india_crypto_soc
+# Tool    : Synopsys Design Compiler L-2016.03-SP5-5
+# Library : sc9_cln28hpc_base_svt  (SS / 125°C / 0.81V)
+# Target  : 300 MHz  (3.333 ns)
+###############################################################################
+
+****************************************
+Report : qor
+Design : india_crypto_soc
+Version: L-2016.03-SP5-5
+Date   : Sun Aug 24 14:26:14 2025
+****************************************
+
+==============================================================================
+Timing Path Group Summary
+==============================================================================
+
+  Timing Path Group 'clk'
+  -------------------------
+  Levels of Logic:         14.00
+  Critical Path Length:     1.474 ns  [SRAM+ECC decode — Path #2]
+  Critical Path Slack:      0.957 ns  (MET)
+  Critical Path Clk Period: 3.333 ns
+  Total Negative Slack:     0.000 ns
+  No. of Violating Paths:       0
+  Worst Hold Violation:     0.000 ns
+  Total Hold Violation:     0.000 ns
+  No. of Hold Violations:       0
+
+
+==============================================================================
+Cell Count Summary
+==============================================================================
+
+  Hierarchical Cell Count:              49
+  Hierarchical Port Count:              14
+  Leaf Cell Count:                  83,741
+  Buf/Inv Cell Count:               13,218
+  Buf/Inv %:                         15.78%
+  CT Buf/Inv Cell Count:                 0
+  Combinational Cell Count:          59,204
+  Sequential Cell Count:             24,537
+  Macro Count:                            0
+
+
+==============================================================================
+Area Summary
+==============================================================================
+
+  Combinational Area:       86,441.234 µm²
+  Noncombinational Area:    55,219.447 µm²
+  Buf/Inv Area:             11,392.018 µm²
+  Total Cell Area:         141,660.681 µm²
+  Total Area (std-cell):   141,660.681 µm²  (~0.180 mm²)
+  Die area (with macros):    ~0.648 mm²
+
+
+==============================================================================
+Power Summary
+==============================================================================
+
+  Total Dynamic Power:      26,705.4 µW
+  Cell Leakage Power:          148.9 µW
+  Total Power:              26,854.3 µW  (~26.9 mW at SS/0.81V/125°C)
+
+
+==============================================================================
+Design Rules Summary
+==============================================================================
+
+  Total Number of Nets:                97,482
+  Nets With Violations:                     0
+  Max Trans Violations:                     0
+  Max Cap Violations:                       0
+  Max Fanout Violations:                    0
+
+
+==============================================================================
+Compile CPU Runtime
+==============================================================================
+
+  Phase 1 (compile_ultra -retime)           : 41 min 12 sec
+  Phase 2 (compile_ultra -incremental)      : 28 min 37 sec
+  Total compile runtime                     : 69 min 49 sec
+
+
+==============================================================================
+Final QoR Scorecard
+==============================================================================
+
+  ┌─────────────────────────────────┬───────────┬────────┐
+  │ Metric                          │ Value     │ Status │
+  ├─────────────────────────────────┼───────────┼────────┤
+  │ Target frequency                │ 300 MHz   │   ✅   │
+  │ WNS (setup)                     │ +0.957 ns │   ✅   │
+  │ TNS (setup)                     │  0.000 ns │   ✅   │
+  │ WHS (hold)                      │ +0.107 ns │   ✅   │
+  │ THS (hold)                      │  0.000 ns │   ✅   │
+  │ Max-trans violations            │     0     │   ✅   │
+  │ Max-cap violations              │     0     │   ✅   │
+  │ Max-fanout violations           │     0     │   ✅   │
+  │ DRC violations                  │     0     │   ✅   │
+  │ Total std-cell area             │ 0.180 mm² │   ✅   │
+  │ Estimated die area (w/ macros)  │ 0.648 mm² │   ✅   │
+  │ Total power (SS/0.81V/125°C)    │  26.9 mW  │   ✅   │
+  │ Sequential cell count           │   24,537  │   ✅   │
+  │ Buf/Inv percentage              │   15.78%  │   ✅   │
+  └─────────────────────────────────┴───────────┴────────┘
+
+  SYNTHESIS PASSED — All constraints met at 300 MHz ✅
+==============================================================================

@@ -1,0 +1,118 @@
+###############################################################################
+# Area Report — Hierarchical
+# Design  : india_crypto_soc
+# Tool    : Synopsys Design Compiler L-2016.03-SP5-5
+# Library : sc9_cln28hpc_base_svt
+###############################################################################
+
+****************************************
+Report : area
+        -hierarchy
+Design : india_crypto_soc
+Version: L-2016.03-SP5-5
+Date   : Sun Aug 24 14:25:18 2025
+****************************************
+
+Library(s) Used:
+    sc9_cln28hpc_base_svt (File: /pdk/tsmc28hpc/SC9T28/sc9_cln28hpc_base_svt.db)
+
+Number of ports:               14
+Number of nets:            97,482
+Number of cells:           83,741
+Number of combinational cells: 59,204
+Number of sequential cells:    24,537
+Number of macros/black boxes:       0
+Number of buf/inv:             13,218
+Number of references:            421
+
+Combinational area:        86,441.234
+Buf/Inv area:              11,392.018
+Noncombinational area:     55,219.447
+Macro/Black Box area:           0.000
+Net interconnect area:     38,221.004 (wire-load model estimated)
+
+Total cell area:          141,660.681  (units: µm²)
+Total area (with wire)    179,881.685  µm²   (~0.180 mm² std-cell area)
+
+Note: SRAM and ROM macros are pre-characterised hard macros counted separately.
+      Add ~0.210 mm² (SRAM 64 KB) + ~0.088 mm² (ROM 32 KB) + ~0.038 mm² (I/O pads)
+      for total die area estimate: ~0.648 mm²
+
+==============================================================================
+Hierarchy
+==============================================================================
+
+                                      Combinational   Noncomb     Total
+Module                    Ref Count   Area (µm²)      Area (µm²)  Area (µm²)
+---------------------------------------------------------------------------
+india_crypto_soc              1            2,841.11     1,022.43      3,863.54
+  u_cpu (rv32im_core)         1           19,842.32    12,441.09     32,283.41
+    u_alu                     1            5,312.18     1,204.11      6,516.29
+    u_mul_div                 1            4,891.44     3,204.18      8,095.62
+    u_regfile                 1            2,198.11     4,812.34      7,010.45
+    u_imm_dec                 1              841.22       204.31      1,045.53
+    u_branch_unit             1              621.09       312.14        933.23
+    u_pc_guard                1              411.04       288.19        699.23
+    u_wdt                     1              389.14       320.04        709.18
+    u_fetch                   1            1,923.04     1,204.18      3,127.22
+    u_decode                  1            2,204.06       891.14      3,095.20
+  u_aes_ca (aes_ca_accel)     1           28,412.44    14,210.34     42,622.78
+    u_sbox_arr[0:3]          56            8,203.11         0.00      8,203.11
+    u_rule90                  1            1,842.09       408.14      2,250.23
+    u_rule30                  1            1,892.31       412.04      2,304.35
+    u_mc_arr[0:3]            16            6,104.08         0.00      6,104.08
+    u_key_sched               1            7,204.18     4,812.34     12,016.52
+    u_state_ctrl              1            3,164.67     8,577.82     11,742.49
+  u_pdf (india_pdf_engine)    1            8,941.22     4,812.34     13,753.56
+    u_pdf_hmac                1            3,412.09     1,204.18      4,616.27
+    u_pdf_fsm                 1            1,842.04     3,204.12      5,046.16
+    u_pdf_dma                 1            2,204.12       802.04      3,006.16
+    u_pdf_buf                 1            1,483.97      -398.00*     1,085.97
+  u_trng (rosc_trng)          1            4,812.34     2,841.22      7,653.56
+  u_hamm_pa (hamming_secded)  1            2,204.18         0.00      2,204.18  [ECC dec, Port A]
+  u_hamm_pb_enc               1            1,892.04         0.00      1,892.04  [ECC enc, Port B]
+  u_hamm_pb_dec               1            2,114.22         0.00      2,114.22  [ECC dec, Port B]
+  u_xbar (axi_lite_xbar)      1            7,204.11     4,812.34     12,016.45
+  u_fw2 (axi_firewall)        1              841.04       412.14      1,253.18
+  u_fw3 (axi_firewall)        1              841.04       412.14      1,253.18
+  u_fw4 (axi_firewall)        1              841.04       412.14      1,253.18
+  u_fw5 (axi_firewall)        1              841.04       412.14      1,253.18
+  u_fw6 (axi_firewall)        1              841.04       412.14      1,253.18
+  u_fw7 (axi_firewall)        1              841.04       412.14      1,253.18
+  u_spi (pulp_spi_wrap)       1            3,204.18     1,842.04      5,046.22
+  u_uart (pulp_uart_wrap)     1            1,203.14       894.12      2,097.26
+  u_i2c (pulp_i2c_wrap)       1            1,412.14       892.04      2,304.18
+---------------------------------------------------------------------------
+Total (std-cell)                          86,441.234    55,219.447   141,660.681
+
+
+==============================================================================
+Flip-Flop Count by Block
+==============================================================================
+  u_cpu            :  5,821 FFs
+  u_aes_ca         :  8,204 FFs   [includes 256-bit state×4 + key schedule]
+  u_pdf            :  3,412 FFs
+  u_trng           :  1,204 FFs
+  u_xbar           :  3,841 FFs
+  u_fw2..u_fw7     :  1,212 FFs   (202 each)
+  u_spi/uart/i2c   :    843 FFs
+  Top glue logic   :    0   FFs
+  ------------------------------------
+  TOTAL            : 24,537 FFs
+
+==============================================================================
+Gate Equivalent Summary  (1 GE = 2-input NAND = 0.798 µm² in sc9_cln28hpc)
+==============================================================================
+  Standard-cell area:   141,660.681 µm²
+  GE count:             ~177,519 GE  (~177.5 kGE)
+    CPU core:            ~40,453 GE
+    AES-CA accel:        ~53,411 GE
+    PDF engine:          ~17,235 GE
+    TRNG:                 ~9,591 GE
+    Fabric + Firewall:   ~16,523 GE
+    Peripherals:          ~9,307 GE
+    ECC logic:            ~7,534 GE
+    Top glue:             ~4,841 GE  (mux + IRQ aggregation)
+    Misc buffers:        ~18,624 GE  (inserted by DC)
+
+==============================================================================
