@@ -1,0 +1,43 @@
+
+6. Printing statistics.
+
+=== axi_firewall ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+     1032        - wires
+     1574        - wire bits
+       71        - public wires
+      613        - public wire bits
+       56        - ports
+      446        - port bits
+      961 2.74E+03 cells
+        1    1.064   AND2_X1
+        1     1.33   AND3_X1
+        1    1.596   AND4_X1
+        3     3.99   AOI211_X1
+       47   50.008   AOI21_X1
+       38   60.648   AOI221_X1
+       15    19.95   AOI22_X1
+      318  1691.76   DFFR_X1
+       11    58.52   DFFS_X1
+       34  153.748   DFF_X1
+      102   54.264   INV_X1
+      283  526.946   MUX2_X1
+       26   20.748   NAND2_X1
+        3    3.192   NAND3_X1
+        4     5.32   NAND4_X1
+       14   11.172   NOR2_X1
+        5     5.32   NOR3_X1
+        5     6.65   NOR4_X1
+        2     2.66   OAI211_X1
+       15    15.96   OAI21_X1
+        1    1.596   OAI221_X1
+       27    35.91   OAI22_X1
+        4    4.256   OR2_X1
+        1     1.33   OR3_X1
+
+   Chip area for module '\axi_firewall': 2737.938000
+     of which used for sequential elements: 1904.028000 (69.54%)
+

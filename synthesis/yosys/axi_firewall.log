@@ -1,0 +1,1563 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.64 (git sha1 d8dab5b32666564eca8e18f412973853ce006e61, clang++ 21.0.0 -fPIC -O3)
+
+-- Executing script file `/tmp/yosys_XXXXXX.ys' --
+
+1. Executing Verilog-2005 frontend: ../rtl/fabric/axi_firewall.v
+Parsing SystemVerilog input from `../rtl/fabric/axi_firewall.v' to AST representation.
+Generating RTLIL representation for module `\axi_firewall'.
+Successfully finished Verilog frontend.
+
+2. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1. Analyzing design hierarchy..
+Top module:  \axi_firewall
+
+2.2. Analyzing design hierarchy..
+Top module:  \axi_firewall
+Removed 0 unused modules.
+
+3. Executing SYNTH pass.
+
+3.1. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1.1. Analyzing design hierarchy..
+Top module:  \axi_firewall
+
+3.1.2. Analyzing design hierarchy..
+Top module:  \axi_firewall
+Removed 0 unused modules.
+
+3.2. Executing PROC pass (convert processes to netlists).
+
+3.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+3.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 4 switch rules as full_case in process $proc$../rtl/fabric/axi_firewall.v:345$19 in module axi_firewall.
+Marked 3 switch rules as full_case in process $proc$../rtl/fabric/axi_firewall.v:271$15 in module axi_firewall.
+Marked 3 switch rules as full_case in process $proc$../rtl/fabric/axi_firewall.v:166$5 in module axi_firewall.
+Removed a total of 0 dead cases.
+
+3.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 7 redundant assignments.
+Promoted 0 assignments to connections.
+
+3.2.4. Executing PROC_INIT pass (extract init attributes).
+
+3.2.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+Found async reset \rst_n in `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+Found async reset \rst_n in `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+
+3.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~26 debug messages>
+
+3.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+     1/14: $0\f_arready[0:0]
+     2/14: $0\f_wready[0:0]
+     3/14: $0\f_awready[0:0]
+     4/14: $0\f_awaddr_lat[31:0]
+     5/14: $0\f_w_done[0:0]
+     6/14: $0\f_aw_done[0:0]
+     7/14: $2\deny_count[15:0]
+     8/14: $0\table_locked[0:0]
+     9/14: $0\perm_table[31:0]
+    10/14: $0\f_rvalid[0:0]
+    11/14: $0\f_rresp[1:0]
+    12/14: $0\f_rdata[31:0]
+    13/14: $0\f_bvalid[0:0]
+    14/14: $0\f_bresp[1:0]
+Creating decoders for process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+     1/13: $0\u_arready[0:0]
+     2/13: $0\ar_addr_lat[31:0]
+     3/13: $0\rstate[1:0]
+     4/13: $1\deny_count[15:0]
+     5/13: $1\last_denied_master[1:0]
+     6/13: $1\last_denied_addr[31:0]
+     7/13: $1\deny_irq[0:0]
+     8/13: $0\d_rready[0:0]
+     9/13: $0\d_arvalid[0:0]
+    10/13: $0\d_araddr[31:0]
+    11/13: $0\u_rvalid[0:0]
+    12/13: $0\u_rresp[1:0]
+    13/13: $0\u_rdata[31:0]
+Creating decoders for process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+     1/18: $0\deny_irq[0:0]
+     2/18: $0\u_wready[0:0]
+     3/18: $0\u_awready[0:0]
+     4/18: $0\aw_addr_lat[31:0]
+     5/18: $0\w_captured[0:0]
+     6/18: $0\aw_captured[0:0]
+     7/18: $0\wstate[1:0]
+     8/18: $0\deny_count[15:0]
+     9/18: $0\last_denied_master[1:0]
+    10/18: $0\last_denied_addr[31:0]
+    11/18: $0\d_bready[0:0]
+    12/18: $0\d_wvalid[0:0]
+    13/18: $0\d_wstrb[3:0]
+    14/18: $0\d_wdata[31:0]
+    15/18: $0\d_awvalid[0:0]
+    16/18: $0\d_awaddr[31:0]
+    17/18: $0\u_bvalid[0:0]
+    18/18: $0\u_bresp[1:0]
+
+3.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+3.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\axi_firewall.\f_awready' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$357' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\f_wready' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$362' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\f_bresp' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$367' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\f_bvalid' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$372' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\f_arready' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$377' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\f_rdata' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$382' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\f_rresp' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$387' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\f_rvalid' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$392' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\perm_table' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$397' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\table_locked' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$402' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\deny_count' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $dff cell `$procdff$409' with positive edge clock.
+Creating register for signal `\axi_firewall.\f_aw_done' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$414' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\f_w_done' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$419' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\f_awaddr_lat' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+  created $adff cell `$procdff$424' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\u_arready' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $adff cell `$procdff$429' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\u_rdata' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $adff cell `$procdff$434' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\u_rresp' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $adff cell `$procdff$439' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\u_rvalid' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $adff cell `$procdff$444' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\d_araddr' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $adff cell `$procdff$449' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\d_arvalid' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $adff cell `$procdff$454' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\d_rready' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $adff cell `$procdff$459' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\deny_irq' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $dff cell `$procdff$466' with positive edge clock.
+Creating register for signal `\axi_firewall.\last_denied_addr' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $dff cell `$procdff$473' with positive edge clock.
+Creating register for signal `\axi_firewall.\last_denied_master' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $dff cell `$procdff$480' with positive edge clock.
+Creating register for signal `\axi_firewall.\deny_count' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $dff cell `$procdff$487' with positive edge clock.
+Creating register for signal `\axi_firewall.\rstate' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $adff cell `$procdff$492' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\ar_addr_lat' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+  created $adff cell `$procdff$497' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\u_awready' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$502' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\u_wready' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$507' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\u_bresp' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$512' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\u_bvalid' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$517' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\d_awaddr' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$522' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\d_awvalid' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$527' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\d_wdata' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$532' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\d_wstrb' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$537' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\d_wvalid' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$542' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\d_bready' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$547' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\deny_irq' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$552' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\last_denied_addr' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$557' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\last_denied_master' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$562' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\deny_count' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$567' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\wstate' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$572' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\aw_captured' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$577' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\w_captured' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$582' with positive edge clock and positive level reset.
+Creating register for signal `\axi_firewall.\aw_addr_lat' using process `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+  created $adff cell `$procdff$587' with positive edge clock and positive level reset.
+
+3.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+3.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 10 empty switches in `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+Removing empty process `axi_firewall.$proc$../rtl/fabric/axi_firewall.v:345$19'.
+Found and cleaned up 6 empty switches in `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+Removing empty process `axi_firewall.$proc$../rtl/fabric/axi_firewall.v:271$15'.
+Found and cleaned up 10 empty switches in `\axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+Removing empty process `axi_firewall.$proc$../rtl/fabric/axi_firewall.v:166$5'.
+Cleaned up 26 empty switches.
+
+3.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+<suppressed ~118 debug messages>
+
+3.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+<suppressed ~2 debug messages>
+
+3.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+Removed 49 unused cells and 209 unused wires.
+<suppressed ~50 debug messages>
+
+3.5. Executing CHECK pass (checking for obvious problems).
+Checking module axi_firewall...
+Warning: multiple conflicting drivers for axi_firewall.\deny_irq:
+    port Q[0] of cell $procdff$466 ($dff)
+    port Q[0] of cell $procdff$552 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [31]:
+    port Q[31] of cell $procdff$473 ($dff)
+    port Q[31] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [30]:
+    port Q[30] of cell $procdff$473 ($dff)
+    port Q[30] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [29]:
+    port Q[29] of cell $procdff$473 ($dff)
+    port Q[29] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [28]:
+    port Q[28] of cell $procdff$473 ($dff)
+    port Q[28] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [27]:
+    port Q[27] of cell $procdff$473 ($dff)
+    port Q[27] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [26]:
+    port Q[26] of cell $procdff$473 ($dff)
+    port Q[26] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [25]:
+    port Q[25] of cell $procdff$473 ($dff)
+    port Q[25] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [24]:
+    port Q[24] of cell $procdff$473 ($dff)
+    port Q[24] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [23]:
+    port Q[23] of cell $procdff$473 ($dff)
+    port Q[23] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [22]:
+    port Q[22] of cell $procdff$473 ($dff)
+    port Q[22] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [21]:
+    port Q[21] of cell $procdff$473 ($dff)
+    port Q[21] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [20]:
+    port Q[20] of cell $procdff$473 ($dff)
+    port Q[20] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [19]:
+    port Q[19] of cell $procdff$473 ($dff)
+    port Q[19] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [18]:
+    port Q[18] of cell $procdff$473 ($dff)
+    port Q[18] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [17]:
+    port Q[17] of cell $procdff$473 ($dff)
+    port Q[17] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [16]:
+    port Q[16] of cell $procdff$473 ($dff)
+    port Q[16] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [15]:
+    port Q[15] of cell $procdff$473 ($dff)
+    port Q[15] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [14]:
+    port Q[14] of cell $procdff$473 ($dff)
+    port Q[14] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [13]:
+    port Q[13] of cell $procdff$473 ($dff)
+    port Q[13] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [12]:
+    port Q[12] of cell $procdff$473 ($dff)
+    port Q[12] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [11]:
+    port Q[11] of cell $procdff$473 ($dff)
+    port Q[11] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [10]:
+    port Q[10] of cell $procdff$473 ($dff)
+    port Q[10] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [9]:
+    port Q[9] of cell $procdff$473 ($dff)
+    port Q[9] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [8]:
+    port Q[8] of cell $procdff$473 ($dff)
+    port Q[8] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [7]:
+    port Q[7] of cell $procdff$473 ($dff)
+    port Q[7] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [6]:
+    port Q[6] of cell $procdff$473 ($dff)
+    port Q[6] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [5]:
+    port Q[5] of cell $procdff$473 ($dff)
+    port Q[5] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [4]:
+    port Q[4] of cell $procdff$473 ($dff)
+    port Q[4] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [3]:
+    port Q[3] of cell $procdff$473 ($dff)
+    port Q[3] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [2]:
+    port Q[2] of cell $procdff$473 ($dff)
+    port Q[2] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [1]:
+    port Q[1] of cell $procdff$473 ($dff)
+    port Q[1] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [0]:
+    port Q[0] of cell $procdff$473 ($dff)
+    port Q[0] of cell $procdff$557 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [15]:
+    port Q[15] of cell $procdff$409 ($dff)
+    port Q[15] of cell $procdff$567 ($adff)
+    port Q[15] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [14]:
+    port Q[14] of cell $procdff$409 ($dff)
+    port Q[14] of cell $procdff$567 ($adff)
+    port Q[14] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [13]:
+    port Q[13] of cell $procdff$409 ($dff)
+    port Q[13] of cell $procdff$567 ($adff)
+    port Q[13] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [12]:
+    port Q[12] of cell $procdff$409 ($dff)
+    port Q[12] of cell $procdff$567 ($adff)
+    port Q[12] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [11]:
+    port Q[11] of cell $procdff$409 ($dff)
+    port Q[11] of cell $procdff$567 ($adff)
+    port Q[11] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [10]:
+    port Q[10] of cell $procdff$409 ($dff)
+    port Q[10] of cell $procdff$567 ($adff)
+    port Q[10] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [9]:
+    port Q[9] of cell $procdff$409 ($dff)
+    port Q[9] of cell $procdff$567 ($adff)
+    port Q[9] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [8]:
+    port Q[8] of cell $procdff$409 ($dff)
+    port Q[8] of cell $procdff$567 ($adff)
+    port Q[8] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [7]:
+    port Q[7] of cell $procdff$409 ($dff)
+    port Q[7] of cell $procdff$567 ($adff)
+    port Q[7] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [6]:
+    port Q[6] of cell $procdff$409 ($dff)
+    port Q[6] of cell $procdff$567 ($adff)
+    port Q[6] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [5]:
+    port Q[5] of cell $procdff$409 ($dff)
+    port Q[5] of cell $procdff$567 ($adff)
+    port Q[5] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [4]:
+    port Q[4] of cell $procdff$409 ($dff)
+    port Q[4] of cell $procdff$567 ($adff)
+    port Q[4] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [3]:
+    port Q[3] of cell $procdff$409 ($dff)
+    port Q[3] of cell $procdff$567 ($adff)
+    port Q[3] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [2]:
+    port Q[2] of cell $procdff$409 ($dff)
+    port Q[2] of cell $procdff$567 ($adff)
+    port Q[2] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [1]:
+    port Q[1] of cell $procdff$409 ($dff)
+    port Q[1] of cell $procdff$567 ($adff)
+    port Q[1] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\deny_count [0]:
+    port Q[0] of cell $procdff$409 ($dff)
+    port Q[0] of cell $procdff$567 ($adff)
+    port Q[0] of cell $procdff$487 ($dff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_master [1]:
+    port Q[1] of cell $procdff$480 ($dff)
+    port Q[1] of cell $procdff$562 ($adff)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_master [0]:
+    port Q[0] of cell $procdff$480 ($dff)
+    port Q[0] of cell $procdff$562 ($adff)
+Found and reported 51 problems.
+
+3.6. Executing OPT pass (performing simple optimizations).
+
+3.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+
+3.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 241 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Computing hashes of 188 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+<suppressed ~159 debug messages>
+Removed a total of 53 cells.
+
+3.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \axi_firewall..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~153 debug messages>
+
+3.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \axi_firewall.
+    New ctrl vector for $pmux cell $procmux$98: { $procmux$104_CMP $auto$opt_reduce.cc:137:opt_pmux$589 }
+    New ctrl vector for $pmux cell $procmux$76: $auto$opt_reduce.cc:137:opt_pmux$591
+  Optimizing cells in module \axi_firewall.
+Performed a total of 2 changes.
+
+3.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 190 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Computing hashes of 187 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+<suppressed ~9 debug messages>
+Removed a total of 3 cells.
+
+3.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+Removed 0 unused cells and 55 unused wires.
+<suppressed ~1 debug messages>
+
+3.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+
+3.6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \axi_firewall..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~159 debug messages>
+
+3.6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \axi_firewall.
+Performed a total of 0 changes.
+
+3.6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 187 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Removed a total of 0 cells.
+
+3.6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+
+3.6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+
+3.6.16. Finished fast OPT passes. (There is nothing left to do.)
+
+3.7. Executing FSM pass (extract and optimize FSM).
+
+3.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+Found FSM state register axi_firewall.rstate.
+Found FSM state register axi_firewall.wstate.
+Not marking axi_firewall.f_rresp as FSM state register:
+    Register is connected to module port.
+    Users of register don't seem to benefit from recoding.
+Not marking axi_firewall.f_bresp as FSM state register:
+    Register is connected to module port.
+    Users of register don't seem to benefit from recoding.
+
+3.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+Extracting FSM `\rstate' from module `\axi_firewall'.
+  found $adff cell for state register: $procdff$492
+  root of input selection tree: $0\rstate[1:0]
+  found reset state: 2'00 (from async reset)
+  found ctrl input: $procmux$125_CMP
+  found ctrl input: $procmux$128_CMP
+  found ctrl input: $procmux$113_CMP
+  found ctrl input: \u_rready
+  found ctrl input: $logic_and$../rtl/fabric/axi_firewall.v:312$18_Y
+  found ctrl input: \u_arvalid
+  found ctrl input: \rd_allowed
+  found state code: 2'10
+  found state code: 2'01
+  found ctrl output: $procmux$113_CMP
+  found ctrl output: $procmux$125_CMP
+  found ctrl output: $procmux$128_CMP
+  ctrl inputs: { $logic_and$../rtl/fabric/axi_firewall.v:312$18_Y \rd_allowed \u_rready \u_arvalid }
+  ctrl outputs: { $procmux$128_CMP $procmux$125_CMP $procmux$113_CMP $0\rstate[1:0] }
+  transition:       2'00 4'---0 ->       2'00 5'00100
+  transition:       2'00 4'-0-1 ->       2'10 5'00110
+  transition:       2'00 4'-1-1 ->       2'01 5'00101
+  transition:       2'10 4'--0- ->       2'10 5'01010
+  transition:       2'10 4'--1- ->       2'00 5'01000
+  transition:       2'01 4'0--- ->       2'01 5'10001
+  transition:       2'01 4'1--- ->       2'00 5'10000
+Extracting FSM `\wstate' from module `\axi_firewall'.
+  found $adff cell for state register: $procdff$572
+  root of input selection tree: $0\wstate[1:0]
+  found reset state: 2'00 (from async reset)
+  found ctrl input: $procmux$242_CMP
+  found ctrl input: $procmux$245_CMP
+  found ctrl input: $procmux$216_CMP
+  found ctrl input: \u_bready
+  found ctrl input: $logic_and$../rtl/fabric/axi_firewall.v:237$14_Y
+  found ctrl input: $logic_or$../rtl/fabric/axi_firewall.v:207$11_Y
+  found ctrl input: $logic_or$../rtl/fabric/axi_firewall.v:208$12_Y
+  found ctrl input: \rd_allowed
+  found state code: 2'10
+  found state code: 2'01
+  found ctrl output: $procmux$216_CMP
+  found ctrl output: $procmux$242_CMP
+  found ctrl output: $procmux$245_CMP
+  ctrl inputs: { $logic_and$../rtl/fabric/axi_firewall.v:237$14_Y $logic_or$../rtl/fabric/axi_firewall.v:208$12_Y $logic_or$../rtl/fabric/axi_firewall.v:207$11_Y \rd_allowed \u_bready }
+  ctrl outputs: { $procmux$245_CMP $procmux$242_CMP $procmux$216_CMP $0\wstate[1:0] }
+  transition:       2'00 5'--0-- ->       2'00 5'00100
+  transition:       2'00 5'-01-- ->       2'00 5'00100
+  transition:       2'00 5'-110- ->       2'10 5'00110
+  transition:       2'00 5'-111- ->       2'01 5'00101
+  transition:       2'10 5'----0 ->       2'10 5'01010
+  transition:       2'10 5'----1 ->       2'00 5'01000
+  transition:       2'01 5'0---- ->       2'01 5'10001
+  transition:       2'01 5'1---- ->       2'00 5'10000
+
+3.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+Optimizing FSM `$fsm$\wstate$597' from module `\axi_firewall'.
+Optimizing FSM `$fsm$\rstate$592' from module `\axi_firewall'.
+
+3.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+Removed 18 unused cells and 18 unused wires.
+<suppressed ~19 debug messages>
+
+3.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+Optimizing FSM `$fsm$\rstate$592' from module `\axi_firewall'.
+  Removing unused output signal $0\rstate[1:0] [0].
+  Removing unused output signal $0\rstate[1:0] [1].
+Optimizing FSM `$fsm$\wstate$597' from module `\axi_firewall'.
+  Removing unused output signal $0\wstate[1:0] [0].
+  Removing unused output signal $0\wstate[1:0] [1].
+
+3.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+Recoding FSM `$fsm$\rstate$592' from module `\axi_firewall' using `auto' encoding:
+  mapping auto encoding to `one-hot` for this FSM.
+  00 -> --1
+  10 -> -1-
+  01 -> 1--
+Recoding FSM `$fsm$\wstate$597' from module `\axi_firewall' using `auto' encoding:
+  mapping auto encoding to `one-hot` for this FSM.
+  00 -> --1
+  10 -> -1-
+  01 -> 1--
+
+3.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+FSM `$fsm$\rstate$592' from module `axi_firewall':
+-------------------------------------
+
+  Information on FSM $fsm$\rstate$592 (\rstate):
+
+  Number of input signals:    4
+  Number of output signals:   3
+  Number of state bits:       3
+
+  Input signals:
+    0: \u_arvalid
+    1: \u_rready
+    2: \rd_allowed
+    3: $logic_and$../rtl/fabric/axi_firewall.v:312$18_Y
+
+  Output signals:
+    0: $procmux$113_CMP
+    1: $procmux$125_CMP
+    2: $procmux$128_CMP
+
+  State encoding:
+    0:      3'--1  <RESET STATE>
+    1:      3'-1-
+    2:      3'1--
+
+  Transition Table (state_in, ctrl_in, state_out, ctrl_out):
+      0:     0 4'---0   ->     0 3'001
+      1:     0 4'-0-1   ->     1 3'001
+      2:     0 4'-1-1   ->     2 3'001
+      3:     1 4'--1-   ->     0 3'010
+      4:     1 4'--0-   ->     1 3'010
+      5:     2 4'1---   ->     0 3'100
+      6:     2 4'0---   ->     2 3'100
+
+-------------------------------------
+
+FSM `$fsm$\wstate$597' from module `axi_firewall':
+-------------------------------------
+
+  Information on FSM $fsm$\wstate$597 (\wstate):
+
+  Number of input signals:    5
+  Number of output signals:   3
+  Number of state bits:       3
+
+  Input signals:
+    0: \u_bready
+    1: \rd_allowed
+    2: $logic_or$../rtl/fabric/axi_firewall.v:207$11_Y
+    3: $logic_or$../rtl/fabric/axi_firewall.v:208$12_Y
+    4: $logic_and$../rtl/fabric/axi_firewall.v:237$14_Y
+
+  Output signals:
+    0: $procmux$216_CMP
+    1: $procmux$242_CMP
+    2: $procmux$245_CMP
+
+  State encoding:
+    0:      3'--1  <RESET STATE>
+    1:      3'-1-
+    2:      3'1--
+
+  Transition Table (state_in, ctrl_in, state_out, ctrl_out):
+      0:     0 5'--0--   ->     0 3'001
+      1:     0 5'-01--   ->     0 3'001
+      2:     0 5'-110-   ->     1 3'001
+      3:     0 5'-111-   ->     2 3'001
+      4:     1 5'----1   ->     0 3'010
+      5:     1 5'----0   ->     1 3'010
+      6:     2 5'1----   ->     0 3'100
+      7:     2 5'0----   ->     2 3'100
+
+-------------------------------------
+
+3.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+Mapping FSM `$fsm$\rstate$592' from module `\axi_firewall'.
+Mapping FSM `$fsm$\wstate$597' from module `\axi_firewall'.
+
+3.8. Executing OPT pass (performing simple optimizations).
+
+3.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+<suppressed ~10 debug messages>
+
+3.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 203 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Removed a total of 0 cells.
+
+3.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \axi_firewall..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~144 debug messages>
+
+3.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \axi_firewall.
+Performed a total of 0 changes.
+
+3.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 203 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Removed a total of 0 cells.
+
+3.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$512 ($adff) from module axi_firewall (D = $0\u_bresp[1:0], Q = \u_bresp).
+Adding EN signal on $procdff$434 ($adff) from module axi_firewall (D = $0\u_rdata[31:0], Q = \u_rdata).
+Adding EN signal on $procdff$557 ($adff) from module axi_firewall (D = \aw_addr_lat, Q = \last_denied_addr).
+Adding EN signal on $procdff$459 ($adff) from module axi_firewall (D = $0\d_rready[0:0], Q = \d_rready).
+Adding EN signal on $procdff$537 ($adff) from module axi_firewall (D = \u_wstrb, Q = \d_wstrb).
+Adding EN signal on $procdff$414 ($adff) from module axi_firewall (D = $0\f_aw_done[0:0], Q = \f_aw_done).
+Adding EN signal on $procdff$487 ($dff) from module axi_firewall (D = $procmux$139_Y, Q = \deny_count).
+Adding EN signal on $procdff$424 ($adff) from module axi_firewall (D = \f_awaddr, Q = \f_awaddr_lat).
+Adding EN signal on $procdff$439 ($adff) from module axi_firewall (D = $0\u_rresp[1:0], Q = \u_rresp).
+Adding EN signal on $procdff$517 ($adff) from module axi_firewall (D = $0\u_bvalid[0:0], Q = \u_bvalid).
+Adding EN signal on $procdff$367 ($adff) from module axi_firewall (D = $procmux$98_Y, Q = \f_bresp).
+Adding EN signal on $procdff$372 ($adff) from module axi_firewall (D = $0\f_bvalid[0:0], Q = \f_bvalid).
+Adding EN signal on $procdff$542 ($adff) from module axi_firewall (D = $0\d_wvalid[0:0], Q = \d_wvalid).
+Adding EN signal on $procdff$587 ($adff) from module axi_firewall (D = \u_awaddr, Q = \aw_addr_lat).
+Adding EN signal on $procdff$582 ($adff) from module axi_firewall (D = $0\w_captured[0:0], Q = \w_captured).
+Adding EN signal on $procdff$444 ($adff) from module axi_firewall (D = $0\u_rvalid[0:0], Q = \u_rvalid).
+Adding EN signal on $procdff$522 ($adff) from module axi_firewall (D = \aw_addr_lat, Q = \d_awaddr).
+Adding EN signal on $procdff$382 ($adff) from module axi_firewall (D = $procmux$85_Y, Q = \f_rdata).
+Adding EN signal on $procdff$466 ($dff) from module axi_firewall (D = 1'1, Q = \deny_irq).
+Adding EN signal on $procdff$577 ($adff) from module axi_firewall (D = $0\aw_captured[0:0], Q = \aw_captured).
+Adding EN signal on $procdff$387 ($adff) from module axi_firewall (D = $procmux$76_Y, Q = \f_rresp).
+Adding EN signal on $procdff$497 ($adff) from module axi_firewall (D = \u_araddr, Q = \ar_addr_lat).
+Adding EN signal on $procdff$567 ($adff) from module axi_firewall (D = $procmux$139_Y, Q = \deny_count).
+Adding EN signal on $procdff$392 ($adff) from module axi_firewall (D = $0\f_rvalid[0:0], Q = \f_rvalid).
+Adding EN signal on $procdff$449 ($adff) from module axi_firewall (D = \ar_addr_lat, Q = \d_araddr).
+Adding EN signal on $procdff$527 ($adff) from module axi_firewall (D = $0\d_awvalid[0:0], Q = \d_awvalid).
+Adding EN signal on $procdff$397 ($adff) from module axi_firewall (D = \f_wdata, Q = \perm_table).
+Adding EN signal on $procdff$473 ($dff) from module axi_firewall (D = \u_araddr, Q = \last_denied_addr).
+Adding EN signal on $procdff$532 ($adff) from module axi_firewall (D = \u_wdata, Q = \d_wdata).
+Adding EN signal on $procdff$547 ($adff) from module axi_firewall (D = $0\d_bready[0:0], Q = \d_bready).
+Adding EN signal on $procdff$402 ($adff) from module axi_firewall (D = 1'1, Q = \table_locked).
+Adding EN signal on $procdff$419 ($adff) from module axi_firewall (D = $0\f_w_done[0:0], Q = \f_w_done).
+Adding EN signal on $procdff$480 ($dff) from module axi_firewall (D = $procmux$149_Y, Q = \last_denied_master).
+Adding EN signal on $procdff$562 ($adff) from module axi_firewall (D = $procmux$149_Y, Q = \last_denied_master).
+Adding EN signal on $procdff$409 ($dff) from module axi_firewall (D = 16'0000000000000000, Q = \deny_count).
+Adding EN signal on $procdff$454 ($adff) from module axi_firewall (D = $0\d_arvalid[0:0], Q = \d_arvalid).
+Setting constant 0-bit at position 0 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 1 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 2 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 3 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 4 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 5 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 6 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 7 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 8 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 9 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 10 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 11 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 12 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 13 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 14 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 0-bit at position 15 on $auto$ff.cc:337:slice$786 ($dffe) from module axi_firewall.
+Setting constant 1-bit at position 0 on $auto$ff.cc:337:slice$730 ($dffe) from module axi_firewall.
+
+3.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+Warning: Driver-driver conflict for \deny_count [0] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [1] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [2] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [3] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [4] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [5] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [6] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [7] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [8] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [9] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [10] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [11] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [12] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [13] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [14] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [15] between cell $auto$ff.cc:337:slice$750.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [0] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [1] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [2] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [3] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [4] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [5] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [6] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [7] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [8] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [9] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [10] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [11] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [12] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [13] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [14] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_count [15] between cell $auto$ff.cc:337:slice$694.Q and constant 1'0 in axi_firewall: Resolved using constant.
+Warning: Driver-driver conflict for \deny_irq between cell $procdff$552.Q and constant 1'1 in axi_firewall: Resolved using constant.
+Removed 59 unused cells and 72 unused wires.
+<suppressed ~60 debug messages>
+
+3.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+<suppressed ~16 debug messages>
+
+3.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \axi_firewall..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~71 debug messages>
+
+3.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \axi_firewall.
+    New ctrl vector for $pmux cell $procmux$85: { $procmux$81_CMP $procmux$80_CMP $procmux$79_CMP $procmux$78_CMP }
+  Optimizing cells in module \axi_firewall.
+Performed a total of 1 changes.
+
+3.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 182 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Computing hashes of 170 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+<suppressed ~36 debug messages>
+Removed a total of 12 cells.
+
+3.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+Removed 0 unused cells and 12 unused wires.
+<suppressed ~1 debug messages>
+
+3.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+
+3.8.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.8.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \axi_firewall..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~75 debug messages>
+
+3.8.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \axi_firewall.
+Performed a total of 0 changes.
+
+3.8.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 170 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Removed a total of 0 cells.
+
+3.8.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.8.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+
+3.8.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+
+3.8.23. Finished fast OPT passes. (There is nothing left to do.)
+
+3.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 1 bits (of 2) from port B of cell axi_firewall.$auto$opt_dff.cc:235:make_patterns_logic$741 ($ne).
+Removed top 1 bits (of 2) from port B of cell axi_firewall.$auto$opt_dff.cc:235:make_patterns_logic$722 ($ne).
+Removed top 1 bits (of 2) from port B of cell axi_firewall.$auto$opt_dff.cc:235:make_patterns_logic$720 ($ne).
+Removed top 27 bits (of 32) from FF cell axi_firewall.$auto$ff.cc:337:slice$697 ($adffe).
+Removed top 1 bits (of 2) from port B of cell axi_firewall.$auto$fsm_map.cc:77:implement_pattern_cache$650 ($eq).
+Removed top 1 bits (of 2) from port B of cell axi_firewall.$auto$fsm_map.cc:77:implement_pattern_cache$620 ($eq).
+Removed top 3 bits (of 5) from port B of cell axi_firewall.$add$../rtl/fabric/axi_firewall.v:149$2 ($add).
+Removed top 1 bits (of 3) from port B of cell axi_firewall.$procmux$87_CMP0 ($eq).
+Removed top 1 bits (of 3) from port B of cell axi_firewall.$procmux$88_CMP0 ($eq).
+Removed top 2 bits (of 3) from port B of cell axi_firewall.$procmux$89_CMP0 ($eq).
+Removed top 2 bits (of 3) from port B of cell axi_firewall.$procmux$100_CMP0 ($eq).
+Removed top 27 bits (of 32) from wire axi_firewall.f_awaddr_lat.
+
+3.10. Executing PEEPOPT pass (run peephole optimizers).
+
+3.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+3.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module axi_firewall:
+  creating $macc model for $add$../rtl/fabric/axi_firewall.v:149$2 ($add).
+  creating $alu model for $macc $add$../rtl/fabric/axi_firewall.v:149$2.
+  creating $alu cell for $add$../rtl/fabric/axi_firewall.v:149$2: $auto$alumacc.cc:512:replace_alu$793
+  created 1 $alu and 0 $macc cells.
+
+3.13. Executing SHARE pass (SAT-based resource sharing).
+
+3.14. Executing OPT pass (performing simple optimizations).
+
+3.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+
+3.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 170 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Removed a total of 0 cells.
+
+3.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \axi_firewall..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~75 debug messages>
+
+3.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \axi_firewall.
+Performed a total of 0 changes.
+
+3.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 170 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Removed a total of 0 cells.
+
+3.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+
+3.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+
+3.14.9. Finished fast OPT passes. (There is nothing left to do.)
+
+3.15. Executing MEMORY pass.
+
+3.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+3.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+3.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+3.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+3.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+3.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+
+3.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+3.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+3.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+
+3.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+3.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+
+3.17. Executing OPT pass (performing simple optimizations).
+
+3.17.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+<suppressed ~41 debug messages>
+
+3.17.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 156 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Computing hashes of 152 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+<suppressed ~12 debug messages>
+Removed a total of 4 cells.
+
+3.17.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.17.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+Removed 0 unused cells and 20 unused wires.
+<suppressed ~2 debug messages>
+
+3.17.5. Finished fast OPT passes.
+
+3.18. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+
+3.19. Executing OPT pass (performing simple optimizations).
+
+3.19.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+<suppressed ~3 debug messages>
+
+3.19.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 151 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Removed a total of 0 cells.
+
+3.19.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \axi_firewall..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~21 debug messages>
+
+3.19.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \axi_firewall.
+    New ctrl vector for $pmux cell $procmux$252: $auto$opt_reduce.cc:137:opt_pmux$797
+    Consolidated identical input bits for $mux cell $procmux$102:
+      Old ports: A=2'00, B=2'10, Y=$procmux$102_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$102_Y [1]
+      New connections: $procmux$102_Y [0] = 1'0
+    Consolidated identical input bits for $mux cell $procmux$76:
+      Old ports: A=2'10, B=2'00, Y=$procmux$76_Y
+      New ports: A=1'1, B=1'0, Y=$procmux$76_Y [1]
+      New connections: $procmux$76_Y [0] = 1'0
+  Optimizing cells in module \axi_firewall.
+    Consolidated identical input bits for $pmux cell $procmux$98:
+      Old ports: A=2'10, B={ $procmux$102_Y 2'00 }, Y=$procmux$98_Y
+      New ports: A=1'1, B={ $procmux$102_Y [1] 1'0 }, Y=$procmux$98_Y [1]
+      New connections: $procmux$98_Y [0] = 1'0
+  Optimizing cells in module \axi_firewall.
+Performed a total of 4 changes.
+
+3.19.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 152 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Removed a total of 0 cells.
+
+3.19.6. Executing OPT_SHARE pass.
+
+3.19.7. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.19.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+
+3.19.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+<suppressed ~3 debug messages>
+
+3.19.10. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.19.11. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \axi_firewall..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~16 debug messages>
+
+3.19.12. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \axi_firewall.
+Performed a total of 0 changes.
+
+3.19.13. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 151 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Removed a total of 0 cells.
+
+3.19.14. Executing OPT_SHARE pass.
+
+3.19.15. Executing OPT_DFF pass (perform DFF optimizations).
+Setting constant 0-bit at position 0 on $auto$ff.cc:337:slice$746 ($adffe) from module axi_firewall.
+Setting constant 0-bit at position 0 on $auto$ff.cc:337:slice$704 ($adffe) from module axi_firewall.
+
+3.19.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+3.19.17. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+
+3.19.18. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.19.19. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \axi_firewall..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~16 debug messages>
+
+3.19.20. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \axi_firewall.
+Performed a total of 0 changes.
+
+3.19.21. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 151 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Removed a total of 0 cells.
+
+3.19.22. Executing OPT_SHARE pass.
+
+3.19.23. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.19.24. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+
+3.19.25. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+
+3.19.26. Finished fast OPT passes. (There is nothing left to do.)
+
+3.20. Executing TECHMAP pass (map to technology primitives).
+
+3.20.1. Executing Verilog-2005 frontend: /opt/homebrew/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/opt/homebrew/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `$__div_mod_u'.
+Generating RTLIL representation for module `$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Generating RTLIL representation for module `$connect'.
+Generating RTLIL representation for module `$input_port'.
+Successfully finished Verilog frontend.
+
+3.20.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $adffe.
+Using extmapper simplemap for cells of type $reduce_or.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $dffe.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $ne.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $adff.
+Using template $paramod$constmap:72fea0cd6927a9676e2527442b1383d29cc29f51$paramod$e194a9e890de0a7be18db8bd15a1479dea055e42\_90_shift_shiftx for cells of type $shiftx.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $logic_or.
+Using template $paramod$b098bc6f249c0ac91c4d6e19d54b23c285914115\_90_pmux for cells of type $pmux.
+Using template $paramod$c5c783b17ab1d780abfad8cfe6563a0a7b47a3b0\_90_pmux for cells of type $pmux.
+Using extmapper simplemap for cells of type $mux.
+No more expansions possible.
+<suppressed ~501 debug messages>
+
+3.21. Executing OPT pass (performing simple optimizations).
+
+3.21.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+<suppressed ~194 debug messages>
+
+3.21.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 924 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Computing hashes of 906 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+<suppressed ~54 debug messages>
+Removed a total of 18 cells.
+
+3.21.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.21.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+Removed 131 unused cells and 234 unused wires.
+<suppressed ~132 debug messages>
+
+3.21.5. Finished fast OPT passes.
+
+3.22. Executing ABC pass (technology mapping using ABC).
+
+3.22.1. Extracting gate netlist of module `\axi_firewall' to `<abc-temp-dir>/input.blif'..
+
+3.22.1.1. Executed ABC.
+Extracted 412 gates and 588 wires to a netlist network with 174 inputs and 112 outputs.
+Running ABC script: <abc-temp-dir>/abc.script
+ABC: ======== ABC command line "source <abc-temp-dir>/abc.script"
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_library <abc-temp-dir>/stdcells.genlib 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+3.22.1.2. Re-integrating ABC results.
+ABC RESULTS:               AND cells:       59
+ABC RESULTS:            ANDNOT cells:       29
+ABC RESULTS:               MUX cells:       22
+ABC RESULTS:              NAND cells:      132
+ABC RESULTS:               NOR cells:       11
+ABC RESULTS:               NOT cells:        7
+ABC RESULTS:                OR cells:       44
+ABC RESULTS:             ORNOT cells:       19
+ABC RESULTS:        internal signals:      302
+ABC RESULTS:           input signals:      174
+ABC RESULTS:          output signals:      112
+Removing temp directory.
+Removing global temp directory.
+
+3.23. Executing OPT pass (performing simple optimizations).
+
+3.23.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module axi_firewall.
+<suppressed ~3 debug messages>
+
+3.23.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\axi_firewall'.
+Computing hashes of 686 cells of `\axi_firewall'.
+Finding duplicate cells in `\axi_firewall'.
+Removed a total of 0 cells.
+
+3.23.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.23.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \axi_firewall..
+Removed 1 unused cells and 425 unused wires.
+<suppressed ~4 debug messages>
+
+3.23.5. Finished fast OPT passes.
+
+3.24. Executing HIERARCHY pass (managing design hierarchy).
+Attribute `top' found on module `axi_firewall'. Setting top module to axi_firewall.
+
+3.24.1. Analyzing design hierarchy..
+Top module:  \axi_firewall
+
+3.24.2. Analyzing design hierarchy..
+Top module:  \axi_firewall
+Removed 0 unused modules.
+
+3.25. Printing statistics.
+
+=== axi_firewall ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      329 wires
+      935 wire bits
+       71 public wires
+      613 public wire bits
+       56 ports
+      446 port bits
+      685 cells
+       29   $_ANDNOT_
+       59   $_AND_
+      308   $_DFFE_PN0P_
+        9   $_DFFE_PN1P_
+       34   $_DFFE_PP_
+       10   $_DFF_PN0_
+        2   $_DFF_PN1_
+       22   $_MUX_
+      132   $_NAND_
+       11   $_NOR_
+        6   $_NOT_
+       19   $_ORNOT_
+       44   $_OR_
+
+3.26. Executing CHECK pass (checking for obvious problems).
+Checking module axi_firewall...
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_master [1]:
+    port Q[0] of cell $auto$ff.cc:337:slice$887 ($_DFFE_PN0P_)
+    port Q[0] of cell $auto$ff.cc:337:slice$893 ($_DFFE_PP_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [31]:
+    port Q[0] of cell $auto$ff.cc:337:slice$971 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1281 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_master [0]:
+    port Q[0] of cell $auto$ff.cc:337:slice$892 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$886 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [0]:
+    port Q[0] of cell $auto$ff.cc:337:slice$940 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1250 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [1]:
+    port Q[0] of cell $auto$ff.cc:337:slice$941 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1251 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [2]:
+    port Q[0] of cell $auto$ff.cc:337:slice$942 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1252 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [3]:
+    port Q[0] of cell $auto$ff.cc:337:slice$943 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1253 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [4]:
+    port Q[0] of cell $auto$ff.cc:337:slice$944 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1254 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [5]:
+    port Q[0] of cell $auto$ff.cc:337:slice$945 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1255 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [6]:
+    port Q[0] of cell $auto$ff.cc:337:slice$946 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1256 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [7]:
+    port Q[0] of cell $auto$ff.cc:337:slice$947 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1257 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [8]:
+    port Q[0] of cell $auto$ff.cc:337:slice$948 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1258 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [9]:
+    port Q[0] of cell $auto$ff.cc:337:slice$949 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1259 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [10]:
+    port Q[0] of cell $auto$ff.cc:337:slice$950 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1260 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [11]:
+    port Q[0] of cell $auto$ff.cc:337:slice$951 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1261 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [12]:
+    port Q[0] of cell $auto$ff.cc:337:slice$952 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1262 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [13]:
+    port Q[0] of cell $auto$ff.cc:337:slice$953 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1263 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [14]:
+    port Q[0] of cell $auto$ff.cc:337:slice$954 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1264 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [15]:
+    port Q[0] of cell $auto$ff.cc:337:slice$955 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1265 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [16]:
+    port Q[0] of cell $auto$ff.cc:337:slice$956 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1266 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [17]:
+    port Q[0] of cell $auto$ff.cc:337:slice$957 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1267 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [18]:
+    port Q[0] of cell $auto$ff.cc:337:slice$958 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1268 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [19]:
+    port Q[0] of cell $auto$ff.cc:337:slice$959 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1269 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [20]:
+    port Q[0] of cell $auto$ff.cc:337:slice$960 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1270 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [21]:
+    port Q[0] of cell $auto$ff.cc:337:slice$961 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1271 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [22]:
+    port Q[0] of cell $auto$ff.cc:337:slice$962 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1272 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [23]:
+    port Q[0] of cell $auto$ff.cc:337:slice$963 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1273 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [24]:
+    port Q[0] of cell $auto$ff.cc:337:slice$964 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1274 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [25]:
+    port Q[0] of cell $auto$ff.cc:337:slice$965 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1275 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [26]:
+    port Q[0] of cell $auto$ff.cc:337:slice$966 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1276 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [27]:
+    port Q[0] of cell $auto$ff.cc:337:slice$967 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1277 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [28]:
+    port Q[0] of cell $auto$ff.cc:337:slice$968 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1278 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [29]:
+    port Q[0] of cell $auto$ff.cc:337:slice$969 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1279 ($_DFFE_PN0P_)
+Warning: multiple conflicting drivers for axi_firewall.\last_denied_addr [30]:
+    port Q[0] of cell $auto$ff.cc:337:slice$970 ($_DFFE_PP_)
+    port Q[0] of cell $auto$ff.cc:337:slice$1280 ($_DFFE_PN0P_)
+Found and reported 34 problems.
+
+4. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell DFF_X1 (noninv, pins=4, area=4.52) is a direct match for cell type $_DFF_P_.
+  cell DFFR_X1 (noninv, pins=5, area=5.32) is a direct match for cell type $_DFF_PN0_.
+  cell DFFS_X1 (noninv, pins=5, area=5.32) is a direct match for cell type $_DFF_PN1_.
+  cell DFFRS_X1 (noninv, pins=6, area=6.38) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \DFF_X1 _DFF_P_ (.CK( C), .D( D), .Q( Q), .QN(~Q));
+    unmapped dff cell: $_DFF_NN0_
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \DFFR_X1 _DFF_PN0_ (.CK( C), .D( D), .Q( Q), .QN(~Q), .RN( R));
+    \DFFS_X1 _DFF_PN1_ (.CK( C), .D( D), .Q( Q), .QN(~Q), .SN( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    unmapped dff cell: $_DFFE_PP_
+    unmapped dff cell: $_DFFSR_NNN_
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \DFFRS_X1 _DFFSR_PNN_ (.CK( C), .D( D), .Q( Q), .QN(~Q), .RN( R), .SN( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+4.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~8 debug messages>
+Mapping DFF cells in module `\axi_firewall':
+  mapped 318 $_DFF_PN0_ cells to \DFFR_X1 cells.
+  mapped 11 $_DFF_PN1_ cells to \DFFS_X1 cells.
+  mapped 34 $_DFF_P_ cells to \DFF_X1 cells.
+
+5. Executing ABC pass (technology mapping using ABC).
+
+5.1. Extracting gate netlist of module `\axi_firewall' to `<abc-temp-dir>/input.blif'..
+
+5.1.1. Executed ABC.
+Extracted 673 gates and 1192 wires to a netlist network with 518 inputs and 363 outputs.
+Running ABC script: <abc-temp-dir>/abc.script
+ABC: ======== ABC command line "source <abc-temp-dir>/abc.script"
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/synth/../pdk/nangate45/NangateOpenCellLibrary_typical.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.04 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "ANTENNA_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFRS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFRS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFR_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFR_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFF_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFF_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLH_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLH_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLL_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLL_X2".
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "TAPCELL_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X2" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X4" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X8" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X16" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X32" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "LOGIC0_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "LOGIC1_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFRS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFRS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFR_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFR_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFF_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFF_X2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X16".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TINV_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "TLAT_X1".
+ABC: Library "NangateOpenCellLibrary" from "/Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/synth/../pdk/nangate45/NangateOpenCellLibrary_typical.lib" has 90 cells (45 skipped: 21 seq; 6 tri-state; 8 no func; 10 dont_use; 0 with 2 outputs; 0 with 3+ outputs).  Time =     0.06 sec
+ABC: Memory =   11.38 MB. Time =     0.06 sec
+ABC: Warning: Detected 2 multi-output cells (for example, "FA_X1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+5.1.2. Re-integrating ABC results.
+ABC RESULTS:           AND2_X1 cells:        1
+ABC RESULTS:           AND3_X1 cells:        1
+ABC RESULTS:           AND4_X1 cells:        1
+ABC RESULTS:         AOI211_X1 cells:        3
+ABC RESULTS:          AOI21_X1 cells:       47
+ABC RESULTS:         AOI221_X1 cells:       38
+ABC RESULTS:          AOI22_X1 cells:       15
+ABC RESULTS:            INV_X1 cells:      102
+ABC RESULTS:           MUX2_X1 cells:      283
+ABC RESULTS:          NAND2_X1 cells:       26
+ABC RESULTS:          NAND3_X1 cells:        3
+ABC RESULTS:          NAND4_X1 cells:        4
+ABC RESULTS:           NOR2_X1 cells:       14
+ABC RESULTS:           NOR3_X1 cells:        5
+ABC RESULTS:           NOR4_X1 cells:        5
+ABC RESULTS:         OAI211_X1 cells:        2
+ABC RESULTS:          OAI21_X1 cells:       15
+ABC RESULTS:         OAI221_X1 cells:        1
+ABC RESULTS:          OAI22_X1 cells:       27
+ABC RESULTS:            OR2_X1 cells:        4
+ABC RESULTS:            OR3_X1 cells:        1
+ABC RESULTS:        internal signals:      311
+ABC RESULTS:           input signals:      518
+ABC RESULTS:          output signals:      363
+Removing temp directory.
+Removing global temp directory.
+Removed 0 unused cells and 1127 unused wires.
+
+6. Printing statistics.
+
+=== axi_firewall ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+     1032        - wires
+     1574        - wire bits
+       71        - public wires
+      613        - public wire bits
+       56        - ports
+      446        - port bits
+      961 2.74E+03 cells
+        1    1.064   AND2_X1
+        1     1.33   AND3_X1
+        1    1.596   AND4_X1
+        3     3.99   AOI211_X1
+       47   50.008   AOI21_X1
+       38   60.648   AOI221_X1
+       15    19.95   AOI22_X1
+      318  1691.76   DFFR_X1
+       11    58.52   DFFS_X1
+       34  153.748   DFF_X1
+      102   54.264   INV_X1
+      283  526.946   MUX2_X1
+       26   20.748   NAND2_X1
+        3    3.192   NAND3_X1
+        4     5.32   NAND4_X1
+       14   11.172   NOR2_X1
+        5     5.32   NOR3_X1
+        5     6.65   NOR4_X1
+        2     2.66   OAI211_X1
+       15    15.96   OAI21_X1
+        1    1.596   OAI221_X1
+       27    35.91   OAI22_X1
+        4    4.256   OR2_X1
+        1     1.33   OR3_X1
+
+   Chip area for module '\axi_firewall': 2737.938000
+     of which used for sequential elements: 1904.028000 (69.54%)
+
+7. Executing Verilog backend.
+Dumping module `\axi_firewall'.
+
+Warnings: 118 unique messages, 118 total
+End of script. Logfile hash: bf3f7a78a2, time: 2.04s, user: 0.23s, system: 0.02s, MEM: 38.03 MB peak
+Yosys 0.64 (git sha1 d8dab5b32666564eca8e18f412973853ce006e61, clang++ 21.0.0 -fPIC -O3)
+Time spent: 60% 2x abc (0 sec), 5% 1x dfflibmap (0 sec), ...

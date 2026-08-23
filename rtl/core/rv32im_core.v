@@ -22,8 +22,12 @@
 `timescale 1ns/1ps
 
 module rv32im_core #(
-    parameter RESET_ADDR = 32'h0000_0000,
-    parameter WDT_DEFAULT = 24'hFFFFFF
+    parameter RESET_ADDR  = 32'h0000_0000,
+    parameter WDT_DEFAULT = 24'hFFFFFF,
+    parameter WDT_BITS    = 24,         // watchdog counter width
+    parameter PC_GUARD_EN = 1,          // 1=enable PC range guard CSRs
+    parameter ECC_EN      = 1,          // 1=enable Hamming(7,4) on regfile
+    parameter PARITY_EN   = 1           // 1=enable instruction fetch parity trap
 )(
     input  wire        clk,
     input  wire        rst_n,

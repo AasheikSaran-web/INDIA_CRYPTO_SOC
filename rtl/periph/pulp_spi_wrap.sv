@@ -82,14 +82,11 @@ module pulp_spi_wrap #(
     localparam logic [11:0] ADDR_MAX_LEN  = 12'hF8;
     localparam logic [11:0] ADDR_CS_LOCK  = 12'hFC;
 
-    function automatic logic is_local_addr(input logic [11:0] addr);
-        return (addr == ADDR_MAX_LEN) || (addr == ADDR_CS_LOCK);
-    endfunction
-
+    // Inline address decode (Yosys-compatible — avoids SV function return with ||)
     logic axil_local_wr;
     logic axil_local_rd;
-    assign axil_local_wr = s_awvalid && is_local_addr(s_awaddr);
-    assign axil_local_rd = s_arvalid && is_local_addr(s_araddr);
+    assign axil_local_wr = s_awvalid & ((s_awaddr == ADDR_MAX_LEN) | (s_awaddr == ADDR_CS_LOCK));
+    assign axil_local_rd = s_arvalid & ((s_araddr == ADDR_MAX_LEN) | (s_araddr == ADDR_CS_LOCK));
 
     // ----------------------------------------------------------------
     // Local write handshake FSM

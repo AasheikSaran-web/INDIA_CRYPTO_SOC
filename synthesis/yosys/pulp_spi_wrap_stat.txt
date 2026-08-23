@@ -1,0 +1,127 @@
+
+8. Printing statistics.
+
+=== pulp_spi_wrap ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      223        - wires
+      512        - wire bits
+       56        - public wires
+      345        - public wire bits
+       25        - ports
+      114        - port bits
+      223  385.434 cells
+       39   41.496   AND2_X1
+        1     1.33   AND3_X1
+        2    3.192   AND4_X1
+        3     3.99   AOI211_X1
+        1    1.596   AOI221_X1
+        1     1.33   AOI22_X1
+       24   127.68   DFFR_X1
+       10     53.2   DFFS_X1
+       31   16.492   INV_X1
+       26   48.412   MUX2_X1
+       24   19.152   NAND2_X1
+        1    1.064   NAND3_X1
+        7     9.31   NAND4_X1
+       10     7.98   NOR2_X1
+        5     5.32   NOR3_X1
+        6     7.98   NOR4_X1
+       15    15.96   OAI21_X1
+        1    2.128   OAI222_X1
+        4     5.32   OAI22_X1
+        8    8.512   OR2_X1
+        3     3.99   OR3_X1
+        1        -   apb_spi_master
+        1        - submodules
+        1        -   axil_to_apb
+
+   Area for cell type \apb_spi_master is unknown!
+
+   Chip area for module '\pulp_spi_wrap': 385.434000
+     of which used for sequential elements: 180.880000 (46.93%)
+
+=== axil_to_apb ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      236        - wires
+      474        - wire bits
+       35        - public wires
+      273        - public wire bits
+       27        - ports
+      189        - port bits
+      206  641.326 cells
+        1     1.33   AND3_X1
+        3    3.192   AOI21_X1
+        2     2.66   AOI22_X1
+       83   441.56   DFFR_X1
+        1     5.32   DFFS_X1
+        9    4.788   INV_X1
+       89  165.718   MUX2_X1
+        4    3.192   NAND2_X1
+        1     1.33   NAND4_X1
+        7    5.586   NOR2_X1
+        2    2.128   NOR3_X1
+        1     1.33   NOR4_X1
+        2    2.128   OAI21_X1
+        1    1.064   OR2_X1
+
+   Chip area for module '\axil_to_apb': 641.326000
+     of which used for sequential elements: 446.880000 (69.68%)
+
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        |        +-Area including submodules.
+        |        | 
+      429  1026.76 pulp_spi_wrap
+      206  641.326 axil_to_apb
+
+        +----------Count including submodules.
+        |        +-Area including submodules.
+        |        | 
+      459        - wires
+      986        - wire bits
+       91        - public wires
+      618        - public wire bits
+       52        - ports
+      303        - port bits
+        -        - memories
+        -        - memory bits
+        -        - processes
+      429  1026.76 cells
+       39   41.496   AND2_X1
+        2     2.66   AND3_X1
+        2    3.192   AND4_X1
+        3     3.99   AOI211_X1
+        3    3.192   AOI21_X1
+        1    1.596   AOI221_X1
+        3     3.99   AOI22_X1
+      107   569.24   DFFR_X1
+       11    58.52   DFFS_X1
+       40    21.28   INV_X1
+      115   214.13   MUX2_X1
+       28   22.344   NAND2_X1
+        1    1.064   NAND3_X1
+        8    10.64   NAND4_X1
+       17   13.566   NOR2_X1
+        7    7.448   NOR3_X1
+        7     9.31   NOR4_X1
+       17   18.088   OAI21_X1
+        1    2.128   OAI222_X1
+        4     5.32   OAI22_X1
+        9    9.576   OR2_X1
+        3     3.99   OR3_X1
+        1        -   apb_spi_master
+        1  641.326 submodules
+        1  641.326   axil_to_apb
+
+   Area for cell type \apb_spi_master is unknown!
+
+   Chip area for top module '\pulp_spi_wrap': 1026.760000
+     of which used for sequential elements: 627.760000 (61.14%)
+

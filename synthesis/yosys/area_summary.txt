@@ -1,0 +1,14 @@
+
+Module                      Cells     Area (um2)     DFFs
+------                      -----     ----------     ----
+aes_ca_accel                    -   63848.246000        0
+aes_isa_ext                     -    2166.038000        0
+axi_firewall                    -    2737.938000        0
+axi_lite_xbar                   -    2245.040000        0
+axil_to_apb                     -     641.326000        0
+hamming_dec                     -     288.078000        0
+hamming_enc                     -     172.368000        0
+india_pdf_engine                -   32088.112000        0
+pulp_spi_wrap                   -    1026.760000        0
+rosc_trng                       -    1791.244000        0
+rv32im_core                     -   33145.196000        0

@@ -46,6 +46,8 @@
 module axi_firewall #(
     parameter N_SLAVES        = 8,
     parameter N_MASTERS       = 4,
+    parameter LOG_DEPTH       = 4,            // deny-log FIFO depth (2^LOG_DEPTH entries)
+    parameter [31:0] LOCK_KEY = 32'hDEADBEEF, // magic value to lock permission table
     // Default: CPU (id=0) allowed on every slave, DMA (id=1) allowed on s1
     // bit[slave*N_MASTERS + master]: slave 0..7, master 0..3
     // CPU (master 0) bits: bit 0, 4, 8, 12, 16, 20, 24, 28 => all set

@@ -1,0 +1,1166 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.64 (git sha1 d8dab5b32666564eca8e18f412973853ce006e61, clang++ 21.0.0 -fPIC -O3)
+
+-- Executing script file `/tmp/yosys_XXXXXX.ys' --
+
+1. Executing Verilog-2005 frontend: ../rtl/crypto/rosc_trng.v
+Parsing SystemVerilog input from `../rtl/crypto/rosc_trng.v' to AST representation.
+Generating RTLIL representation for module `\rosc_trng'.
+Successfully finished Verilog frontend.
+
+2. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1. Analyzing design hierarchy..
+Top module:  \rosc_trng
+
+2.2. Analyzing design hierarchy..
+Top module:  \rosc_trng
+Removed 0 unused modules.
+
+3. Executing SYNTH pass.
+
+3.1. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1.1. Analyzing design hierarchy..
+Top module:  \rosc_trng
+
+3.1.2. Analyzing design hierarchy..
+Top module:  \rosc_trng
+Removed 0 unused modules.
+
+3.2. Executing PROC pass (convert processes to netlists).
+
+3.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+3.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 2 switch rules as full_case in process $proc$../rtl/crypto/rosc_trng.v:433$50 in module rosc_trng.
+Marked 1 switch rules as full_case in process $proc$../rtl/crypto/rosc_trng.v:373$40 in module rosc_trng.
+Marked 1 switch rules as full_case in process $proc$../rtl/crypto/rosc_trng.v:337$34 in module rosc_trng.
+Marked 1 switch rules as full_case in process $proc$../rtl/crypto/rosc_trng.v:301$29 in module rosc_trng.
+Marked 3 switch rules as full_case in process $proc$../rtl/crypto/rosc_trng.v:263$25 in module rosc_trng.
+Marked 1 switch rules as full_case in process $proc$../rtl/crypto/rosc_trng.v:243$21 in module rosc_trng.
+Marked 3 switch rules as full_case in process $proc$../rtl/crypto/rosc_trng.v:186$14 in module rosc_trng.
+Marked 3 switch rules as full_case in process $proc$../rtl/crypto/rosc_trng.v:148$8 in module rosc_trng.
+Marked 1 switch rules as full_case in process $proc$../rtl/crypto/rosc_trng.v:101$3 in module rosc_trng.
+Marked 1 switch rules as full_case in process $proc$../rtl/crypto/rosc_trng.v:78$1 in module rosc_trng.
+Removed a total of 0 dead cases.
+
+3.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 17 redundant assignments.
+Promoted 0 assignments to connections.
+
+3.2.4. Executing PROC_INIT pass (extract init attributes).
+
+3.2.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:433$50'.
+Found async reset \rst_n in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+Found async reset \rst_n in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:337$34'.
+Found async reset \rst_n in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:301$29'.
+Found async reset \rst_n in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:263$25'.
+Found async reset \rst_n in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:243$21'.
+Found async reset \rst_n in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:186$14'.
+Found async reset \rst_n in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:148$8'.
+Found async reset \rst_n in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:101$3'.
+Found async reset \rst_n in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:78$1'.
+
+3.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~25 debug messages>
+
+3.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:433$50'.
+     1/5: $0\axi_consume[0:0]
+     2/5: $0\s_axil_arready[0:0]
+     3/5: $0\s_axil_rvalid[0:0]
+     4/5: $0\s_axil_rresp[1:0]
+     5/5: $0\s_axil_rdata[31:0]
+Creating decoders for process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+     1/10: $0\ctrl_rst_health_r[0:0]
+     2/10: $0\s_axil_wready[0:0]
+     3/10: $0\s_axil_awready[0:0]
+     4/10: $0\aw_addr_pending[0:0]
+     5/10: $0\aw_addr_lat[11:0]
+     6/10: $0\ctrl_bypass_vn_r[0:0]
+     7/10: $0\ctrl_test_mode_r[0:0]
+     8/10: $0\ctrl_enable_r[0:0]
+     9/10: $0\s_axil_bvalid[0:0]
+    10/10: $0\s_axil_bresp[1:0]
+Creating decoders for process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:337$34'.
+     1/3: $0\fifo_full_sticky[0:0]
+     2/3: $0\trng_valid[0:0]
+     3/3: $0\trng_data[31:0]
+Creating decoders for process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:301$29'.
+     1/4: $0\accum_full[0:0]
+     2/4: $0\accum_word[31:0]
+     3/4: $0\accum_cnt[5:0]
+     4/4: $0\accum[31:0]
+Creating decoders for process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:263$25'.
+     1/4: $0\vn_phase[0:0]
+     2/4: $0\vn_bit_valid[0:0]
+     3/4: $0\vn_bit[0:0]
+     4/4: $0\vn_first[0:0]
+Creating decoders for process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:243$21'.
+     1/1: $0\lfsr_state[31:0]
+Creating decoders for process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:186$14'.
+     1/5: $0\apt_win_cnt[9:0]
+     2/5: $0\apt_new_window[0:0]
+     3/5: $0\apt_fail_sticky[0:0]
+     4/5: $0\apt_pop_cnt[9:0]
+     5/5: $0\apt_ref_bit[0:0]
+Creating decoders for process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:148$8'.
+     1/3: $0\rct_fail_sticky[0:0]
+     2/3: $0\rct_run[7:0]
+     3/3: $0\rct_prev[0:0]
+Creating decoders for process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:101$3'.
+     1/3: $0\sync3_d3[0:0]
+     2/3: $0\sync3_d2[0:0]
+     3/3: $0\sync3_d1[0:0]
+Creating decoders for process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:78$1'.
+     1/4: $0\sync3[0:0]
+     2/4: $0\sync2[0:0]
+     3/4: $0\sync1[0:0]
+     4/4: $0\sync0[0:0]
+
+3.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+3.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\rosc_trng.\s_axil_arready' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:433$50'.
+  created $adff cell `$procdff$231' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\s_axil_rdata' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:433$50'.
+  created $adff cell `$procdff$236' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\s_axil_rresp' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:433$50'.
+  created $adff cell `$procdff$241' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\s_axil_rvalid' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:433$50'.
+  created $adff cell `$procdff$246' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\axi_consume' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:433$50'.
+  created $adff cell `$procdff$251' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\s_axil_awready' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+  created $adff cell `$procdff$256' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\s_axil_wready' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+  created $adff cell `$procdff$261' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\s_axil_bresp' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+  created $adff cell `$procdff$266' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\s_axil_bvalid' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+  created $adff cell `$procdff$271' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\ctrl_enable_r' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+  created $adff cell `$procdff$276' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\ctrl_test_mode_r' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+  created $adff cell `$procdff$281' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\ctrl_bypass_vn_r' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+  created $adff cell `$procdff$286' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\ctrl_rst_health_r' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+  created $adff cell `$procdff$291' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\aw_addr_lat' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+  created $adff cell `$procdff$296' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\aw_addr_pending' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+  created $adff cell `$procdff$301' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\trng_data' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:337$34'.
+  created $adff cell `$procdff$306' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\trng_valid' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:337$34'.
+  created $adff cell `$procdff$311' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\fifo_full_sticky' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:337$34'.
+  created $adff cell `$procdff$316' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\accum' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:301$29'.
+  created $adff cell `$procdff$321' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\accum_cnt' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:301$29'.
+  created $adff cell `$procdff$326' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\accum_full' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:301$29'.
+  created $adff cell `$procdff$331' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\accum_word' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:301$29'.
+  created $adff cell `$procdff$336' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\vn_phase' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:263$25'.
+  created $adff cell `$procdff$341' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\vn_first' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:263$25'.
+  created $adff cell `$procdff$346' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\vn_bit_valid' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:263$25'.
+  created $adff cell `$procdff$351' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\vn_bit' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:263$25'.
+  created $adff cell `$procdff$356' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\lfsr_state' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:243$21'.
+  created $adff cell `$procdff$361' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\apt_win_cnt' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:186$14'.
+  created $adff cell `$procdff$366' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\apt_ref_bit' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:186$14'.
+  created $adff cell `$procdff$371' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\apt_pop_cnt' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:186$14'.
+  created $adff cell `$procdff$376' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\apt_fail_sticky' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:186$14'.
+  created $adff cell `$procdff$381' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\apt_new_window' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:186$14'.
+  created $adff cell `$procdff$386' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\rct_prev' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:148$8'.
+  created $adff cell `$procdff$391' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\rct_run' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:148$8'.
+  created $adff cell `$procdff$396' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\rct_fail_sticky' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:148$8'.
+  created $adff cell `$procdff$401' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\sync3_d1' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:101$3'.
+  created $adff cell `$procdff$406' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\sync3_d2' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:101$3'.
+  created $adff cell `$procdff$411' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\sync3_d3' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:101$3'.
+  created $adff cell `$procdff$416' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\sync0' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:78$1'.
+  created $adff cell `$procdff$421' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\sync1' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:78$1'.
+  created $adff cell `$procdff$426' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\sync2' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:78$1'.
+  created $adff cell `$procdff$431' with positive edge clock and positive level reset.
+Creating register for signal `\rosc_trng.\sync3' using process `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:78$1'.
+  created $adff cell `$procdff$436' with positive edge clock and positive level reset.
+
+3.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+3.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 3 empty switches in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:433$50'.
+Removing empty process `rosc_trng.$proc$../rtl/crypto/rosc_trng.v:433$50'.
+Found and cleaned up 5 empty switches in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+Removing empty process `rosc_trng.$proc$../rtl/crypto/rosc_trng.v:373$40'.
+Found and cleaned up 3 empty switches in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:337$34'.
+Removing empty process `rosc_trng.$proc$../rtl/crypto/rosc_trng.v:337$34'.
+Found and cleaned up 2 empty switches in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:301$29'.
+Removing empty process `rosc_trng.$proc$../rtl/crypto/rosc_trng.v:301$29'.
+Found and cleaned up 3 empty switches in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:263$25'.
+Removing empty process `rosc_trng.$proc$../rtl/crypto/rosc_trng.v:263$25'.
+Removing empty process `rosc_trng.$proc$../rtl/crypto/rosc_trng.v:243$21'.
+Found and cleaned up 5 empty switches in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:186$14'.
+Removing empty process `rosc_trng.$proc$../rtl/crypto/rosc_trng.v:186$14'.
+Found and cleaned up 4 empty switches in `\rosc_trng.$proc$../rtl/crypto/rosc_trng.v:148$8'.
+Removing empty process `rosc_trng.$proc$../rtl/crypto/rosc_trng.v:148$8'.
+Removing empty process `rosc_trng.$proc$../rtl/crypto/rosc_trng.v:101$3'.
+Removing empty process `rosc_trng.$proc$../rtl/crypto/rosc_trng.v:78$1'.
+Cleaned up 25 empty switches.
+
+3.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+<suppressed ~91 debug messages>
+
+3.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+
+3.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+Removed 53 unused cells and 205 unused wires.
+<suppressed ~54 debug messages>
+
+3.5. Executing CHECK pass (checking for obvious problems).
+Checking module rosc_trng...
+Found and reported 0 problems.
+
+3.6. Executing OPT pass (performing simple optimizations).
+
+3.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+
+3.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 154 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Computing hashes of 150 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+<suppressed ~12 debug messages>
+Removed a total of 4 cells.
+
+3.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \rosc_trng..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+      Replacing known input bits on port A of cell $procmux$171: \apt_new_window -> 1'0
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~108 debug messages>
+
+3.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \rosc_trng.
+Performed a total of 0 changes.
+
+3.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 150 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Removed a total of 0 cells.
+
+3.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+Removed 0 unused cells and 4 unused wires.
+<suppressed ~1 debug messages>
+
+3.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+
+3.6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \rosc_trng..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~108 debug messages>
+
+3.6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \rosc_trng.
+Performed a total of 0 changes.
+
+3.6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 150 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Removed a total of 0 cells.
+
+3.6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+
+3.6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+
+3.6.16. Finished fast OPT passes. (There is nothing left to do.)
+
+3.7. Executing FSM pass (extract and optimize FSM).
+
+3.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+Not marking rosc_trng.s_axil_rresp as FSM state register:
+    Register is connected to module port.
+    Users of register don't seem to benefit from recoding.
+Not marking rosc_trng.s_axil_bresp as FSM state register:
+    Register is connected to module port.
+    Users of register don't seem to benefit from recoding.
+
+3.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+3.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+3.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+
+3.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+3.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+3.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+3.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+3.8. Executing OPT pass (performing simple optimizations).
+
+3.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+
+3.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 150 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Removed a total of 0 cells.
+
+3.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \rosc_trng..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~108 debug messages>
+
+3.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \rosc_trng.
+Performed a total of 0 changes.
+
+3.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 150 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Removed a total of 0 cells.
+
+3.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$296 ($adff) from module rosc_trng (D = \s_axil_awaddr, Q = \aw_addr_lat).
+Adding EN signal on $procdff$286 ($adff) from module rosc_trng (D = \s_axil_wdata [2], Q = \ctrl_bypass_vn_r).
+Adding EN signal on $procdff$316 ($adff) from module rosc_trng (D = $0\fifo_full_sticky[0:0], Q = \fifo_full_sticky).
+Adding EN signal on $procdff$281 ($adff) from module rosc_trng (D = \s_axil_wdata [1], Q = \ctrl_test_mode_r).
+Adding EN signal on $procdff$326 ($adff) from module rosc_trng (D = $procmux$129_Y, Q = \accum_cnt).
+Adding EN signal on $procdff$276 ($adff) from module rosc_trng (D = \s_axil_wdata [0], Q = \ctrl_enable_r).
+Adding EN signal on $procdff$396 ($adff) from module rosc_trng (D = $0\rct_run[7:0], Q = \rct_run).
+Adding EN signal on $procdff$321 ($adff) from module rosc_trng (D = { \accum [30:0] \vn_bit }, Q = \accum).
+Adding EN signal on $procdff$391 ($adff) from module rosc_trng (D = $0\rct_prev[0:0], Q = \rct_prev).
+Adding EN signal on $procdff$236 ($adff) from module rosc_trng (D = $procmux$71_Y, Q = \s_axil_rdata).
+Adding EN signal on $procdff$301 ($adff) from module rosc_trng (D = $0\aw_addr_pending[0:0], Q = \aw_addr_pending).
+Adding EN signal on $procdff$371 ($adff) from module rosc_trng (D = \raw_bit, Q = \apt_ref_bit).
+Adding EN signal on $procdff$241 ($adff) from module rosc_trng (D = 2'00, Q = \s_axil_rresp).
+Adding EN signal on $procdff$401 ($adff) from module rosc_trng (D = $0\rct_fail_sticky[0:0], Q = \rct_fail_sticky).
+Adding EN signal on $procdff$346 ($adff) from module rosc_trng (D = \raw_bit, Q = \vn_first).
+Adding EN signal on $procdff$246 ($adff) from module rosc_trng (D = $0\s_axil_rvalid[0:0], Q = \s_axil_rvalid).
+Adding EN signal on $procdff$306 ($adff) from module rosc_trng (D = $ternary$../rtl/crypto/rosc_trng.v:349$39_Y, Q = \trng_data).
+Adding EN signal on $procdff$376 ($adff) from module rosc_trng (D = $0\apt_pop_cnt[9:0], Q = \apt_pop_cnt).
+Adding EN signal on $procdff$356 ($adff) from module rosc_trng (D = $0\vn_bit[0:0], Q = \vn_bit).
+Adding EN signal on $procdff$336 ($adff) from module rosc_trng (D = { \accum [30:0] \vn_bit }, Q = \accum_word).
+Adding EN signal on $procdff$266 ($adff) from module rosc_trng (D = 2'00, Q = \s_axil_bresp).
+Adding EN signal on $procdff$311 ($adff) from module rosc_trng (D = $0\trng_valid[0:0], Q = \trng_valid).
+Adding EN signal on $procdff$381 ($adff) from module rosc_trng (D = $0\apt_fail_sticky[0:0], Q = \apt_fail_sticky).
+Adding EN signal on $procdff$271 ($adff) from module rosc_trng (D = $0\s_axil_bvalid[0:0], Q = \s_axil_bvalid).
+Setting constant 0-bit at position 0 on $auto$ff.cc:337:slice$499 ($adffe) from module rosc_trng.
+Setting constant 0-bit at position 1 on $auto$ff.cc:337:slice$499 ($adffe) from module rosc_trng.
+Setting constant 0-bit at position 0 on $auto$ff.cc:337:slice$467 ($adffe) from module rosc_trng.
+Setting constant 0-bit at position 1 on $auto$ff.cc:337:slice$467 ($adffe) from module rosc_trng.
+
+3.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+Removed 19 unused cells and 19 unused wires.
+<suppressed ~20 debug messages>
+
+3.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+<suppressed ~12 debug messages>
+
+3.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \rosc_trng..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~79 debug messages>
+
+3.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \rosc_trng.
+Performed a total of 0 changes.
+
+3.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 156 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Computing hashes of 154 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+<suppressed ~6 debug messages>
+Removed a total of 2 cells.
+
+3.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+Removed 0 unused cells and 2 unused wires.
+<suppressed ~1 debug messages>
+
+3.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+
+3.8.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.8.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \rosc_trng..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~79 debug messages>
+
+3.8.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \rosc_trng.
+Performed a total of 0 changes.
+
+3.8.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 154 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Removed a total of 0 cells.
+
+3.8.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.8.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+
+3.8.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+
+3.8.23. Finished fast OPT passes. (There is nothing left to do.)
+
+3.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 1 bits (of 32) from FF cell rosc_trng.$auto$ff.cc:337:slice$454 ($adffe).
+Removed top 1 bits (of 3) from port B of cell rosc_trng.$auto$opt_dff.cc:235:make_patterns_logic$453 ($ne).
+Removed top 7 bits (of 8) from port B of cell rosc_trng.$add$../rtl/crypto/rosc_trng.v:161$12 ($add).
+Removed top 3 bits (of 8) from port B of cell rosc_trng.$ge$../rtl/crypto/rosc_trng.v:163$13 ($ge).
+Removed top 9 bits (of 10) from port B of cell rosc_trng.$add$../rtl/crypto/rosc_trng.v:207$16 ($add).
+Removed top 9 bits (of 10) from port B of cell rosc_trng.$add$../rtl/crypto/rosc_trng.v:209$18 ($add).
+Removed top 1 bits (of 10) from port B of cell rosc_trng.$eq$../rtl/crypto/rosc_trng.v:212$19 ($eq).
+Removed top 1 bits (of 10) from port B of cell rosc_trng.$gt$../rtl/crypto/rosc_trng.v:213$20 ($gt).
+Removed top 9 bits (of 32) from mux cell rosc_trng.$ternary$../rtl/crypto/rosc_trng.v:248$23 ($mux).
+Removed top 1 bits (of 32) from port A of cell rosc_trng.$xor$../rtl/crypto/rosc_trng.v:247$24 ($xor).
+Removed top 9 bits (of 32) from port B of cell rosc_trng.$xor$../rtl/crypto/rosc_trng.v:247$24 ($xor).
+Removed top 1 bits (of 32) from port Y of cell rosc_trng.$xor$../rtl/crypto/rosc_trng.v:247$24 ($xor).
+Removed top 5 bits (of 6) from port B of cell rosc_trng.$add$../rtl/crypto/rosc_trng.v:311$32 ($add).
+Removed top 1 bits (of 6) from port B of cell rosc_trng.$eq$../rtl/crypto/rosc_trng.v:312$33 ($eq).
+Removed top 8 bits (of 12) from port B of cell rosc_trng.$procmux$72_CMP0 ($eq).
+Removed top 9 bits (of 12) from port B of cell rosc_trng.$procmux$73_CMP0 ($eq).
+Removed top 8 bits (of 12) from port B of cell rosc_trng.$procmux$102_CMP0 ($eq).
+Removed top 9 bits (of 32) from wire rosc_trng.$ternary$../rtl/crypto/rosc_trng.v:248$23_Y.
+Removed top 1 bits (of 32) from wire rosc_trng.$0\lfsr_state[31:0].
+Removed top 1 bits (of 32) from wire rosc_trng.accum.
+
+3.10. Executing PEEPOPT pass (run peephole optimizers).
+
+3.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+Removed 0 unused cells and 3 unused wires.
+<suppressed ~1 debug messages>
+
+3.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module rosc_trng:
+  creating $macc model for $add$../rtl/crypto/rosc_trng.v:311$32 ($add).
+  creating $macc model for $add$../rtl/crypto/rosc_trng.v:209$18 ($add).
+  creating $macc model for $add$../rtl/crypto/rosc_trng.v:207$16 ($add).
+  creating $macc model for $add$../rtl/crypto/rosc_trng.v:161$12 ($add).
+  creating $alu model for $macc $add$../rtl/crypto/rosc_trng.v:161$12.
+  creating $alu model for $macc $add$../rtl/crypto/rosc_trng.v:207$16.
+  creating $alu model for $macc $add$../rtl/crypto/rosc_trng.v:209$18.
+  creating $alu model for $macc $add$../rtl/crypto/rosc_trng.v:311$32.
+  creating $alu model for $gt$../rtl/crypto/rosc_trng.v:213$20 ($gt): new $alu
+  creating $alu model for $ge$../rtl/crypto/rosc_trng.v:163$13 ($ge): new $alu
+  creating $alu model for $lt$../rtl/crypto/rosc_trng.v:160$11 ($lt): new $alu
+  creating $alu cell for $lt$../rtl/crypto/rosc_trng.v:160$11: $auto$alumacc.cc:512:replace_alu$521
+  creating $alu cell for $ge$../rtl/crypto/rosc_trng.v:163$13: $auto$alumacc.cc:512:replace_alu$526
+  creating $alu cell for $gt$../rtl/crypto/rosc_trng.v:213$20: $auto$alumacc.cc:512:replace_alu$539
+  creating $alu cell for $add$../rtl/crypto/rosc_trng.v:311$32: $auto$alumacc.cc:512:replace_alu$550
+  creating $alu cell for $add$../rtl/crypto/rosc_trng.v:209$18: $auto$alumacc.cc:512:replace_alu$553
+  creating $alu cell for $add$../rtl/crypto/rosc_trng.v:207$16: $auto$alumacc.cc:512:replace_alu$556
+  creating $alu cell for $add$../rtl/crypto/rosc_trng.v:161$12: $auto$alumacc.cc:512:replace_alu$559
+  created 7 $alu and 0 $macc cells.
+
+3.13. Executing SHARE pass (SAT-based resource sharing).
+
+3.14. Executing OPT pass (performing simple optimizations).
+
+3.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+<suppressed ~2 debug messages>
+
+3.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 164 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Removed a total of 0 cells.
+
+3.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \rosc_trng..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~79 debug messages>
+
+3.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \rosc_trng.
+Performed a total of 0 changes.
+
+3.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 164 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Removed a total of 0 cells.
+
+3.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+Removed 0 unused cells and 3 unused wires.
+<suppressed ~1 debug messages>
+
+3.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+
+3.14.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.14.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \rosc_trng..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~79 debug messages>
+
+3.14.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \rosc_trng.
+Performed a total of 0 changes.
+
+3.14.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 164 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Removed a total of 0 cells.
+
+3.14.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.14.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+
+3.14.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+
+3.14.16. Finished fast OPT passes. (There is nothing left to do.)
+
+3.15. Executing MEMORY pass.
+
+3.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+3.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+3.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+3.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+3.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+3.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+
+3.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+3.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+3.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+
+3.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+3.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+
+3.17. Executing OPT pass (performing simple optimizations).
+
+3.17.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+<suppressed ~37 debug messages>
+
+3.17.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 140 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Computing hashes of 137 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+<suppressed ~9 debug messages>
+Removed a total of 3 cells.
+
+3.17.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.17.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+Removed 0 unused cells and 29 unused wires.
+<suppressed ~1 debug messages>
+
+3.17.5. Finished fast OPT passes.
+
+3.18. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+
+3.19. Executing OPT pass (performing simple optimizations).
+
+3.19.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+<suppressed ~5 debug messages>
+
+3.19.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 137 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Computing hashes of 136 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+3.19.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \rosc_trng..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~25 debug messages>
+
+3.19.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \rosc_trng.
+    Consolidated identical input bits for $mux cell $ternary$../rtl/crypto/rosc_trng.v:248$23:
+      Old ports: A=23'00000000000000000000000, B=23'10000000000000000000111, Y=$auto$wreduce.cc:514:run$515 [22:0]
+      New ports: A=1'0, B=1'1, Y=$auto$wreduce.cc:514:run$515 [0]
+      New connections: $auto$wreduce.cc:514:run$515 [22:1] = { $auto$wreduce.cc:514:run$515 [0] 19'0000000000000000000 $auto$wreduce.cc:514:run$515 [0] $auto$wreduce.cc:514:run$515 [0] }
+  Optimizing cells in module \rosc_trng.
+Performed a total of 1 changes.
+
+3.19.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 136 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Removed a total of 0 cells.
+
+3.19.6. Executing OPT_SHARE pass.
+
+3.19.7. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.19.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+3.19.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+<suppressed ~6 debug messages>
+
+3.19.10. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.19.11. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \rosc_trng..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~23 debug messages>
+
+3.19.12. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \rosc_trng.
+Performed a total of 0 changes.
+
+3.19.13. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 135 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Removed a total of 0 cells.
+
+3.19.14. Executing OPT_SHARE pass.
+
+3.19.15. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.19.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+Removed 0 unused cells and 3 unused wires.
+<suppressed ~1 debug messages>
+
+3.19.17. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+
+3.19.18. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.19.19. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \rosc_trng..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~23 debug messages>
+
+3.19.20. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \rosc_trng.
+Performed a total of 0 changes.
+
+3.19.21. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 135 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Removed a total of 0 cells.
+
+3.19.22. Executing OPT_SHARE pass.
+
+3.19.23. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.19.24. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+
+3.19.25. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+
+3.19.26. Finished fast OPT passes. (There is nothing left to do.)
+
+3.20. Executing TECHMAP pass (map to technology primitives).
+
+3.20.1. Executing Verilog-2005 frontend: /opt/homebrew/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/opt/homebrew/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `$__div_mod_u'.
+Generating RTLIL representation for module `$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Generating RTLIL representation for module `$connect'.
+Generating RTLIL representation for module `$input_port'.
+Successfully finished Verilog frontend.
+
+3.20.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $xor.
+Using template $paramod$c3cd1564c35d873179656addd6052d7ea8b6d991\_90_alu for cells of type $alu.
+Using template $paramod$754650b284649a026620fc6856e5b6886cbfe794\_90_alu for cells of type $alu.
+Using template $paramod$32efbfac1c4dc57230cf86180788fdfd12e3b511\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $or.
+Using extmapper simplemap for cells of type $reduce_and.
+Using template $paramod$84080732754e0a1b49900de9a1f112a13f8436c0\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $reduce_or.
+Using template $paramod$5d2e07eca6b9fbd538aff231e6f05d9604b7a77e\_90_alu for cells of type $alu.
+Using template $paramod$a1bc51c02ce12ac21eb18988e83292af48ed7d72\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $adffe.
+Using extmapper simplemap for cells of type $ne.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $and.
+Using template $paramod$54d740639e1393b22262823179ff783ea9f17a35\_90_pmux for cells of type $pmux.
+Using extmapper simplemap for cells of type $adff.
+Using extmapper simplemap for cells of type $pos.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000001000 for cells of type $fa.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000001000 for cells of type $lcu.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000001010 for cells of type $fa.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000001010 for cells of type $lcu.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000000110 for cells of type $fa.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000110 for cells of type $lcu.
+No more expansions possible.
+<suppressed ~1045 debug messages>
+
+3.21. Executing OPT pass (performing simple optimizations).
+
+3.21.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+<suppressed ~715 debug messages>
+
+3.21.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 840 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Computing hashes of 781 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Computing hashes of 771 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Computing hashes of 766 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Computing hashes of 763 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Computing hashes of 762 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+<suppressed ~234 debug messages>
+Removed a total of 78 cells.
+
+3.21.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.21.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+Removed 45 unused cells and 603 unused wires.
+<suppressed ~46 debug messages>
+
+3.21.5. Finished fast OPT passes.
+
+3.22. Executing ABC pass (technology mapping using ABC).
+
+3.22.1. Extracting gate netlist of module `\rosc_trng' to `<abc-temp-dir>/input.blif'..
+
+3.22.1.1. Executed ABC.
+Extracted 482 gates and 669 wires to a netlist network with 185 inputs and 134 outputs.
+Running ABC script: <abc-temp-dir>/abc.script
+ABC: ======== ABC command line "source <abc-temp-dir>/abc.script"
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_library <abc-temp-dir>/stdcells.genlib 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+3.22.1.2. Re-integrating ABC results.
+ABC RESULTS:               AND cells:       84
+ABC RESULTS:            ANDNOT cells:       22
+ABC RESULTS:               MUX cells:        4
+ABC RESULTS:              NAND cells:       79
+ABC RESULTS:               NOR cells:       18
+ABC RESULTS:               NOT cells:        8
+ABC RESULTS:                OR cells:       13
+ABC RESULTS:             ORNOT cells:       37
+ABC RESULTS:              XNOR cells:       36
+ABC RESULTS:               XOR cells:       22
+ABC RESULTS:        internal signals:      350
+ABC RESULTS:           input signals:      185
+ABC RESULTS:          output signals:      134
+Removing temp directory.
+Removing global temp directory.
+
+3.23. Executing OPT pass (performing simple optimizations).
+
+3.23.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module rosc_trng.
+
+3.23.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\rosc_trng'.
+Computing hashes of 558 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+Computing hashes of 556 cells of `\rosc_trng'.
+Finding duplicate cells in `\rosc_trng'.
+<suppressed ~6 debug messages>
+Removed a total of 2 cells.
+
+3.23.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.23.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \rosc_trng..
+Removed 0 unused cells and 423 unused wires.
+<suppressed ~3 debug messages>
+
+3.23.5. Finished fast OPT passes.
+
+3.24. Executing HIERARCHY pass (managing design hierarchy).
+Attribute `top' found on module `rosc_trng'. Setting top module to rosc_trng.
+
+3.24.1. Analyzing design hierarchy..
+Top module:  \rosc_trng
+
+3.24.2. Analyzing design hierarchy..
+Top module:  \rosc_trng
+Removed 0 unused modules.
+
+3.25. Printing statistics.
+
+=== rosc_trng ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      322 wires
+      661 wire bits
+       61 public wires
+      314 public wire bits
+       24 ports
+      144 port bits
+      556 cells
+       22   $_ANDNOT_
+       84   $_AND_
+      176   $_DFFE_PN0P_
+        1   $_DFFE_PN1P_
+       35   $_DFF_PN0_
+       23   $_DFF_PN1_
+        4   $_MUX_
+       78   $_NAND_
+       17   $_NOR_
+        8   $_NOT_
+       37   $_ORNOT_
+       13   $_OR_
+       36   $_XNOR_
+       22   $_XOR_
+
+3.26. Executing CHECK pass (checking for obvious problems).
+Checking module rosc_trng...
+Found and reported 0 problems.
+
+4. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell DFF_X1 (noninv, pins=4, area=4.52) is a direct match for cell type $_DFF_P_.
+  cell DFFR_X1 (noninv, pins=5, area=5.32) is a direct match for cell type $_DFF_PN0_.
+  cell DFFS_X1 (noninv, pins=5, area=5.32) is a direct match for cell type $_DFF_PN1_.
+  cell DFFRS_X1 (noninv, pins=6, area=6.38) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \DFF_X1 _DFF_P_ (.CK( C), .D( D), .Q( Q), .QN(~Q));
+    unmapped dff cell: $_DFF_NN0_
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \DFFR_X1 _DFF_PN0_ (.CK( C), .D( D), .Q( Q), .QN(~Q), .RN( R));
+    \DFFS_X1 _DFF_PN1_ (.CK( C), .D( D), .Q( Q), .QN(~Q), .SN( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    unmapped dff cell: $_DFFE_PP_
+    unmapped dff cell: $_DFFSR_NNN_
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \DFFRS_X1 _DFFSR_PNN_ (.CK( C), .D( D), .Q( Q), .QN(~Q), .RN( R), .SN( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+4.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~8 debug messages>
+Mapping DFF cells in module `\rosc_trng':
+  mapped 211 $_DFF_PN0_ cells to \DFFR_X1 cells.
+  mapped 24 $_DFF_PN1_ cells to \DFFS_X1 cells.
+
+5. Executing ABC pass (technology mapping using ABC).
+
+5.1. Extracting gate netlist of module `\rosc_trng' to `<abc-temp-dir>/input.blif'..
+
+5.1.1. Executed ABC.
+Extracted 498 gates and 767 wires to a netlist network with 269 inputs and 200 outputs.
+Running ABC script: <abc-temp-dir>/abc.script
+ABC: ======== ABC command line "source <abc-temp-dir>/abc.script"
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/synth/../pdk/nangate45/NangateOpenCellLibrary_typical.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.03 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "ANTENNA_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFRS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFRS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFR_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFR_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFF_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFF_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLH_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLH_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLL_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLL_X2".
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "TAPCELL_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X2" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X4" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X8" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X16" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X32" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "LOGIC0_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "LOGIC1_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFRS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFRS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFR_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFR_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFF_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFF_X2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X16".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TINV_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "TLAT_X1".
+ABC: Library "NangateOpenCellLibrary" from "/Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/synth/../pdk/nangate45/NangateOpenCellLibrary_typical.lib" has 90 cells (45 skipped: 21 seq; 6 tri-state; 8 no func; 10 dont_use; 0 with 2 outputs; 0 with 3+ outputs).  Time =     0.05 sec
+ABC: Memory =   11.38 MB. Time =     0.05 sec
+ABC: Warning: Detected 2 multi-output cells (for example, "FA_X1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+5.1.2. Re-integrating ABC results.
+ABC RESULTS:           AND2_X1 cells:        9
+ABC RESULTS:           AND3_X1 cells:        5
+ABC RESULTS:           AND4_X1 cells:        4
+ABC RESULTS:         AOI211_X1 cells:        3
+ABC RESULTS:          AOI21_X1 cells:       32
+ABC RESULTS:         AOI221_X1 cells:       21
+ABC RESULTS:          AOI22_X1 cells:        9
+ABC RESULTS:            INV_X1 cells:       47
+ABC RESULTS:           MUX2_X1 cells:      118
+ABC RESULTS:          NAND2_X1 cells:       43
+ABC RESULTS:          NAND3_X1 cells:        9
+ABC RESULTS:          NAND4_X1 cells:        3
+ABC RESULTS:           NOR2_X1 cells:       34
+ABC RESULTS:           NOR3_X1 cells:        9
+ABC RESULTS:           NOR4_X1 cells:        5
+ABC RESULTS:         OAI211_X1 cells:        1
+ABC RESULTS:          OAI21_X1 cells:       14
+ABC RESULTS:            OR2_X1 cells:        3
+ABC RESULTS:            OR3_X1 cells:        1
+ABC RESULTS:          XNOR2_X1 cells:       42
+ABC RESULTS:           XOR2_X1 cells:        7
+ABC RESULTS:        internal signals:      298
+ABC RESULTS:           input signals:      269
+ABC RESULTS:          output signals:      200
+Removing temp directory.
+Removing global temp directory.
+Removed 0 unused cells and 726 unused wires.
+
+6. Printing statistics.
+
+=== rosc_trng ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      702        - wires
+      994        - wire bits
+       60        - public wires
+      313        - public wire bits
+       24        - ports
+      144        - port bits
+      654 1.79E+03 cells
+        9    9.576   AND2_X1
+        5     6.65   AND3_X1
+        4    6.384   AND4_X1
+        3     3.99   AOI211_X1
+       32   34.048   AOI21_X1
+       21   33.516   AOI221_X1
+        9    11.97   AOI22_X1
+      211  1122.52   DFFR_X1
+       24   127.68   DFFS_X1
+       47   25.004   INV_X1
+      118  219.716   MUX2_X1
+       43   34.314   NAND2_X1
+        9    9.576   NAND3_X1
+        3     3.99   NAND4_X1
+       34   27.132   NOR2_X1
+        9    9.576   NOR3_X1
+        5     6.65   NOR4_X1
+        1     1.33   OAI211_X1
+       14   14.896   OAI21_X1
+        3    3.192   OR2_X1
+        1     1.33   OR3_X1
+       42   67.032   XNOR2_X1
+        7   11.172   XOR2_X1
+
+   Chip area for module '\rosc_trng': 1791.244000
+     of which used for sequential elements: 1250.200000 (69.80%)
+
+7. Executing Verilog backend.
+Dumping module `\rosc_trng'.
+
+End of script. Logfile hash: 48feea7ac3, time: 1.73s, user: 0.21s, system: 0.02s, MEM: 37.83 MB peak
+Yosys 0.64 (git sha1 d8dab5b32666564eca8e18f412973853ce006e61, clang++ 21.0.0 -fPIC -O3)
+Time spent: 58% 2x abc (0 sec), 5% 2x stat (0 sec), ...

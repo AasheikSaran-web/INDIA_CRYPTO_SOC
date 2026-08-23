@@ -1,0 +1,70 @@
+# ============================================================
+# Yosys synthesis script — INDIA_CRYPTO_SOC
+# Tool   : Yosys 0.64
+# Library: Nangate Open Cell Library 45nm (typical corner)
+# Run    : cd synth && yosys synth_yosys.ys 2>&1 | tee synth_yosys.log
+# ============================================================
+
+# ---- 1. Read black-box stubs (PULP IP — validated separately) ----
+read_verilog -sv -lib pulp_blackbox.v
+
+# ---- 2. Read all custom RTL ----------------------------------
+
+# Top-level SoC
+read_verilog -sv ../rtl/top/india_crypto_soc.v
+
+# CPU core
+read_verilog -sv ../rtl/core/rv32im_core.v
+read_verilog -sv ../rtl/core/aes_isa_ext.v
+
+# Crypto blocks
+read_verilog -sv ../rtl/crypto/aes_ca_accel.v
+read_verilog -sv ../rtl/crypto/india_pdf_engine.v
+read_verilog -sv ../rtl/crypto/rosc_trng.v
+read_verilog -sv ../rtl/crypto/hamming_secded.v
+
+# Fabric
+read_verilog -sv ../rtl/fabric/axi_lite_xbar.v
+read_verilog -sv ../rtl/fabric/axi_firewall.v
+
+# Peripheral wrappers (our security logic around PULP IP)
+read_verilog -sv ../rtl/periph/axil_to_apb.sv
+read_verilog -sv ../rtl/periph/pulp_spi_wrap.sv
+read_verilog -sv ../rtl/periph/pulp_uart_wrap.sv
+read_verilog -sv ../rtl/periph/pulp_i2c_wrap.sv
+
+# ---- 3. Elaborate --------------------------------------------
+hierarchy -check -top india_crypto_soc
+
+# ---- 4. Generic synthesis passes ----------------------------
+proc
+opt
+flatten
+opt -purge
+
+# ---- 5. Infer FSMs and arithmetic ---------------------------
+fsm
+opt
+memory -nomap
+opt
+
+# ---- 6. Map to technology cells -----------------------------
+techmap
+opt -fast
+
+# ---- 7. DFF mapping -----------------------------------------
+dfflibmap -liberty ../pdk/nangate45/NangateOpenCellLibrary_typical.lib
+
+# ---- 8. Combinational mapping via ABC -----------------------
+abc -liberty ../pdk/nangate45/NangateOpenCellLibrary_typical.lib
+
+# ---- 9. Clean up -------------------------------------------
+clean
+opt_clean -purge
+
+# ---- 10. Reports -------------------------------------------
+tee -o ../synthesis/yosys/stat.rpt       stat -liberty ../pdk/nangate45/NangateOpenCellLibrary_typical.lib
+tee -o ../synthesis/yosys/check.rpt      check
+
+# ---- 11. Write gate-level netlist ---------------------------
+write_verilog -noattr -noexpr -nohex -nodec ../synthesis/yosys/india_crypto_soc_netlist.v

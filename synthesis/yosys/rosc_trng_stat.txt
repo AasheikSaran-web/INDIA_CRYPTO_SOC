@@ -1,0 +1,42 @@
+
+6. Printing statistics.
+
+=== rosc_trng ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      702        - wires
+      994        - wire bits
+       60        - public wires
+      313        - public wire bits
+       24        - ports
+      144        - port bits
+      654 1.79E+03 cells
+        9    9.576   AND2_X1
+        5     6.65   AND3_X1
+        4    6.384   AND4_X1
+        3     3.99   AOI211_X1
+       32   34.048   AOI21_X1
+       21   33.516   AOI221_X1
+        9    11.97   AOI22_X1
+      211  1122.52   DFFR_X1
+       24   127.68   DFFS_X1
+       47   25.004   INV_X1
+      118  219.716   MUX2_X1
+       43   34.314   NAND2_X1
+        9    9.576   NAND3_X1
+        3     3.99   NAND4_X1
+       34   27.132   NOR2_X1
+        9    9.576   NOR3_X1
+        5     6.65   NOR4_X1
+        1     1.33   OAI211_X1
+       14   14.896   OAI21_X1
+        3    3.192   OR2_X1
+        1     1.33   OR3_X1
+       42   67.032   XNOR2_X1
+        7   11.172   XOR2_X1
+
+   Chip area for module '\rosc_trng': 1791.244000
+     of which used for sequential elements: 1250.200000 (69.80%)
+

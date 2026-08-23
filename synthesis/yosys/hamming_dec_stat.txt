@@ -1,0 +1,30 @@
+
+6. Printing statistics.
+
+=== hamming_dec ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      183        - wires
+      283        - wire bits
+       13        - public wires
+      113        - public wire bits
+        4        - ports
+       73        - port bits
+      204  288.078 cells
+        2    2.128   AND2_X1
+        1     1.33   AND3_X1
+        9    4.788   INV_X1
+        8    6.384   NAND2_X1
+       15    15.96   NAND3_X1
+        6    4.788   NOR2_X1
+        6    6.384   NOR3_X1
+       10     13.3   NOR4_X1
+        3    3.192   OR2_X1
+      103  164.388   XNOR2_X1
+       41   65.436   XOR2_X1
+
+   Chip area for module '\hamming_dec': 288.078000
+     of which used for sequential elements: 0.000000 (0.00%)
+

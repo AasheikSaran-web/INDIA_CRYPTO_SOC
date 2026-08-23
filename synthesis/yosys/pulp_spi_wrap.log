@@ -1,0 +1,1706 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.64 (git sha1 d8dab5b32666564eca8e18f412973853ce006e61, clang++ 21.0.0 -fPIC -O3)
+
+-- Executing script file `/tmp/yosys_XXXXXX.ys' --
+
+1. Executing Verilog-2005 frontend: pulp_blackbox.v
+Parsing SystemVerilog input from `pulp_blackbox.v' to AST representation.
+Generating RTLIL representation for module `\apb_spi_master'.
+Generating RTLIL representation for module `\apb_uart'.
+Generating RTLIL representation for module `\apb_i2c'.
+Successfully finished Verilog frontend.
+
+2. Executing Verilog-2005 frontend: ../rtl/periph/axil_to_apb.sv
+Parsing SystemVerilog input from `../rtl/periph/axil_to_apb.sv' to AST representation.
+Generating RTLIL representation for module `\axil_to_apb'.
+Successfully finished Verilog frontend.
+
+3. Executing Verilog-2005 frontend: ../rtl/periph/pulp_spi_wrap.sv
+Parsing SystemVerilog input from `../rtl/periph/pulp_spi_wrap.sv' to AST representation.
+Generating RTLIL representation for module `\pulp_spi_wrap'.
+Successfully finished Verilog frontend.
+
+4. Executing HIERARCHY pass (managing design hierarchy).
+
+4.1. Analyzing design hierarchy..
+Top module:  \pulp_spi_wrap
+Used module:     \axil_to_apb
+
+4.2. Analyzing design hierarchy..
+Top module:  \pulp_spi_wrap
+Used module:     \axil_to_apb
+Removed 0 unused modules.
+
+5. Executing SYNTH pass.
+
+5.1. Executing HIERARCHY pass (managing design hierarchy).
+
+5.1.1. Analyzing design hierarchy..
+Top module:  \pulp_spi_wrap
+Used module:     \axil_to_apb
+
+5.1.2. Analyzing design hierarchy..
+Top module:  \pulp_spi_wrap
+Used module:     \axil_to_apb
+Removed 0 unused modules.
+
+5.2. Executing PROC pass (convert processes to netlists).
+
+5.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+5.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 1 switch rules as full_case in process $proc$../rtl/periph/pulp_spi_wrap.sv:234$98 in module pulp_spi_wrap.
+Marked 2 switch rules as full_case in process $proc$../rtl/periph/pulp_spi_wrap.sv:208$92 in module pulp_spi_wrap.
+Marked 3 switch rules as full_case in process $proc$../rtl/periph/pulp_spi_wrap.sv:157$63 in module pulp_spi_wrap.
+Marked 3 switch rules as full_case in process $proc$../rtl/periph/pulp_spi_wrap.sv:148$61 in module pulp_spi_wrap.
+Marked 2 switch rules as full_case in process $proc$../rtl/periph/pulp_spi_wrap.sv:113$51 in module pulp_spi_wrap.
+Marked 4 switch rules as full_case in process $proc$../rtl/periph/pulp_spi_wrap.sv:103$49 in module pulp_spi_wrap.
+Marked 1 switch rules as full_case in process $proc$../rtl/periph/axil_to_apb.sv:200$33 in module axil_to_apb.
+Marked 1 switch rules as full_case in process $proc$../rtl/periph/axil_to_apb.sv:187$29 in module axil_to_apb.
+Marked 1 switch rules as full_case in process $proc$../rtl/periph/axil_to_apb.sv:179$27 in module axil_to_apb.
+Removed 1 dead cases from process $proc$../rtl/periph/axil_to_apb.sv:148$23 in module axil_to_apb.
+Marked 6 switch rules as full_case in process $proc$../rtl/periph/axil_to_apb.sv:148$23 in module axil_to_apb.
+Marked 2 switch rules as full_case in process $proc$../rtl/periph/axil_to_apb.sv:109$16 in module axil_to_apb.
+Removed a total of 1 dead cases.
+
+5.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 3 redundant assignments.
+Promoted 13 assignments to connections.
+
+5.2.4. Executing PROC_INIT pass (extract init attributes).
+
+5.2.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:157$63'.
+Found async reset \rst_n in `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:113$51'.
+Found async reset \rst_n in `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:187$29'.
+Found async reset \rst_n in `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:179$27'.
+Found async reset \rst_n in `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:109$16'.
+
+5.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~29 debug messages>
+
+5.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:234$98'.
+     1/3: $1\spi_mosi[0:0]
+     2/3: $1\spi_sck[0:0]
+     3/3: $1\spi_cs_n[0:0]
+Creating decoders for process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:208$92'.
+     1/2: $2\pwdata_gated[7:0]
+     2/2: $1\pwdata_gated[7:0]
+Creating decoders for process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:157$63'.
+     1/2: $0\lrd_state_r[1:0]
+     2/2: $0\lrd_rdata_r[31:0]
+Creating decoders for process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:148$61'.
+     1/3: $3\lrd_state_next[1:0]
+     2/3: $2\lrd_state_next[1:0]
+     3/3: $1\lrd_state_next[1:0]
+Creating decoders for process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:113$51'.
+     1/4: $0\lwr_state_r[1:0]
+     2/4: $0\lwr_addr_r[11:0]
+     3/4: $0\cs_lock_r[0:0]
+     4/4: $0\max_len_r[7:0]
+Creating decoders for process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:103$49'.
+     1/4: $4\lwr_state_next[1:0]
+     2/4: $3\lwr_state_next[1:0]
+     3/4: $2\lwr_state_next[1:0]
+     4/4: $1\lwr_state_next[1:0]
+Creating decoders for process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:200$33'.
+     1/2: $1\penable[0:0]
+     2/2: $1\psel[0:0]
+Creating decoders for process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:187$29'.
+     1/2: $0\slverr_r[0:0]
+     2/2: $0\rdata_r[31:0]
+Creating decoders for process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:179$27'.
+     1/1: $0\state_r[1:0]
+Creating decoders for process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:148$23'.
+     1/6: $6\state_next[1:0]
+     2/6: $5\state_next[1:0]
+     3/6: $4\state_next[1:0]
+     4/6: $3\state_next[1:0]
+     5/6: $2\state_next[1:0]
+     6/6: $1\state_next[1:0]
+Creating decoders for process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:109$16'.
+     1/6: $0\rd_pending_r[0:0]
+     2/6: $0\wr_pending_r[0:0]
+     3/6: $0\lat_write_r[0:0]
+     4/6: $0\lat_wstrb_r[3:0]
+     5/6: $0\lat_wdata_r[31:0]
+     6/6: $0\lat_addr_r[11:0]
+
+5.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\pulp_spi_wrap.\spi_sck' from process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:234$98'.
+No latch inferred for signal `\pulp_spi_wrap.\spi_mosi' from process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:234$98'.
+No latch inferred for signal `\pulp_spi_wrap.\spi_cs_n' from process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:234$98'.
+No latch inferred for signal `\pulp_spi_wrap.\pwdata_gated' from process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:208$92'.
+No latch inferred for signal `\pulp_spi_wrap.\lrd_state_next' from process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:148$61'.
+No latch inferred for signal `\pulp_spi_wrap.\lwr_state_next' from process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:103$49'.
+No latch inferred for signal `\axil_to_apb.\paddr' from process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:200$33'.
+No latch inferred for signal `\axil_to_apb.\psel' from process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:200$33'.
+No latch inferred for signal `\axil_to_apb.\penable' from process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:200$33'.
+No latch inferred for signal `\axil_to_apb.\pwrite' from process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:200$33'.
+No latch inferred for signal `\axil_to_apb.\pwdata' from process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:200$33'.
+No latch inferred for signal `\axil_to_apb.\state_next' from process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:148$23'.
+
+5.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\pulp_spi_wrap.\lrd_state_r' using process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:157$63'.
+  created $adff cell `$procdff$264' with positive edge clock and positive level reset.
+Creating register for signal `\pulp_spi_wrap.\lrd_rdata_r' using process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:157$63'.
+  created $adff cell `$procdff$269' with positive edge clock and positive level reset.
+Creating register for signal `\pulp_spi_wrap.\max_len_r' using process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:113$51'.
+  created $adff cell `$procdff$274' with positive edge clock and positive level reset.
+Creating register for signal `\pulp_spi_wrap.\cs_lock_r' using process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:113$51'.
+  created $adff cell `$procdff$279' with positive edge clock and positive level reset.
+Creating register for signal `\pulp_spi_wrap.\lwr_state_r' using process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:113$51'.
+  created $adff cell `$procdff$284' with positive edge clock and positive level reset.
+Creating register for signal `\pulp_spi_wrap.\lwr_addr_r' using process `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:113$51'.
+  created $adff cell `$procdff$289' with positive edge clock and positive level reset.
+Creating register for signal `\axil_to_apb.\rdata_r' using process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:187$29'.
+  created $adff cell `$procdff$294' with positive edge clock and positive level reset.
+Creating register for signal `\axil_to_apb.\slverr_r' using process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:187$29'.
+  created $adff cell `$procdff$299' with positive edge clock and positive level reset.
+Creating register for signal `\axil_to_apb.\state_r' using process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:179$27'.
+  created $adff cell `$procdff$304' with positive edge clock and positive level reset.
+Creating register for signal `\axil_to_apb.\lat_addr_r' using process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:109$16'.
+  created $adff cell `$procdff$309' with positive edge clock and positive level reset.
+Creating register for signal `\axil_to_apb.\lat_wdata_r' using process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:109$16'.
+  created $adff cell `$procdff$314' with positive edge clock and positive level reset.
+Creating register for signal `\axil_to_apb.\lat_wstrb_r' using process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:109$16'.
+  created $adff cell `$procdff$319' with positive edge clock and positive level reset.
+Creating register for signal `\axil_to_apb.\lat_write_r' using process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:109$16'.
+  created $adff cell `$procdff$324' with positive edge clock and positive level reset.
+Creating register for signal `\axil_to_apb.\wr_pending_r' using process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:109$16'.
+  created $adff cell `$procdff$329' with positive edge clock and positive level reset.
+Creating register for signal `\axil_to_apb.\rd_pending_r' using process `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:109$16'.
+  created $adff cell `$procdff$334' with positive edge clock and positive level reset.
+
+5.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+5.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:234$98'.
+Removing empty process `pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:234$98'.
+Found and cleaned up 2 empty switches in `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:208$92'.
+Removing empty process `pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:208$92'.
+Found and cleaned up 3 empty switches in `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:157$63'.
+Removing empty process `pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:157$63'.
+Found and cleaned up 3 empty switches in `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:148$61'.
+Removing empty process `pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:148$61'.
+Found and cleaned up 4 empty switches in `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:113$51'.
+Removing empty process `pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:113$51'.
+Found and cleaned up 4 empty switches in `\pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:103$49'.
+Removing empty process `pulp_spi_wrap.$proc$../rtl/periph/pulp_spi_wrap.sv:103$49'.
+Found and cleaned up 1 empty switch in `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:200$33'.
+Removing empty process `axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:200$33'.
+Found and cleaned up 1 empty switch in `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:187$29'.
+Removing empty process `axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:187$29'.
+Removing empty process `axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:179$27'.
+Found and cleaned up 6 empty switches in `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:148$23'.
+Removing empty process `axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:148$23'.
+Found and cleaned up 4 empty switches in `\axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:109$16'.
+Removing empty process `axil_to_apb.$proc$../rtl/periph/axil_to_apb.sv:109$16'.
+Cleaned up 29 empty switches.
+
+5.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+<suppressed ~21 debug messages>
+Optimizing module axil_to_apb.
+<suppressed ~24 debug messages>
+
+5.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+
+5.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+Removed 22 unused cells and 157 unused wires.
+<suppressed ~25 debug messages>
+
+5.5. Executing CHECK pass (checking for obvious problems).
+Checking module pulp_spi_wrap...
+Checking module axil_to_apb...
+Found and reported 0 problems.
+
+5.6. Executing OPT pass (performing simple optimizations).
+
+5.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+
+5.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 96 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Computing hashes of 77 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+<suppressed ~57 debug messages>
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 80 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Computing hashes of 64 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Computing hashes of 63 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+<suppressed ~51 debug messages>
+Removed a total of 36 cells.
+
+5.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \pulp_spi_wrap..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 2/2 on $mux $procmux$137.
+    dead port 2/2 on $mux $procmux$130.
+    dead port 2/2 on $mux $procmux$113.
+    dead port 2/2 on $mux $procmux$176.
+    dead port 2/2 on $mux $procmux$168.
+    dead port 2/2 on $mux $procmux$161.
+Running muxtree optimizer on module \axil_to_apb..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 2/2 on $mux $procmux$227.
+    dead port 2/2 on $mux $procmux$219.
+    dead port 2/2 on $mux $procmux$213.
+    dead port 2/2 on $mux $procmux$208.
+    dead port 2/2 on $mux $procmux$206.
+    dead port 2/2 on $mux $procmux$200.
+    dead port 1/2 on $mux $procmux$198.
+Removed 13 multiplexer ports.
+<suppressed ~101 debug messages>
+
+5.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \pulp_spi_wrap.
+  Optimizing cells in module \axil_to_apb.
+    New ctrl vector for $pmux cell $procmux$187: $auto$opt_reduce.cc:137:opt_pmux$336
+  Optimizing cells in module \axil_to_apb.
+Performed a total of 1 changes.
+
+5.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 71 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 57 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Computing hashes of 56 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+5.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+Removed 0 unused cells and 48 unused wires.
+<suppressed ~2 debug messages>
+
+5.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+
+5.6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+5.6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \pulp_spi_wrap..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \axil_to_apb..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~86 debug messages>
+
+5.6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \pulp_spi_wrap.
+  Optimizing cells in module \axil_to_apb.
+Performed a total of 0 changes.
+
+5.6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 71 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 56 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Removed a total of 0 cells.
+
+5.6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+
+5.6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+
+5.6.16. Finished fast OPT passes. (There is nothing left to do.)
+
+5.7. Executing FSM pass (extract and optimize FSM).
+
+5.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+Found FSM state register pulp_spi_wrap.lrd_state_r.
+Found FSM state register pulp_spi_wrap.lwr_state_r.
+Found FSM state register axil_to_apb.state_r.
+
+5.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+Extracting FSM `\lrd_state_r' from module `\pulp_spi_wrap'.
+  found $adff cell for state register: $procdff$264
+  root of input selection tree: \lrd_state_next
+  found reset state: 2'00 (from async reset)
+  found ctrl input: $eq$../rtl/periph/pulp_spi_wrap.sv:195$86_Y
+  found ctrl input: $eq$../rtl/periph/pulp_spi_wrap.sv:163$65_Y
+  found ctrl input: \s_rready
+  found ctrl input: $logic_and$../rtl/periph/pulp_spi_wrap.sv:151$62_Y
+  found state code: 2'01
+  found ctrl output: $eq$../rtl/periph/pulp_spi_wrap.sv:195$86_Y
+  found ctrl output: $eq$../rtl/periph/pulp_spi_wrap.sv:163$65_Y
+  ctrl inputs: { $logic_and$../rtl/periph/pulp_spi_wrap.sv:151$62_Y \s_rready }
+  ctrl outputs: { $eq$../rtl/periph/pulp_spi_wrap.sv:195$86_Y $eq$../rtl/periph/pulp_spi_wrap.sv:163$65_Y \lrd_state_next }
+  transition:       2'00 2'0- ->       2'00 4'0100
+  transition:       2'00 2'1- ->       2'01 4'0101
+  transition:       2'01 2'-0 ->       2'01 4'1001
+  transition:       2'01 2'-1 ->       2'00 4'1000
+Extracting FSM `\lwr_state_r' from module `\pulp_spi_wrap'.
+  found $adff cell for state register: $procdff$284
+  root of input selection tree: \lwr_state_next
+  found reset state: 2'00 (from async reset)
+  found ctrl input: $eq$../rtl/periph/pulp_spi_wrap.sv:192$80_Y
+  found ctrl input: $eq$../rtl/periph/pulp_spi_wrap.sv:127$56_Y
+  found ctrl input: $eq$../rtl/periph/pulp_spi_wrap.sv:123$53_Y
+  found ctrl input: \s_bready
+  found ctrl input: \s_wvalid
+  found state code: 2'10
+  found ctrl input: $logic_and$../rtl/periph/pulp_spi_wrap.sv:106$50_Y
+  found state code: 2'01
+  found ctrl output: $eq$../rtl/periph/pulp_spi_wrap.sv:192$80_Y
+  found ctrl output: $eq$../rtl/periph/pulp_spi_wrap.sv:127$56_Y
+  found ctrl output: $eq$../rtl/periph/pulp_spi_wrap.sv:123$53_Y
+  ctrl inputs: { $logic_and$../rtl/periph/pulp_spi_wrap.sv:106$50_Y \s_bready \s_wvalid }
+  ctrl outputs: { $eq$../rtl/periph/pulp_spi_wrap.sv:192$80_Y $eq$../rtl/periph/pulp_spi_wrap.sv:127$56_Y $eq$../rtl/periph/pulp_spi_wrap.sv:123$53_Y \lwr_state_next }
+  transition:       2'00 3'0-- ->       2'00 5'00100
+  transition:       2'00 3'1-- ->       2'01 5'00101
+  transition:       2'10 3'-0- ->       2'10 5'10010
+  transition:       2'10 3'-1- ->       2'00 5'10000
+  transition:       2'01 3'--0 ->       2'01 5'01001
+  transition:       2'01 3'--1 ->       2'10 5'01010
+Extracting FSM `\state_r' from module `\axil_to_apb'.
+  found $adff cell for state register: $procdff$304
+  root of input selection tree: \state_next
+  found reset state: 2'00 (from async reset)
+  found ctrl input: $eq$../rtl/periph/axil_to_apb.sv:227$34_Y
+  found ctrl input: $eq$../rtl/periph/axil_to_apb.sv:191$31_Y
+  found ctrl input: $procmux$189_CMP
+  found ctrl input: $eq$../rtl/periph/axil_to_apb.sv:102$4_Y
+  found ctrl input: \lat_write_r
+  found ctrl input: $logic_and$../rtl/periph/axil_to_apb.sv:168$26_Y
+  found ctrl input: $logic_and$../rtl/periph/axil_to_apb.sv:165$25_Y
+  found ctrl input: \pready
+  found state code: 2'11
+  found state code: 2'10
+  found ctrl input: $logic_or$../rtl/periph/axil_to_apb.sv:152$24_Y
+  found state code: 2'01
+  found ctrl output: $eq$../rtl/periph/axil_to_apb.sv:227$34_Y
+  found ctrl output: $eq$../rtl/periph/axil_to_apb.sv:191$31_Y
+  found ctrl output: $procmux$189_CMP
+  found ctrl output: $eq$../rtl/periph/axil_to_apb.sv:102$4_Y
+  ctrl inputs: { $logic_and$../rtl/periph/axil_to_apb.sv:168$26_Y $logic_and$../rtl/periph/axil_to_apb.sv:165$25_Y $logic_or$../rtl/periph/axil_to_apb.sv:152$24_Y \lat_write_r \pready }
+  ctrl outputs: { $procmux$189_CMP $eq$../rtl/periph/axil_to_apb.sv:227$34_Y $eq$../rtl/periph/axil_to_apb.sv:191$31_Y $eq$../rtl/periph/axil_to_apb.sv:102$4_Y \state_next }
+  transition:       2'00 5'--0-- ->       2'00 6'000100
+  transition:       2'00 5'--1-- ->       2'01 6'000101
+  transition:       2'10 5'----0 ->       2'10 6'001010
+  transition:       2'10 5'----1 ->       2'11 6'001011
+  transition:       2'01 5'----- ->       2'10 6'100010
+  transition:       2'11 5'0--0- ->       2'11 6'010011
+  transition:       2'11 5'1--0- ->       2'00 6'010000
+  transition:       2'11 5'-0-1- ->       2'11 6'010011
+  transition:       2'11 5'-1-1- ->       2'00 6'010000
+
+5.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+Optimizing FSM `$fsm$\lwr_state_r$341' from module `\pulp_spi_wrap'.
+Optimizing FSM `$fsm$\lrd_state_r$337' from module `\pulp_spi_wrap'.
+Optimizing FSM `$fsm$\state_r$346' from module `\axil_to_apb'.
+
+5.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+Removed 25 unused cells and 25 unused wires.
+<suppressed ~27 debug messages>
+
+5.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+Optimizing FSM `$fsm$\lwr_state_r$341' from module `\pulp_spi_wrap'.
+  Removing unused output signal \lwr_state_next [0].
+  Removing unused output signal \lwr_state_next [1].
+Optimizing FSM `$fsm$\lrd_state_r$337' from module `\pulp_spi_wrap'.
+  Removing unused output signal \lrd_state_next [0].
+  Removing unused output signal \lrd_state_next [1].
+Optimizing FSM `$fsm$\state_r$346' from module `\axil_to_apb'.
+
+5.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+Recoding FSM `$fsm$\lwr_state_r$341' from module `\pulp_spi_wrap' using `auto' encoding:
+  mapping auto encoding to `one-hot` for this FSM.
+  00 -> --1
+  10 -> -1-
+  01 -> 1--
+Recoding FSM `$fsm$\lrd_state_r$337' from module `\pulp_spi_wrap' using `auto' encoding:
+  mapping auto encoding to `one-hot` for this FSM.
+  00 -> -1
+  01 -> 1-
+Recoding FSM `$fsm$\state_r$346' from module `\axil_to_apb' using `auto' encoding:
+  mapping auto encoding to `one-hot` for this FSM.
+  00 -> ---1
+  10 -> --1-
+  01 -> -1--
+  11 -> 1---
+
+5.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+FSM `$fsm$\lwr_state_r$341' from module `pulp_spi_wrap':
+-------------------------------------
+
+  Information on FSM $fsm$\lwr_state_r$341 (\lwr_state_r):
+
+  Number of input signals:    3
+  Number of output signals:   3
+  Number of state bits:       3
+
+  Input signals:
+    0: \s_wvalid
+    1: \s_bready
+    2: $logic_and$../rtl/periph/pulp_spi_wrap.sv:106$50_Y
+
+  Output signals:
+    0: $eq$../rtl/periph/pulp_spi_wrap.sv:123$53_Y
+    1: $eq$../rtl/periph/pulp_spi_wrap.sv:127$56_Y
+    2: $eq$../rtl/periph/pulp_spi_wrap.sv:192$80_Y
+
+  State encoding:
+    0:      3'--1  <RESET STATE>
+    1:      3'-1-
+    2:      3'1--
+
+  Transition Table (state_in, ctrl_in, state_out, ctrl_out):
+      0:     0 3'0--   ->     0 3'001
+      1:     0 3'1--   ->     2 3'001
+      2:     1 3'-1-   ->     0 3'100
+      3:     1 3'-0-   ->     1 3'100
+      4:     2 3'--1   ->     1 3'010
+      5:     2 3'--0   ->     2 3'010
+
+-------------------------------------
+
+FSM `$fsm$\lrd_state_r$337' from module `pulp_spi_wrap':
+-------------------------------------
+
+  Information on FSM $fsm$\lrd_state_r$337 (\lrd_state_r):
+
+  Number of input signals:    2
+  Number of output signals:   2
+  Number of state bits:       2
+
+  Input signals:
+    0: \s_rready
+    1: $logic_and$../rtl/periph/pulp_spi_wrap.sv:151$62_Y
+
+  Output signals:
+    0: $eq$../rtl/periph/pulp_spi_wrap.sv:163$65_Y
+    1: $eq$../rtl/periph/pulp_spi_wrap.sv:195$86_Y
+
+  State encoding:
+    0:       2'-1  <RESET STATE>
+    1:       2'1-
+
+  Transition Table (state_in, ctrl_in, state_out, ctrl_out):
+      0:     0 2'0-   ->     0 2'01
+      1:     0 2'1-   ->     1 2'01
+      2:     1 2'-1   ->     0 2'10
+      3:     1 2'-0   ->     1 2'10
+
+-------------------------------------
+
+FSM `$fsm$\state_r$346' from module `axil_to_apb':
+-------------------------------------
+
+  Information on FSM $fsm$\state_r$346 (\state_r):
+
+  Number of input signals:    5
+  Number of output signals:   6
+  Number of state bits:       4
+
+  Input signals:
+    0: \pready
+    1: \lat_write_r
+    2: $logic_or$../rtl/periph/axil_to_apb.sv:152$24_Y
+    3: $logic_and$../rtl/periph/axil_to_apb.sv:165$25_Y
+    4: $logic_and$../rtl/periph/axil_to_apb.sv:168$26_Y
+
+  Output signals:
+    0: \state_next [0]
+    1: \state_next [1]
+    2: $eq$../rtl/periph/axil_to_apb.sv:102$4_Y
+    3: $eq$../rtl/periph/axil_to_apb.sv:191$31_Y
+    4: $eq$../rtl/periph/axil_to_apb.sv:227$34_Y
+    5: $procmux$189_CMP
+
+  State encoding:
+    0:     4'---1  <RESET STATE>
+    1:     4'--1-
+    2:     4'-1--
+    3:     4'1---
+
+  Transition Table (state_in, ctrl_in, state_out, ctrl_out):
+      0:     0 5'--0--   ->     0 6'000100
+      1:     0 5'--1--   ->     2 6'000101
+      2:     1 5'----0   ->     1 6'001010
+      3:     1 5'----1   ->     3 6'001011
+      4:     2 5'-----   ->     1 6'100010
+      5:     3 5'1--0-   ->     0 6'010000
+      6:     3 5'-1-1-   ->     0 6'010000
+      7:     3 5'0--0-   ->     3 6'010011
+      8:     3 5'-0-1-   ->     3 6'010011
+
+-------------------------------------
+
+5.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+Mapping FSM `$fsm$\lwr_state_r$341' from module `\pulp_spi_wrap'.
+Mapping FSM `$fsm$\lrd_state_r$337' from module `\pulp_spi_wrap'.
+Mapping FSM `$fsm$\state_r$346' from module `\axil_to_apb'.
+
+5.8. Executing OPT pass (performing simple optimizations).
+
+5.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+<suppressed ~10 debug messages>
+Optimizing module axil_to_apb.
+<suppressed ~9 debug messages>
+
+5.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 79 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 75 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Computing hashes of 69 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Computing hashes of 65 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+<suppressed ~30 debug messages>
+Removed a total of 10 cells.
+
+5.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \pulp_spi_wrap..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \axil_to_apb..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~70 debug messages>
+
+5.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \pulp_spi_wrap.
+  Optimizing cells in module \axil_to_apb.
+Performed a total of 0 changes.
+
+5.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 79 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 65 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Removed a total of 0 cells.
+
+5.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$269 ($adff) from module pulp_spi_wrap (D = $procmux$122_Y, Q = \lrd_rdata_r).
+Adding EN signal on $procdff$279 ($adff) from module pulp_spi_wrap (D = $or$../rtl/periph/pulp_spi_wrap.sv:132$60_Y, Q = \cs_lock_r).
+Adding EN signal on $procdff$289 ($adff) from module pulp_spi_wrap (D = \s_awaddr, Q = \lwr_addr_r).
+Adding EN signal on $procdff$274 ($adff) from module pulp_spi_wrap (D = \s_wdata [7:0], Q = \max_len_r).
+Adding EN signal on $procdff$314 ($adff) from module axil_to_apb (D = \s_wdata, Q = \lat_wdata_r).
+Adding EN signal on $procdff$324 ($adff) from module axil_to_apb (D = $0\lat_write_r[0:0], Q = \lat_write_r).
+Adding EN signal on $procdff$309 ($adff) from module axil_to_apb (D = $0\lat_addr_r[11:0], Q = \lat_addr_r).
+Adding EN signal on $procdff$299 ($adff) from module axil_to_apb (D = \pslverr, Q = \slverr_r).
+Adding EN signal on $procdff$294 ($adff) from module axil_to_apb (D = \prdata, Q = \rdata_r).
+
+5.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+Removed 10 unused cells and 46 unused wires.
+<suppressed ~14 debug messages>
+
+5.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+<suppressed ~2 debug messages>
+
+5.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+5.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \pulp_spi_wrap..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \axil_to_apb..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~54 debug messages>
+
+5.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \pulp_spi_wrap.
+  Optimizing cells in module \axil_to_apb.
+Performed a total of 0 changes.
+
+5.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 75 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 64 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Computing hashes of 63 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+5.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+5.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+
+5.8.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+5.8.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \pulp_spi_wrap..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \axil_to_apb..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~54 debug messages>
+
+5.8.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \pulp_spi_wrap.
+  Optimizing cells in module \axil_to_apb.
+Performed a total of 0 changes.
+
+5.8.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 75 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 63 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Removed a total of 0 cells.
+
+5.8.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.8.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+
+5.8.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+
+5.8.23. Finished fast OPT passes. (There is nothing left to do.)
+
+5.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 4 bits (of 12) from port B of cell pulp_spi_wrap.$eq$../rtl/periph/pulp_spi_wrap.sv:88$41 ($eq).
+Removed top 4 bits (of 12) from port B of cell pulp_spi_wrap.$eq$../rtl/periph/pulp_spi_wrap.sv:88$42 ($eq).
+Removed top 4 bits (of 12) from port B of cell pulp_spi_wrap.$eq$../rtl/periph/pulp_spi_wrap.sv:128$58 ($eq).
+Removed top 4 bits (of 12) from port B of cell pulp_spi_wrap.$eq$../rtl/periph/pulp_spi_wrap.sv:130$59 ($eq).
+Removed top 4 bits (of 12) from port B of cell pulp_spi_wrap.$eq$../rtl/periph/pulp_spi_wrap.sv:164$68 ($eq).
+Removed top 4 bits (of 12) from port B of cell pulp_spi_wrap.$eq$../rtl/periph/pulp_spi_wrap.sv:166$69 ($eq).
+Removed top 8 bits (of 12) from port B of cell pulp_spi_wrap.$eq$../rtl/periph/pulp_spi_wrap.sv:211$95 ($eq).
+Removed top 31 bits (of 32) from mux cell pulp_spi_wrap.$procmux$119 ($mux).
+Removed top 24 bits (of 32) from mux cell pulp_spi_wrap.$procmux$122 ($mux).
+Removed top 31 bits (of 32) from wire pulp_spi_wrap.$procmux$119_Y.
+Removed top 24 bits (of 32) from wire pulp_spi_wrap.$procmux$122_Y.
+Removed top 1 bits (of 2) from port B of cell axil_to_apb.$auto$fsm_map.cc:77:implement_pattern_cache$453 ($eq).
+Removed top 1 bits (of 2) from port B of cell axil_to_apb.$eq$../rtl/periph/axil_to_apb.sv:135$20 ($eq).
+
+5.10. Executing PEEPOPT pass (run peephole optimizers).
+
+5.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+Removed 0 unused cells and 2 unused wires.
+<suppressed ~1 debug messages>
+
+5.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module pulp_spi_wrap:
+  creating $alu model for $gt$../rtl/periph/pulp_spi_wrap.sv:212$97 ($gt): new $alu
+  creating $alu cell for $gt$../rtl/periph/pulp_spi_wrap.sv:212$97: $auto$alumacc.cc:512:replace_alu$492
+  created 1 $alu and 0 $macc cells.
+Extracting $alu and $macc cells in module axil_to_apb:
+  created 0 $alu and 0 $macc cells.
+
+5.13. Executing SHARE pass (SAT-based resource sharing).
+
+5.14. Executing OPT pass (performing simple optimizations).
+
+5.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+<suppressed ~1 debug messages>
+Optimizing module axil_to_apb.
+
+5.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 79 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 63 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Removed a total of 0 cells.
+
+5.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \pulp_spi_wrap..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \axil_to_apb..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~54 debug messages>
+
+5.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \pulp_spi_wrap.
+  Optimizing cells in module \axil_to_apb.
+Performed a total of 0 changes.
+
+5.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 79 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 63 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Removed a total of 0 cells.
+
+5.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+Setting constant 0-bit at position 8 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 9 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 10 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 11 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 12 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 13 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 14 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 15 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 16 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 17 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 18 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 19 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 20 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 21 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 22 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 23 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 24 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 25 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 26 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 27 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 28 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 29 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 30 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+Setting constant 0-bit at position 31 on $auto$ff.cc:337:slice$470 ($adffe) from module pulp_spi_wrap.
+
+5.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+Removed 1 unused cells and 2 unused wires.
+<suppressed ~2 debug messages>
+
+5.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+
+5.14.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+5.14.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \pulp_spi_wrap..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \axil_to_apb..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~54 debug messages>
+
+5.14.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \pulp_spi_wrap.
+  Optimizing cells in module \axil_to_apb.
+Performed a total of 0 changes.
+
+5.14.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 78 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 63 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Removed a total of 0 cells.
+
+5.14.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.14.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+
+5.14.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+
+5.14.16. Finished fast OPT passes. (There is nothing left to do.)
+
+5.15. Executing MEMORY pass.
+
+5.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+5.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+5.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+5.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+5.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+5.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+
+5.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+5.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+5.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+
+5.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+5.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+
+5.17. Executing OPT pass (performing simple optimizations).
+
+5.17.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+<suppressed ~5 debug messages>
+Optimizing module axil_to_apb.
+<suppressed ~7 debug messages>
+
+5.17.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 78 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 59 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Removed a total of 0 cells.
+
+5.17.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.17.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+Removed 0 unused cells and 3 unused wires.
+<suppressed ~1 debug messages>
+
+5.17.5. Finished fast OPT passes.
+
+5.18. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+
+5.19. Executing OPT pass (performing simple optimizations).
+
+5.19.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+<suppressed ~1 debug messages>
+
+5.19.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 78 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 59 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Removed a total of 0 cells.
+
+5.19.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \pulp_spi_wrap..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \axil_to_apb..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~28 debug messages>
+
+5.19.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \pulp_spi_wrap.
+  Optimizing cells in module \axil_to_apb.
+    Consolidated identical input bits for $mux cell $ternary$../rtl/periph/axil_to_apb.sv:233$40:
+      Old ports: A=2'00, B=2'10, Y=\s_rresp
+      New ports: A=1'0, B=1'1, Y=\s_rresp [1]
+      New connections: \s_rresp [0] = 1'0
+  Optimizing cells in module \axil_to_apb.
+Performed a total of 1 changes.
+
+5.19.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 78 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 59 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Removed a total of 0 cells.
+
+5.19.6. Executing OPT_SHARE pass.
+
+5.19.7. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.19.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+
+5.19.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+<suppressed ~1 debug messages>
+
+5.19.10. Rerunning OPT passes. (Maybe there is more to do..)
+
+5.19.11. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \pulp_spi_wrap..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \axil_to_apb..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~26 debug messages>
+
+5.19.12. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \pulp_spi_wrap.
+  Optimizing cells in module \axil_to_apb.
+Performed a total of 0 changes.
+
+5.19.13. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 78 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 58 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Removed a total of 0 cells.
+
+5.19.14. Executing OPT_SHARE pass.
+
+5.19.15. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.19.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+
+5.19.17. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+
+5.19.18. Finished fast OPT passes. (There is nothing left to do.)
+
+5.20. Executing TECHMAP pass (map to technology primitives).
+
+5.20.1. Executing Verilog-2005 frontend: /opt/homebrew/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/opt/homebrew/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `$__div_mod_u'.
+Generating RTLIL representation for module `$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Generating RTLIL representation for module `$connect'.
+Generating RTLIL representation for module `$input_port'.
+Successfully finished Verilog frontend.
+
+5.20.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $adffe.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $reduce_or.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $adff.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $logic_or.
+Using extmapper simplemap for cells of type $or.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $reduce_and.
+Using template $paramod$a1bc51c02ce12ac21eb18988e83292af48ed7d72\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $pos.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000001000 for cells of type $fa.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000001000 for cells of type $lcu.
+Using extmapper simplemap for cells of type $xor.
+No more expansions possible.
+<suppressed ~396 debug messages>
+
+5.21. Executing OPT pass (performing simple optimizations).
+
+5.21.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+<suppressed ~128 debug messages>
+Optimizing module axil_to_apb.
+<suppressed ~8 debug messages>
+
+5.21.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 335 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Computing hashes of 307 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Computing hashes of 297 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Computing hashes of 294 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+<suppressed ~123 debug messages>
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 161 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Computing hashes of 155 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+<suppressed ~18 debug messages>
+Removed a total of 47 cells.
+
+5.21.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.21.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+Removed 16 unused cells and 106 unused wires.
+<suppressed ~18 debug messages>
+
+5.21.5. Finished fast OPT passes.
+
+5.22. Executing ABC pass (technology mapping using ABC).
+
+5.22.1. Extracting gate netlist of module `\pulp_spi_wrap' to `<abc-temp-dir>/input.blif'..
+
+5.22.1.1. Executed ABC.
+Extracted 242 gates and 375 wires to a netlist network with 132 inputs and 73 outputs.
+Running ABC script: <abc-temp-dir>/abc.script
+ABC: ======== ABC command line "source <abc-temp-dir>/abc.script"
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_library <abc-temp-dir>/stdcells.genlib 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+5.22.1.2. Re-integrating ABC results.
+ABC RESULTS:               AND cells:       51
+ABC RESULTS:            ANDNOT cells:       43
+ABC RESULTS:               MUX cells:       17
+ABC RESULTS:              NAND cells:       24
+ABC RESULTS:               NOR cells:       14
+ABC RESULTS:                OR cells:        8
+ABC RESULTS:             ORNOT cells:       19
+ABC RESULTS:              XNOR cells:        2
+ABC RESULTS:        internal signals:      170
+ABC RESULTS:           input signals:      132
+ABC RESULTS:          output signals:       73
+Removing temp directory.
+
+5.22.2. Extracting gate netlist of module `\axil_to_apb' to `<abc-temp-dir>/input.blif'..
+
+5.22.2.1. Executed ABC.
+Extracted 71 gates and 109 wires to a netlist network with 37 inputs and 27 outputs.
+Running ABC script: <abc-temp-dir>/abc.script
+ABC: ======== ABC command line "source <abc-temp-dir>/abc.script"
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_library <abc-temp-dir>/stdcells.genlib 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+5.22.2.2. Re-integrating ABC results.
+ABC RESULTS:               AND cells:       12
+ABC RESULTS:            ANDNOT cells:        5
+ABC RESULTS:               MUX cells:       12
+ABC RESULTS:              NAND cells:        4
+ABC RESULTS:               NOR cells:        2
+ABC RESULTS:               NOT cells:        2
+ABC RESULTS:                OR cells:        6
+ABC RESULTS:             ORNOT cells:        5
+ABC RESULTS:        internal signals:       45
+ABC RESULTS:           input signals:       37
+ABC RESULTS:          output signals:       27
+Removing temp directory.
+Removing global temp directory.
+
+5.23. Executing OPT pass (performing simple optimizations).
+
+5.23.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module pulp_spi_wrap.
+Optimizing module axil_to_apb.
+
+5.23.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\pulp_spi_wrap'.
+Computing hashes of 214 cells of `\pulp_spi_wrap'.
+Finding duplicate cells in `\pulp_spi_wrap'.
+Finding identical cells in module `\axil_to_apb'.
+Computing hashes of 132 cells of `\axil_to_apb'.
+Finding duplicate cells in `\axil_to_apb'.
+Removed a total of 0 cells.
+
+5.23.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.23.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \pulp_spi_wrap..
+Finding unused cells or wires in module \axil_to_apb..
+Removed 0 unused cells and 406 unused wires.
+<suppressed ~8 debug messages>
+
+5.23.5. Finished fast OPT passes.
+
+5.24. Executing HIERARCHY pass (managing design hierarchy).
+Attribute `top' found on module `pulp_spi_wrap'. Setting top module to pulp_spi_wrap.
+
+5.24.1. Analyzing design hierarchy..
+Top module:  \pulp_spi_wrap
+Used module:     \axil_to_apb
+
+5.24.2. Analyzing design hierarchy..
+Top module:  \pulp_spi_wrap
+Used module:     \axil_to_apb
+Removed 0 unused modules.
+
+5.25. Printing statistics.
+
+=== pulp_spi_wrap ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      179 wires
+      468 wire bits
+       56 public wires
+      345 public wire bits
+       25 ports
+      114 port bits
+      213 cells
+       43   $_ANDNOT_
+       51   $_AND_
+       21   $_DFFE_PN0P_
+        8   $_DFFE_PN1P_
+        3   $_DFF_PN0_
+        2   $_DFF_PN1_
+       17   $_MUX_
+       24   $_NAND_
+       14   $_NOR_
+       19   $_ORNOT_
+        8   $_OR_
+        2   $_XNOR_
+        1   apb_spi_master
+        1 submodules
+        1   axil_to_apb
+
+=== axil_to_apb ===
+
+        +----------Local Count, excluding submodules.
+        | 
+       67 wires
+      316 wire bits
+       35 public wires
+      273 public wire bits
+       27 ports
+      189 port bits
+      132 cells
+        5   $_ANDNOT_
+       12   $_AND_
+       78   $_DFFE_PN0P_
+        5   $_DFF_PN0_
+        1   $_DFF_PN1_
+       12   $_MUX_
+        4   $_NAND_
+        2   $_NOR_
+        2   $_NOT_
+        5   $_ORNOT_
+        6   $_OR_
+
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        | 
+      345 pulp_spi_wrap
+      132 axil_to_apb
+
+        +----------Count including submodules.
+        | 
+      246 wires
+      784 wire bits
+       91 public wires
+      618 public wire bits
+       52 ports
+      303 port bits
+        - memories
+        - memory bits
+        - processes
+      345 cells
+       48   $_ANDNOT_
+       63   $_AND_
+       99   $_DFFE_PN0P_
+        8   $_DFFE_PN1P_
+        8   $_DFF_PN0_
+        3   $_DFF_PN1_
+       29   $_MUX_
+       28   $_NAND_
+       16   $_NOR_
+        2   $_NOT_
+       24   $_ORNOT_
+       14   $_OR_
+        2   $_XNOR_
+        1   apb_spi_master
+        1 submodules
+        1   axil_to_apb
+
+5.26. Executing CHECK pass (checking for obvious problems).
+Checking module pulp_spi_wrap...
+Checking module axil_to_apb...
+Found and reported 0 problems.
+
+6. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell DFF_X1 (noninv, pins=4, area=4.52) is a direct match for cell type $_DFF_P_.
+  cell DFFR_X1 (noninv, pins=5, area=5.32) is a direct match for cell type $_DFF_PN0_.
+  cell DFFS_X1 (noninv, pins=5, area=5.32) is a direct match for cell type $_DFF_PN1_.
+  cell DFFRS_X1 (noninv, pins=6, area=6.38) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \DFF_X1 _DFF_P_ (.CK( C), .D( D), .Q( Q), .QN(~Q));
+    unmapped dff cell: $_DFF_NN0_
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \DFFR_X1 _DFF_PN0_ (.CK( C), .D( D), .Q( Q), .QN(~Q), .RN( R));
+    \DFFS_X1 _DFF_PN1_ (.CK( C), .D( D), .Q( Q), .QN(~Q), .SN( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    unmapped dff cell: $_DFFE_PP_
+    unmapped dff cell: $_DFFSR_NNN_
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \DFFRS_X1 _DFFSR_PNN_ (.CK( C), .D( D), .Q( Q), .QN(~Q), .RN( R), .SN( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+6.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~8 debug messages>
+Mapping DFF cells in module `\pulp_spi_wrap':
+  mapped 24 $_DFF_PN0_ cells to \DFFR_X1 cells.
+  mapped 10 $_DFF_PN1_ cells to \DFFS_X1 cells.
+Mapping DFF cells in module `\axil_to_apb':
+  mapped 83 $_DFF_PN0_ cells to \DFFR_X1 cells.
+  mapped 1 $_DFF_PN1_ cells to \DFFS_X1 cells.
+
+7. Executing ABC pass (technology mapping using ABC).
+
+7.1. Extracting gate netlist of module `\pulp_spi_wrap' to `<abc-temp-dir>/input.blif'..
+
+7.1.1. Executed ABC.
+Extracted 207 gates and 346 wires to a netlist network with 139 inputs and 89 outputs.
+Running ABC script: <abc-temp-dir>/abc.script
+ABC: ======== ABC command line "source <abc-temp-dir>/abc.script"
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/synth/../pdk/nangate45/NangateOpenCellLibrary_typical.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.04 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "ANTENNA_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFRS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFRS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFR_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFR_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFF_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFF_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLH_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLH_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLL_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLL_X2".
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "TAPCELL_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X2" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X4" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X8" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X16" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X32" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "LOGIC0_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "LOGIC1_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFRS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFRS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFR_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFR_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFF_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFF_X2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X16".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TINV_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "TLAT_X1".
+ABC: Library "NangateOpenCellLibrary" from "/Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/synth/../pdk/nangate45/NangateOpenCellLibrary_typical.lib" has 90 cells (45 skipped: 21 seq; 6 tri-state; 8 no func; 10 dont_use; 0 with 2 outputs; 0 with 3+ outputs).  Time =     0.06 sec
+ABC: Memory =   11.38 MB. Time =     0.06 sec
+ABC: Warning: Detected 2 multi-output cells (for example, "FA_X1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+7.1.2. Re-integrating ABC results.
+ABC RESULTS:           AND2_X1 cells:       39
+ABC RESULTS:           AND3_X1 cells:        1
+ABC RESULTS:           AND4_X1 cells:        2
+ABC RESULTS:         AOI211_X1 cells:        3
+ABC RESULTS:         AOI221_X1 cells:        1
+ABC RESULTS:          AOI22_X1 cells:        1
+ABC RESULTS:            INV_X1 cells:       31
+ABC RESULTS:           MUX2_X1 cells:       26
+ABC RESULTS:          NAND2_X1 cells:       24
+ABC RESULTS:          NAND3_X1 cells:        1
+ABC RESULTS:          NAND4_X1 cells:        7
+ABC RESULTS:           NOR2_X1 cells:       10
+ABC RESULTS:           NOR3_X1 cells:        5
+ABC RESULTS:           NOR4_X1 cells:        6
+ABC RESULTS:          OAI21_X1 cells:       15
+ABC RESULTS:         OAI222_X1 cells:        1
+ABC RESULTS:          OAI22_X1 cells:        4
+ABC RESULTS:            OR2_X1 cells:        8
+ABC RESULTS:            OR3_X1 cells:        3
+ABC RESULTS:        internal signals:      118
+ABC RESULTS:           input signals:      139
+ABC RESULTS:          output signals:       89
+Removing temp directory.
+
+7.2. Extracting gate netlist of module `\axil_to_apb' to `<abc-temp-dir>/input.blif'..
+
+7.2.1. Executed ABC.
+Extracted 126 gates and 305 wires to a netlist network with 179 inputs and 89 outputs.
+Running ABC script: <abc-temp-dir>/abc.script
+ABC: ======== ABC command line "source <abc-temp-dir>/abc.script"
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/synth/../pdk/nangate45/NangateOpenCellLibrary_typical.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.04 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "ANTENNA_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATE_X8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFRS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFRS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFR_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFR_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFF_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFF_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLH_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLH_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLL_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLL_X2".
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "TAPCELL_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X2" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X4" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X8" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X16" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "FILLCELL_X32" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "LOGIC0_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped cell "LOGIC1_X1" due to dont_use attribute.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFRS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFRS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFR_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFR_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFS_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFFS_X2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFF_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFF_X2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X16".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "TINV_X1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "TLAT_X1".
+ABC: Library "NangateOpenCellLibrary" from "/Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/synth/../pdk/nangate45/NangateOpenCellLibrary_typical.lib" has 90 cells (45 skipped: 21 seq; 6 tri-state; 8 no func; 10 dont_use; 0 with 2 outputs; 0 with 3+ outputs).  Time =     0.06 sec
+ABC: Memory =   11.38 MB. Time =     0.06 sec
+ABC: Warning: Detected 2 multi-output cells (for example, "FA_X1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+7.2.2. Re-integrating ABC results.
+ABC RESULTS:           AND3_X1 cells:        1
+ABC RESULTS:          AOI21_X1 cells:        3
+ABC RESULTS:          AOI22_X1 cells:        2
+ABC RESULTS:            INV_X1 cells:        9
+ABC RESULTS:           MUX2_X1 cells:       89
+ABC RESULTS:          NAND2_X1 cells:        4
+ABC RESULTS:          NAND4_X1 cells:        1
+ABC RESULTS:           NOR2_X1 cells:        7
+ABC RESULTS:           NOR3_X1 cells:        2
+ABC RESULTS:           NOR4_X1 cells:        1
+ABC RESULTS:          OAI21_X1 cells:        2
+ABC RESULTS:            OR2_X1 cells:        1
+ABC RESULTS:        internal signals:       37
+ABC RESULTS:           input signals:      179
+ABC RESULTS:          output signals:       89
+Removing temp directory.
+Removing global temp directory.
+Removed 0 unused cells and 640 unused wires.
+
+8. Printing statistics.
+
+=== pulp_spi_wrap ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      223        - wires
+      512        - wire bits
+       56        - public wires
+      345        - public wire bits
+       25        - ports
+      114        - port bits
+      223  385.434 cells
+       39   41.496   AND2_X1
+        1     1.33   AND3_X1
+        2    3.192   AND4_X1
+        3     3.99   AOI211_X1
+        1    1.596   AOI221_X1
+        1     1.33   AOI22_X1
+       24   127.68   DFFR_X1
+       10     53.2   DFFS_X1
+       31   16.492   INV_X1
+       26   48.412   MUX2_X1
+       24   19.152   NAND2_X1
+        1    1.064   NAND3_X1
+        7     9.31   NAND4_X1
+       10     7.98   NOR2_X1
+        5     5.32   NOR3_X1
+        6     7.98   NOR4_X1
+       15    15.96   OAI21_X1
+        1    2.128   OAI222_X1
+        4     5.32   OAI22_X1
+        8    8.512   OR2_X1
+        3     3.99   OR3_X1
+        1        -   apb_spi_master
+        1        - submodules
+        1        -   axil_to_apb
+
+   Area for cell type \apb_spi_master is unknown!
+
+   Chip area for module '\pulp_spi_wrap': 385.434000
+     of which used for sequential elements: 180.880000 (46.93%)
+
+=== axil_to_apb ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      236        - wires
+      474        - wire bits
+       35        - public wires
+      273        - public wire bits
+       27        - ports
+      189        - port bits
+      206  641.326 cells
+        1     1.33   AND3_X1
+        3    3.192   AOI21_X1
+        2     2.66   AOI22_X1
+       83   441.56   DFFR_X1
+        1     5.32   DFFS_X1
+        9    4.788   INV_X1
+       89  165.718   MUX2_X1
+        4    3.192   NAND2_X1
+        1     1.33   NAND4_X1
+        7    5.586   NOR2_X1
+        2    2.128   NOR3_X1
+        1     1.33   NOR4_X1
+        2    2.128   OAI21_X1
+        1    1.064   OR2_X1
+
+   Chip area for module '\axil_to_apb': 641.326000
+     of which used for sequential elements: 446.880000 (69.68%)
+
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        |        +-Area including submodules.
+        |        | 
+      429  1026.76 pulp_spi_wrap
+      206  641.326 axil_to_apb
+
+        +----------Count including submodules.
+        |        +-Area including submodules.
+        |        | 
+      459        - wires
+      986        - wire bits
+       91        - public wires
+      618        - public wire bits
+       52        - ports
+      303        - port bits
+        -        - memories
+        -        - memory bits
+        -        - processes
+      429  1026.76 cells
+       39   41.496   AND2_X1
+        2     2.66   AND3_X1
+        2    3.192   AND4_X1
+        3     3.99   AOI211_X1
+        3    3.192   AOI21_X1
+        1    1.596   AOI221_X1
+        3     3.99   AOI22_X1
+      107   569.24   DFFR_X1
+       11    58.52   DFFS_X1
+       40    21.28   INV_X1
+      115   214.13   MUX2_X1
+       28   22.344   NAND2_X1
+        1    1.064   NAND3_X1
+        8    10.64   NAND4_X1
+       17   13.566   NOR2_X1
+        7    7.448   NOR3_X1
+        7     9.31   NOR4_X1
+       17   18.088   OAI21_X1
+        1    2.128   OAI222_X1
+        4     5.32   OAI22_X1
+        9    9.576   OR2_X1
+        3     3.99   OR3_X1
+        1        -   apb_spi_master
+        1  641.326 submodules
+        1  641.326   axil_to_apb
+
+   Area for cell type \apb_spi_master is unknown!
+
+   Chip area for top module '\pulp_spi_wrap': 1026.760000
+     of which used for sequential elements: 627.760000 (61.14%)
+
+9. Executing Verilog backend.
+Dumping module `\axil_to_apb'.
+Dumping module `\pulp_spi_wrap'.
+
+End of script. Logfile hash: cb8de619c7, time: 0.67s, user: 0.17s, system: 0.02s, MEM: 34.39 MB peak
+Yosys 0.64 (git sha1 d8dab5b32666564eca8e18f412973853ce006e61, clang++ 21.0.0 -fPIC -O3)
+Time spent: 74% 2x abc (0 sec), 4% 1x dfflibmap (0 sec), ...

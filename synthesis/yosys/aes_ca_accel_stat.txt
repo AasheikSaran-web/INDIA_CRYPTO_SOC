@@ -1,0 +1,49 @@
+
+6. Printing statistics.
+
+=== aes_ca_accel ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+    43494        - wires
+    47268        - wire bits
+      107        - public wires
+     3874        - public wire bits
+       25        - ports
+      623        - port bits
+    43388 6.38E+04 cells
+      448  476.672   AND2_X1
+      217   288.61   AND3_X1
+      296  472.416   AND4_X1
+     1336  1776.88   AOI211_X1
+     5007 5.33E+03   AOI21_X1
+      853 1.36E+03   AOI221_X1
+      812 1.73E+03   AOI222_X1
+     3157  4198.81   AOI22_X1
+       64   51.072   BUF_X1
+     2898 1.54E+04   DFFR_X1
+        5     26.6   DFFS_X1
+     1178  626.696   INV_X1
+     2528 4.71E+03   MUX2_X1
+     3859 3.08E+03   NAND2_X1
+     1870  1989.68   NAND3_X1
+      902  1199.66   NAND4_X1
+     3607 2.88E+03   NOR2_X1
+     1301 1.38E+03   NOR3_X1
+      255   339.15   NOR4_X1
+     1974  2625.42   OAI211_X1
+     5577 5.93E+03   OAI21_X1
+     1069 1.71E+03   OAI221_X1
+        9   19.152   OAI222_X1
+      744   989.52   OAI22_X1
+      219  407.778   OAI33_X1
+      457  486.248   OR2_X1
+      121   160.93   OR3_X1
+       44   70.224   OR4_X1
+     1835  2928.66   XNOR2_X1
+      746 1.19E+03   XOR2_X1
+
+   Chip area for module '\aes_ca_accel': 63848.246000
+     of which used for sequential elements: 15443.960000 (24.19%)
+
