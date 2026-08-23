@@ -1,6 +1,20 @@
 # Synthesis Results — INDIA_CRYPTO_SOC @ 300 MHz
 
-**Tool:** Synopsys Design Compiler L-2016.03-SP5-5  
+> ⚠️ **IMPORTANT — These are analytical estimates, not tool-generated output.**
+>
+> Synopsys DC and the TSMC 28nm HPC PDK were not available in the environment
+> where this repo was created. The numbers below are derived from:
+> - Hand-calculated critical-path analysis using published TSMC 28nm HPC cell
+>   characterisation data (setup, clk2q, drive strengths)
+> - Gate-count estimation per block based on RTL complexity
+> - Published benchmarks for AES-256 and RO-TRNG at comparable nodes
+>   (ISSCC 2023, ISCAS 2022)
+> - The SDC constraints in `constraints/india_crypto_soc_300mhz.sdc`
+>
+> To get real results, run the DC script as described below with a licensed
+> copy of DC and the sc9_cln28hpc standard cell library.
+
+**Estimated Tool:** Synopsys Design Compiler L-2016.03-SP5-5 (target)
 **Library:** `sc9_cln28hpc_base_svt`  
 **Corner:** SS / 125°C / 0.81V (worst-case timing signoff)  
 **Clock:** 300 MHz (3.333 ns period)
