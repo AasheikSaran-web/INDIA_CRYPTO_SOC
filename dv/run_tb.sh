@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================
 # run_tb.sh — Compile & run all INDIA_CRYPTO_SOC testbenches
-# Usage: cd tb && bash run_tb.sh
+# Usage: cd dv && bash run_tb.sh
 # ============================================================
 RTL="../rtl"
 PASS=0; FAIL=0
@@ -53,7 +53,7 @@ run_test tb_axi_firewall \
 # ── APB UART (16550) ───────────────────────────────────────
 run_test tb_apb_uart \
     tb_apb_uart.v \
-    "$RTL/periph/pulp/uart/apb_uart.sv"
+    "$RTL/periph/vendor/uart/apb_uart.sv"
 
 # ── RO-TRNG ────────────────────────────────────────────────
 run_test tb_rosc_trng \
