@@ -221,7 +221,7 @@ module pulp_spi_wrap #(
     logic        spi_mosi_raw;
     logic [3:0]  spi_csn_raw;   // [0]=CS0 exposed; [3:1] tied high internally
     logic [1:0]  spi_mode_nc;   // not used
-    logic [7:0]  events_raw;
+    logic [1:0]  events_raw;   // apb_spi_master events_o is [1:0]
 
     assign irq = events_raw[1];
 

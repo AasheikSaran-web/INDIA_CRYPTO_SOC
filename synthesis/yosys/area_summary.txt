@@ -9,6 +9,8 @@ axil_to_apb                     -     641.326000        0
 hamming_dec                     -     288.078000        0
 hamming_enc                     -     172.368000        0
 india_pdf_engine                -   32088.112000        0
-pulp_spi_wrap                   -    1026.760000        0
+pulp_i2c_wrap                   -    2797.256000        0
+pulp_spi_wrap                   -    9256.800000        0
+pulp_uart_wrap                  -    3770.550000        0
 rosc_trng                       -    1791.244000        0
 rv32im_core                     -   33145.196000        0

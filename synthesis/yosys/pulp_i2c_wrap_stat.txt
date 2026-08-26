@@ -1,0 +1,251 @@
+
+10. Printing statistics.
+
+=== pulp_i2c_wrap ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      406        - wires
+      730        - wire bits
+       67        - public wires
+      391        - public wire bits
+       23        - ports
+      112        - port bits
+      387   780.71 cells
+       48   51.072   AND2_X1
+        7     9.31   AND3_X1
+        3    4.788   AND4_X1
+       10     13.3   AOI211_X1
+       24   25.536   AOI21_X1
+        2    3.192   AOI221_X1
+        1    2.128   AOI222_X1
+        3     3.99   AOI22_X1
+       79   420.28   DFFR_X1
+        2    10.64   DFFS_X1
+       46   24.472   INV_X1
+       39   72.618   MUX2_X1
+       15    11.97   NAND2_X1
+        9    9.576   NAND3_X1
+       10     13.3   NAND4_X1
+       13   10.374   NOR2_X1
+       18   19.152   NOR3_X1
+        9    11.97   NOR4_X1
+        2     2.66   OAI211_X1
+       18   19.152   OAI21_X1
+        1    1.596   OAI221_X1
+        2     2.66   OAI22_X1
+        8    8.512   OR2_X1
+        1     1.33   OR3_X1
+        6    9.576   XNOR2_X1
+       11   17.556   XOR2_X1
+        2        - submodules
+        1        -   $paramod\apb_i2c\APB_ADDR_WIDTH=s32'00000000000000000000000000001100
+        1        -   axil_to_apb
+
+   Chip area for module '\pulp_i2c_wrap': 780.710000
+     of which used for sequential elements: 430.920000 (55.20%)
+
+=== $paramod\apb_i2c\APB_ADDR_WIDTH=s32'00000000000000000000000000001100 ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      166        - wires
+      299        - wire bits
+       40        - public wires
+      166        - public wire bits
+       17        - ports
+       90        - port bits
+      148  383.838 cells
+       17   18.088   AND2_X1
+        2     2.66   AND3_X1
+        1    1.064   AOI21_X1
+        3    6.384   AOI222_X1
+       18    23.94   AOI22_X1
+       45    239.4   DFFR_X1
+        6    3.192   INV_X1
+       37   68.894   MUX2_X1
+        5     3.99   NAND2_X1
+        5     5.32   NAND3_X1
+        1    0.798   NOR2_X1
+        6     7.98   NOR4_X1
+        1    1.064   OAI21_X1
+        1    1.064   OR2_X1
+        1        - submodules
+        1        -   i2c_master_byte_ctrl
+
+   Chip area for module '$paramod\apb_i2c\APB_ADDR_WIDTH=s32'00000000000000000000000000001100': 383.838000
+     of which used for sequential elements: 239.400000 (62.37%)
+
+=== i2c_master_byte_ctrl ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      161        - wires
+      207        - wire bits
+       30        - public wires
+       76        - public wire bits
+       21        - ports
+       50        - port bits
+      131  245.784 cells
+        1    1.064   AND2_X1
+        3     3.99   AND3_X1
+        9    9.576   AOI21_X1
+        5     7.98   AOI221_X1
+        4    8.512   AOI222_X1
+        4     5.32   AOI22_X1
+       25      133   DFFR_X1
+        1     5.32   DFFS_X1
+       23   12.236   INV_X1
+        6   11.172   MUX2_X1
+       16   12.768   NAND2_X1
+        3    3.192   NAND3_X1
+       11    8.778   NOR2_X1
+        4    4.256   NOR3_X1
+        1     1.33   NOR4_X1
+        2     2.66   OAI211_X1
+        8    8.512   OAI21_X1
+        2     2.66   OAI22_X1
+        2    2.128   OR2_X1
+        1     1.33   OR3_X1
+        1        - submodules
+        1        -   i2c_master_bit_ctrl
+
+   Chip area for module '\i2c_master_byte_ctrl': 245.784000
+     of which used for sequential elements: 138.320000 (56.28%)
+
+=== i2c_master_bit_ctrl ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      414        - wires
+      496        - wire bits
+       34        - public wires
+      103        - public wire bits
+       16        - ports
+       34        - port bits
+      393  745.598 cells
+        6    6.384   AND2_X1
+        1     1.33   AND3_X1
+        5     7.98   AND4_X1
+        6     7.98   AOI211_X1
+       11   11.704   AOI21_X1
+        4    6.384   AOI221_X1
+        1     1.33   AOI22_X1
+       59   313.88   DFFR_X1
+       13    69.16   DFFS_X1
+        2    9.044   DFF_X1
+       51   27.132   INV_X1
+       29   53.998   MUX2_X1
+       24   19.152   NAND2_X1
+        8    8.512   NAND3_X1
+       18    23.94   NAND4_X1
+       35    27.93   NOR2_X1
+       21   22.344   NOR3_X1
+       18    23.94   NOR4_X1
+       39   41.496   OAI21_X1
+        3    4.788   OAI221_X1
+        1     1.33   OAI22_X1
+        2    3.724   OAI33_X1
+        5     5.32   OR2_X1
+       10     13.3   OR3_X1
+        6    9.576   OR4_X1
+        8   12.768   XNOR2_X1
+        7   11.172   XOR2_X1
+
+   Chip area for module '\i2c_master_bit_ctrl': 745.598000
+     of which used for sequential elements: 392.084000 (52.59%)
+
+=== axil_to_apb ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      236        - wires
+      474        - wire bits
+       35        - public wires
+      273        - public wire bits
+       27        - ports
+      189        - port bits
+      206  641.326 cells
+        1     1.33   AND3_X1
+        3    3.192   AOI21_X1
+        2     2.66   AOI22_X1
+       83   441.56   DFFR_X1
+        1     5.32   DFFS_X1
+        9    4.788   INV_X1
+       89  165.718   MUX2_X1
+        4    3.192   NAND2_X1
+        1     1.33   NAND4_X1
+        7    5.586   NOR2_X1
+        2    2.128   NOR3_X1
+        1     1.33   NOR4_X1
+        2    2.128   OAI21_X1
+        1    1.064   OR2_X1
+
+   Chip area for module '\axil_to_apb': 641.326000
+     of which used for sequential elements: 446.880000 (69.68%)
+
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        |        +-Area including submodules.
+        |        | 
+     1265  2.8E+03 pulp_i2c_wrap
+      148  383.838 $paramod\apb_i2c\APB_ADDR_WIDTH=s32'00000000000000000000000000001100
+      131  245.784   i2c_master_byte_ctrl
+      393  745.598     i2c_master_bit_ctrl
+      206  641.326 axil_to_apb
+
+        +----------Count including submodules.
+        |        +-Area including submodules.
+        |        | 
+     1383        - wires
+     2206        - wire bits
+      206        - public wires
+     1009        - public wire bits
+      104        - ports
+      475        - port bits
+        -        - memories
+        -        - memory bits
+        -        - processes
+     1265  2.8E+03 cells
+       72   76.608   AND2_X1
+       14    18.62   AND3_X1
+        8   12.768   AND4_X1
+       16    21.28   AOI211_X1
+       48   51.072   AOI21_X1
+       11   17.556   AOI221_X1
+        8   17.024   AOI222_X1
+       28    37.24   AOI22_X1
+      291  1548.12   DFFR_X1
+       17    90.44   DFFS_X1
+        2    9.044   DFF_X1
+      135    71.82   INV_X1
+      200    372.4   MUX2_X1
+       64   51.072   NAND2_X1
+       25     26.6   NAND3_X1
+       29    38.57   NAND4_X1
+       67   53.466   NOR2_X1
+       45    47.88   NOR3_X1
+       35    46.55   NOR4_X1
+        4     5.32   OAI211_X1
+       68   72.352   OAI21_X1
+        4    6.384   OAI221_X1
+        5     6.65   OAI22_X1
+        2    3.724   OAI33_X1
+       17   18.088   OR2_X1
+       12    15.96   OR3_X1
+        6    9.576   OR4_X1
+       14   22.344   XNOR2_X1
+       18   28.728   XOR2_X1
+        2 2.02E+03 submodules
+        1  1375.22   $paramod\apb_i2c\APB_ADDR_WIDTH=s32'00000000000000000000000000001100
+        1  641.326   axil_to_apb
+
+   Chip area for top module '\pulp_i2c_wrap': 2797.256000
+     of which used for sequential elements: 1647.604000 (58.90%)
+

@@ -1,0 +1,162 @@
+
+8. Printing statistics.
+
+=== pulp_uart_wrap ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+       48        - wires
+      243        - wire bits
+       36        - public wires
+      231        - public wire bits
+       23        - ports
+      112        - port bits
+       15   30.856 cells
+        1    1.064   AOI21_X1
+        4    21.28   DFFS_X1
+        3    1.596   INV_X1
+        1    0.798   NAND2_X1
+        1    0.798   NOR2_X1
+        3    3.192   OAI21_X1
+        2    2.128   OR2_X1
+        2        - submodules
+        1        -   apb_uart
+        1        -   axil_to_apb
+
+   Chip area for module '\pulp_uart_wrap': 30.856000
+     of which used for sequential elements: 21.280000 (68.97%)
+
+=== apb_uart ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+     1364        - wires
+     1814        - wire bits
+       84        - public wires
+      503        - public wire bits
+       21        - ports
+       85        - port bits
+     1308  3.1E+03 cells
+       13   13.832   AND2_X1
+        4     5.32   AND3_X1
+        6    9.576   AND4_X1
+        6     7.98   AOI211_X1
+       36   38.304   AOI21_X1
+       17   27.132   AOI221_X1
+       58  123.424   AOI222_X1
+       49    65.17   AOI22_X1
+      104   553.28   DFFR_X1
+       17    90.44   DFFS_X1
+      256 1.16E+03   DFF_X1
+       70    37.24   INV_X1
+      321  597.702   MUX2_X1
+       70    55.86   NAND2_X1
+       33   35.112   NAND3_X1
+       21    27.93   NAND4_X1
+       71   56.658   NOR2_X1
+       48   51.072   NOR3_X1
+       10     13.3   NOR4_X1
+        4     5.32   OAI211_X1
+       22   23.408   OAI21_X1
+        7   11.172   OAI221_X1
+        1    2.128   OAI222_X1
+        8    10.64   OAI22_X1
+       17   18.088   OR2_X1
+        6     7.98   OR3_X1
+        2    3.192   OR4_X1
+       23   36.708   XNOR2_X1
+        8   12.768   XOR2_X1
+
+   Chip area for module '\apb_uart': 3098.368000
+     of which used for sequential elements: 1801.352000 (58.14%)
+
+=== axil_to_apb ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      236        - wires
+      474        - wire bits
+       35        - public wires
+      273        - public wire bits
+       27        - ports
+      189        - port bits
+      206  641.326 cells
+        1     1.33   AND3_X1
+        3    3.192   AOI21_X1
+        2     2.66   AOI22_X1
+       83   441.56   DFFR_X1
+        1     5.32   DFFS_X1
+        9    4.788   INV_X1
+       89  165.718   MUX2_X1
+        4    3.192   NAND2_X1
+        1     1.33   NAND4_X1
+        7    5.586   NOR2_X1
+        2    2.128   NOR3_X1
+        1     1.33   NOR4_X1
+        2    2.128   OAI21_X1
+        1    1.064   OR2_X1
+
+   Chip area for module '\axil_to_apb': 641.326000
+     of which used for sequential elements: 446.880000 (69.68%)
+
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        |        +-Area including submodules.
+        |        | 
+     1529  3770.55 pulp_uart_wrap
+     1308  3.1E+03 apb_uart
+      206  641.326 axil_to_apb
+
+        +----------Count including submodules.
+        |        +-Area including submodules.
+        |        | 
+     1648        - wires
+     2531        - wire bits
+      155        - public wires
+     1007        - public wire bits
+       71        - ports
+      386        - port bits
+        -        - memories
+        -        - memory bits
+        -        - processes
+     1529  3770.55 cells
+       13   13.832   AND2_X1
+        5     6.65   AND3_X1
+        6    9.576   AND4_X1
+        6     7.98   AOI211_X1
+       40    42.56   AOI21_X1
+       17   27.132   AOI221_X1
+       58  123.424   AOI222_X1
+       51    67.83   AOI22_X1
+      187   994.84   DFFR_X1
+       22   117.04   DFFS_X1
+      256 1.16E+03   DFF_X1
+       82   43.624   INV_X1
+      410   763.42   MUX2_X1
+       75    59.85   NAND2_X1
+       33   35.112   NAND3_X1
+       22    29.26   NAND4_X1
+       79   63.042   NOR2_X1
+       50     53.2   NOR3_X1
+       11    14.63   NOR4_X1
+        4     5.32   OAI211_X1
+       27   28.728   OAI21_X1
+        7   11.172   OAI221_X1
+        1    2.128   OAI222_X1
+        8    10.64   OAI22_X1
+       20    21.28   OR2_X1
+        6     7.98   OR3_X1
+        2    3.192   OR4_X1
+       23   36.708   XNOR2_X1
+        8   12.768   XOR2_X1
+        2 3.74E+03 submodules
+        1  3.1E+03   apb_uart
+        1  641.326   axil_to_apb
+
+   Chip area for top module '\pulp_uart_wrap': 3770.550000
+     of which used for sequential elements: 2269.512000 (60.19%)
+
