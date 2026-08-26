@@ -79,9 +79,9 @@ reg         busy_r;
 reg [3:0]   round_r;       // 0..14
 reg [7:0]   ca_rule1_r;    // current round rule extracted from key schedule
 
-// AXI-facing registers
-reg [255:0] axi_key;
-reg [127:0] axi_din;
+// AXI-facing output wires (driven by assign from _r registers below)
+wire [255:0] axi_key;
+wire [127:0] axi_din;
 reg         direct_mode_r;
 
 // ---------------------------------------------------------------------------

@@ -94,16 +94,18 @@ rtl/
 
 ## AXI Slave Memory Map
 
-| Slave | Module | Base Address |
-|-------|--------|-------------|
-| s0 | Boot ROM (32 KB) | `0x0000_0000` |
-| s1 | SRAM (64 KB, ECC) | `0x0001_0000` |
-| s2 | AES-CA Accelerator | `0x4000_0000` |
-| s3 | India PDF Engine | `0x4001_0000` |
-| s4 | TRNG | `0x4002_0000` |
-| s5 | SPI | `0x4003_0000` |
-| s6 | I2C (key fetch) | `0x4004_0000` |
-| s7 | UART | `0x4005_0000` |
+| Slave | Module | Base Address | Size | Notes |
+|-------|--------|-------------|------|-------|
+| s0 | Boot ROM (32 KB) | `0x0000_0000` | 32 KB | MASK `0xFFFF_8000` |
+| s1 | SRAM (64 KB, ECC) | `0x2000_0000` | 128 KB window | MASK `0xFFFE_0000` |
+| s2 | AES-CA Accelerator | `0x3000_0000` | 4 KB | Firewall-protected |
+| s3 | Ring-Osc TRNG | `0x3000_1000` | 4 KB | Firewall-protected |
+| s4 | India PDF Engine | `0x3000_2000` | 4 KB | Firewall-protected |
+| s5 | Secure UART | `0x4000_0000` | 4 KB | Firewall-protected |
+| s6 | Secure I2C | `0x4000_1000` | 4 KB | Firewall-protected |
+| s7 | Secure SPI | `0x4000_2000` | 4 KB | Firewall-protected |
+
+Address decode: `(addr & MASK) == BASE` — combinational, no pipeline penalty.
 
 ---
 
