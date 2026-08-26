@@ -150,15 +150,6 @@ wire p4_c = data_r[11] ^ data_r[12] ^ data_r[13] ^ data_r[14] ^ data_r[15] ^
 wire p5_c = data_r[26] ^ data_r[27] ^ data_r[28] ^ data_r[29] ^ data_r[30] ^
             data_r[31];
 
-wire p6_c = p0_c ^ p1_c ^ p2_c ^ p3_c ^ p4_c ^ p5_c ^
-            data_r[ 0] ^ data_r[ 1] ^ data_r[ 2] ^ data_r[ 3] ^ data_r[ 4] ^
-            data_r[ 5] ^ data_r[ 6] ^ data_r[ 7] ^ data_r[ 8] ^ data_r[ 9] ^
-            data_r[10] ^ data_r[11] ^ data_r[12] ^ data_r[13] ^ data_r[14] ^
-            data_r[15] ^ data_r[16] ^ data_r[17] ^ data_r[18] ^ data_r[19] ^
-            data_r[20] ^ data_r[21] ^ data_r[22] ^ data_r[23] ^ data_r[24] ^
-            data_r[25] ^ data_r[26] ^ data_r[27] ^ data_r[28] ^ data_r[29] ^
-            data_r[30] ^ data_r[31];
-
 // ---------------------------------------------------------------------------
 // 6-bit syndrome = received XOR computed
 // syndrome value = position of the flipped bit (1-indexed Hamming position)
@@ -171,8 +162,18 @@ wire [5:0] syndrome = {p5_r ^ p5_c,
                         p1_r ^ p1_c,
                         p0_r ^ p0_c};
 
-// Overall parity check
-wire s_overall = p6_r ^ p6_c;
+// ---------------------------------------------------------------------------
+// Overall parity check: XOR of all 39 received bits.
+// A valid codeword has even parity → result = 0 (no error).
+// Any single-bit flip toggles this to 1 (odd), distinguishing SEC from DED.
+//
+// BUG FIX: the previous implementation recomputed p6_c from the recomputed
+// (not received) parity bits, then did p6_r ^ p6_c.  For a data-bit flip,
+// the recomputed parity bits absorb the error, so p6_c ends up equal to
+// p6_r and s_overall becomes 0 — wrongly classifying every data-bit SBE
+// as a double-bit error (DED).  Using ^din directly is correct and minimal.
+// ---------------------------------------------------------------------------
+wire s_overall = ^din;
 
 // ---------------------------------------------------------------------------
 // Error classification

@@ -48,13 +48,11 @@ module axi_firewall #(
     parameter N_MASTERS       = 4,
     parameter LOG_DEPTH       = 4,            // deny-log FIFO depth (2^LOG_DEPTH entries)
     parameter [31:0] LOCK_KEY = 32'hDEADBEEF, // magic value to lock permission table
-    // Default: CPU (id=0) allowed on every slave, DMA (id=1) allowed on s1
+    // Default: CPU (id=0) allowed on every slave, DMA (id=1) allowed on slave 1
     // bit[slave*N_MASTERS + master]: slave 0..7, master 0..3
-    // CPU (master 0) bits: bit 0, 4, 8, 12, 16, 20, 24, 28 => all set
-    // DMA (master 1) on slave 1: bit[1*4+1] = bit 5
-    parameter [31:0] DEFAULT_PERM = 32'b
-        0001_0001_0001_0001_0001_0001_0001_0001  // CPU bit set on every slave
-        | 32'h0000_0020                          // DMA bit set on slave 1
+    // CPU (master 0) bits: bit 0, 4, 8, 12, 16, 20, 24, 28 => 0x11111111
+    // DMA (master 1) on slave 1: bit[1*4+1] = bit 5 => 0x00000020
+    parameter [31:0] DEFAULT_PERM = 32'h1111_1131  // CPU on all slaves + DMA on slave1
 )(
     input  wire        clk,
     input  wire        rst_n,
@@ -208,7 +206,14 @@ always @(posedge clk or negedge rst_n) begin
                 if (w_captured || u_wvalid) begin
                     // Both channels ready to decide
                     if (wr_allowed) begin
-                        wstate <= WS_PASS;
+                        wstate    <= WS_PASS;
+                        // Pre-assert d_awvalid/d_wvalid on entry so they are
+                        // driven for exactly one handshake cycle and NOT
+                        // re-asserted every WS_PASS clock (which would cause
+                        // the downstream slave to re-process the same AW
+                        // transaction after d_awready fires)
+                        d_awvalid <= 1'b1;
+                        d_wvalid  <= 1'b1;
                     end else begin
                         // Log denial and pulse IRQ
                         last_denied_addr   <= aw_addr_lat;
@@ -222,13 +227,15 @@ always @(posedge clk or negedge rst_n) begin
         end
 
         WS_PASS: begin
-            // Forward AW and W to downstream
-            d_awvalid <= 1'b1;
-            d_awaddr  <= aw_addr_lat;
-            d_wdata   <= u_wdata;
-            d_wstrb   <= u_wstrb;
-            d_wvalid  <= 1'b1;
-            d_bready  <= u_bready;
+            // Drive stable address/data fields continuously (aw_addr_lat is
+            // stable once set; u_wdata held by master until transaction ends)
+            d_awaddr <= aw_addr_lat;
+            d_wdata  <= u_wdata;
+            d_wstrb  <= u_wstrb;
+            d_bready <= u_bready;
+            // Clear d_awvalid/d_wvalid exactly once when downstream acks.
+            // Do NOT re-assert them here — they were pre-set in WS_IDLE and
+            // a re-assertion would cause the slave to loop on repeated AW txns.
             if (d_awready) d_awvalid <= 1'b0;
             if (d_wready)  d_wvalid  <= 1'b0;
             // Forward B channel back
@@ -237,6 +244,8 @@ always @(posedge clk or negedge rst_n) begin
             if (d_bvalid && u_bready) begin
                 aw_captured <= 1'b0;
                 w_captured  <= 1'b0;
+                d_awvalid   <= 1'b0;   // ensure clean state
+                d_wvalid    <= 1'b0;
                 wstate      <= WS_IDLE;
             end
         end
@@ -290,7 +299,10 @@ always @(posedge clk or negedge rst_n) begin
                 ar_addr_lat <= u_araddr;
                 u_arready   <= 1'b1;
                 if (rd_allowed) begin
-                    rstate <= RS_PASS;
+                    rstate    <= RS_PASS;
+                    // Pre-assert d_arvalid on entry so RS_PASS doesn't
+                    // re-assert it after d_arready fires (same fix as WS_PASS)
+                    d_arvalid <= 1'b1;
                 end else begin
                     last_denied_addr   <= u_araddr;
                     last_denied_master <= master_id;
@@ -302,15 +314,17 @@ always @(posedge clk or negedge rst_n) begin
         end
 
         RS_PASS: begin
-            d_arvalid <= 1'b1;
-            d_araddr  <= ar_addr_lat;
+            // Drive stable address (ar_addr_lat is set one cycle earlier in RS_IDLE)
+            d_araddr <= ar_addr_lat;
+            // Clear d_arvalid exactly once when downstream acks; do NOT re-assert
             if (d_arready) d_arvalid <= 1'b0;
             d_rready  <= u_rready;
             u_rvalid  <= d_rvalid;
             u_rdata   <= d_rdata;
             u_rresp   <= d_rresp;
             if (d_rvalid && u_rready) begin
-                rstate <= RS_IDLE;
+                d_arvalid <= 1'b0;   // ensure clean state
+                rstate    <= RS_IDLE;
             end
         end
 
