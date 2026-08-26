@@ -12,3 +12,7 @@ synth_300mhz.log
 # Tool temp files
 *.svn
 *.bak
+
+# Python cache
+**/__pycache__/
+*.pyc
