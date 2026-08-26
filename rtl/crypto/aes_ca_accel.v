@@ -1,35 +1,9 @@
-// =============================================================================
-// aes_ca_accel.v — AES-256 Accelerator with 4 Cellular Automaton round ops
-// Project  : INDIA_CRYPTO_SOC — AES-accelerated PDF encryption
-//
-// CA-1 : SubBytes  (sbox + neighbour XOR perturbation)
-// CA-2 : ShiftRows (standard AES cyclic row-shift CA)
-// CA-3 : MixColumns (standard AES GF(2^8) column-mix CA)
-// CA-4 : AddRoundKey (Rule-90 bitwise XOR)
-//
-// FSM  : S_IDLE → S_KEYSCHED → S_ROUND → S_FINAL → S_DONE
-// SCA  : 8-bit LFSR injects 0/1 dummy stall per round
-//
-// AXI-Lite registers (base 0x3000_0000, local offset):
-//   0x00 CTRL       [0]=START [1]=DECRYPT
-//   0x04-0x20 KEY[0..7]  256-bit key
-//   0x24-0x30 DIN[0..3]  128-bit plaintext
-//   0x34-0x40 DOUT[0..3] 128-bit ciphertext (read after DONE)
-//   0x44 STATUS     [1]=busy [0]=done
-//   0x48 CA_RULE    [7:0] current ca_rule1 (debug)
-//
-// Direct interface (for PDF engine, combinational output):
-//   direct_key[255:0], direct_din[127:0], direct_start, direct_decrypt
-//   direct_dout[127:0], direct_done (1-cycle pulse)
-// =============================================================================
-
 `timescale 1ns/1ps
 
 module aes_ca_accel (
     input  wire         clk,
     input  wire         rst_n,
 
-    // Direct wire interface
     input  wire [255:0] direct_key,
     input  wire [127:0] direct_din,
     input  wire         direct_start,
@@ -37,7 +11,6 @@ module aes_ca_accel (
     output wire [127:0] direct_dout,
     output wire         direct_done,
 
-    // AXI-Lite slave
     input  wire [11:0]  s_axil_awaddr,
     input  wire         s_axil_awvalid,
     output reg          s_axil_awready,
@@ -57,18 +30,12 @@ module aes_ca_accel (
     input  wire         s_axil_rready
 );
 
-// ---------------------------------------------------------------------------
-// FSM state encoding
-// ---------------------------------------------------------------------------
 localparam S_IDLE     = 3'd0;
 localparam S_KEYSCHED = 3'd1;
 localparam S_ROUND    = 3'd2;
 localparam S_FINAL    = 3'd3;
 localparam S_DONE     = 3'd4;
 
-// ---------------------------------------------------------------------------
-// Registers
-// ---------------------------------------------------------------------------
 reg [2:0]   state_r;
 reg [127:0] aes_state;
 reg [255:0] key_r;
@@ -76,23 +43,16 @@ reg         decrypt_r;
 reg [127:0] dout_reg;
 reg         done_r;
 reg         busy_r;
-reg [3:0]   round_r;       // 0..14
-reg [7:0]   ca_rule1_r;    // current round rule extracted from key schedule
+reg [3:0]   round_r;
+reg [7:0]   ca_rule1_r;
 
-// AXI-facing output wires (driven by assign from _r registers below)
 wire [255:0] axi_key;
 wire [127:0] axi_din;
 reg         direct_mode_r;
 
-// ---------------------------------------------------------------------------
-// Key schedule storage — 60 words (w[0..59]) for AES-256 → 15 round keys
-// ---------------------------------------------------------------------------
 reg [31:0] w [0:59];
-reg [5:0]  ks_idx;        // word index during key expansion (0..59)
+reg [5:0]  ks_idx;
 
-// ---------------------------------------------------------------------------
-// SCA LFSR — 8-bit, taps 7,5,4,3; generates stall signal
-// ---------------------------------------------------------------------------
 reg [7:0] sca_lfsr;
 reg       sca_stall;
 
@@ -100,15 +60,11 @@ always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         sca_lfsr <= 8'hA5;
     else begin
-        // Fibonacci LFSR taps at positions 7,5,4,3 (1-indexed from MSB = bit 7)
+
         sca_lfsr <= {sca_lfsr[6:0],
                      sca_lfsr[7] ^ sca_lfsr[5] ^ sca_lfsr[4] ^ sca_lfsr[3]};
     end
 end
-
-// ---------------------------------------------------------------------------
-// GF(2^8) multiply functions — irreducible poly 0x11B
-// ---------------------------------------------------------------------------
 
 function [7:0] xtime;
     input [7:0] a;
@@ -147,9 +103,6 @@ function [7:0] mul14;
     begin mul14 = xtime(xtime(xtime(a))) ^ xtime(xtime(a)) ^ xtime(a); end
 endfunction
 
-// ---------------------------------------------------------------------------
-// AES S-box (full 256-entry)
-// ---------------------------------------------------------------------------
 function [7:0] sbox;
     input [7:0] b;
     begin
@@ -223,9 +176,6 @@ function [7:0] sbox;
     end
 endfunction
 
-// ---------------------------------------------------------------------------
-// AES Inverse S-box (full 256-entry)
-// ---------------------------------------------------------------------------
 function [7:0] inv_sbox;
     input [7:0] b;
     begin
@@ -299,9 +249,6 @@ function [7:0] inv_sbox;
     end
 endfunction
 
-// ---------------------------------------------------------------------------
-// Round constant table (RCON) for key schedule
-// ---------------------------------------------------------------------------
 function [7:0] rcon;
     input [3:0] idx;
     begin
@@ -315,11 +262,6 @@ function [7:0] rcon;
     end
 endfunction
 
-// ---------------------------------------------------------------------------
-// CA helper functions
-// ---------------------------------------------------------------------------
-
-// CA-1 forward SubBytes with neighbourhood perturbation
 function [7:0] ca1_sub_byte;
     input [7:0]  b;
     input [7:0]  prev_b;
@@ -336,7 +278,6 @@ function [7:0] ca1_sub_byte;
     end
 endfunction
 
-// CA-1 inverse: inv_sbox first, then same XOR perturbation with inv_sbox values
 function [7:0] ca1_inv_sub_byte;
     input [7:0]  b;
     input [7:0]  prev_b;
@@ -353,9 +294,6 @@ function [7:0] ca1_inv_sub_byte;
     end
 endfunction
 
-// ---------------------------------------------------------------------------
-// CA-3 MixColumns on one column (4 bytes)
-// ---------------------------------------------------------------------------
 function [31:0] mix_col;
     input [7:0] b0, b1, b2, b3;
     begin
@@ -366,7 +304,6 @@ function [31:0] mix_col;
     end
 endfunction
 
-// CA-3 InvMixColumns on one column
 function [31:0] inv_mix_col;
     input [7:0] b0, b1, b2, b3;
     begin
@@ -377,17 +314,6 @@ function [31:0] inv_mix_col;
     end
 endfunction
 
-// ---------------------------------------------------------------------------
-// Extract round key from w[] array
-// Round key r = {w[4r], w[4r+1], w[4r+2], w[4r+3]}  (128 bits)
-// Stored MSB-first: byte[0]=w[4r][31:24]
-// ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// CA pipeline helpers — combinational round functions
-// ---------------------------------------------------------------------------
-
-// Apply CA-1 (SubBytes) to full 128-bit state, using byte array indexing
 function [127:0] apply_ca1;
     input [127:0] st;
     input [7:0]   rule;
@@ -409,7 +335,6 @@ function [127:0] apply_ca1;
     end
 endfunction
 
-// Apply CA-1 inverse
 function [127:0] apply_ca1_inv;
     input [127:0] st;
     input [7:0]   rule;
@@ -431,13 +356,6 @@ function [127:0] apply_ca1_inv;
     end
 endfunction
 
-// CA-2 ShiftRows — AES column-major layout
-// State bytes in 128-bit word (MSB=byte0):
-//  byte[0..3]  = col0  row0..3
-//  byte[4..7]  = col1  row0..3
-//  ...
-// Row r shifts left by r positions (in column units)
-// Byte position: row r, col c → index 4c+r
 function [127:0] apply_ca2_shift;
     input [127:0] st;
     reg [7:0] b[0:15];
@@ -447,7 +365,7 @@ function [127:0] apply_ca2_shift;
         for (c = 0; c < 4; c = c+1)
             for (r = 0; r < 4; r = r+1)
                 b[4*c+r] = st[127-(4*c+r)*8 -: 8];
-        // ShiftRows: row r → source col = (c + r) % 4
+
         for (r = 0; r < 4; r = r+1)
             for (c = 0; c < 4; c = c+1)
                 o[4*c+r] = b[4*((c+r)%4)+r];
@@ -458,7 +376,6 @@ function [127:0] apply_ca2_shift;
     end
 endfunction
 
-// CA-2 InvShiftRows
 function [127:0] apply_ca2_inv_shift;
     input [127:0] st;
     reg [7:0] b[0:15];
@@ -468,7 +385,7 @@ function [127:0] apply_ca2_inv_shift;
         for (c = 0; c < 4; c = c+1)
             for (r = 0; r < 4; r = r+1)
                 b[4*c+r] = st[127-(4*c+r)*8 -: 8];
-        // InvShiftRows: row r → source col = (c + 4 - r) % 4
+
         for (r = 0; r < 4; r = r+1)
             for (c = 0; c < 4; c = c+1)
                 o[4*c+r] = b[4*((c+4-r)%4)+r];
@@ -479,7 +396,6 @@ function [127:0] apply_ca2_inv_shift;
     end
 endfunction
 
-// CA-3 MixColumns — apply to all 4 columns
 function [127:0] apply_ca3_mix;
     input [127:0] st;
     reg [7:0] b[0:15];
@@ -494,7 +410,6 @@ function [127:0] apply_ca3_mix;
     end
 endfunction
 
-// CA-3 InvMixColumns
 function [127:0] apply_ca3_inv_mix;
     input [127:0] st;
     reg [7:0] b[0:15];
@@ -509,7 +424,6 @@ function [127:0] apply_ca3_inv_mix;
     end
 endfunction
 
-// CA-4 AddRoundKey (Rule-90 XOR)
 function [127:0] apply_ca4_add;
     input [127:0] st;
     input [127:0] rk;
@@ -518,12 +432,6 @@ function [127:0] apply_ca4_add;
     end
 endfunction
 
-// Assemble round key from w[] for round r (128-bit)
-// We cannot index an array inside a function in Verilog-2001, so this is done inline in the FSM
-
-// ---------------------------------------------------------------------------
-// Key schedule SubWord + RotWord helpers
-// ---------------------------------------------------------------------------
 function [31:0] sub_word;
     input [31:0] w;
     begin
@@ -538,13 +446,9 @@ function [31:0] rot_word;
     end
 endfunction
 
-// ---------------------------------------------------------------------------
-// Main FSM
-// ---------------------------------------------------------------------------
-
-reg [127:0] round_key;    // current round key assembled from w[]
-reg [3:0]   ks_rcon_idx;  // rcon index during key schedule
-reg         sca_stall_r;  // registered stall
+reg [127:0] round_key;
+reg [3:0]   ks_rcon_idx;
+reg         sca_stall_r;
 
 always @(posedge clk or negedge rst_n) begin : fsm
     integer i;
@@ -571,10 +475,10 @@ always @(posedge clk or negedge rst_n) begin : fsm
         sca_stall_r <= 1'b0;
 
         case (state_r)
-            // ------------------------------------------------------------------
+
             S_IDLE: begin
                 busy_r <= 1'b0;
-                // Accept start from either interface
+
                 if (direct_start) begin
                     key_r         <= direct_key;
                     aes_state     <= direct_din;
@@ -596,15 +500,9 @@ always @(posedge clk or negedge rst_n) begin : fsm
                 end
             end
 
-            // ------------------------------------------------------------------
-            // Key schedule: AES-256 expands 8 words → 60 words
-            // One group of 4 words per clock cycle
-            // ks_idx tracks next word to write (0,4,8,...,56)
-            // ------------------------------------------------------------------
             S_KEYSCHED: begin
                 if (ks_idx < 6'd8) begin
-                    // Load initial key material directly
-                    // key_r[255:224]=w0, ..., key_r[31:0]=w7
+
                     w[ks_idx] <= key_r[255 - ks_idx*32 -: 32];
                     if (ks_idx == 6'd7) begin
                         ks_idx <= 6'd8;
@@ -612,20 +510,16 @@ always @(posedge clk or negedge rst_n) begin : fsm
                         ks_idx <= ks_idx + 6'd1;
                     end
                 end else if (ks_idx <= 6'd56) begin
-                    // Expand 4 words at a time
-                    // For AES-256: words at multiples of 8 use SubWord+Rcon+RotWord
-                    //              words at multiples of 4 (not 8) use SubWord only
+
                     if (ks_idx[2:0] == 3'd0) begin
-                        // ks_idx divisible by 8
+
                         w[ks_idx]   <= w[ks_idx-8] ^ sub_word(rot_word(w[ks_idx-1]))
                                        ^ {rcon(ks_rcon_idx), 24'h0};
                         w[ks_idx+1] <= w[ks_idx-7] ^ (w[ks_idx-8] ^ sub_word(rot_word(w[ks_idx-1]))
                                        ^ {rcon(ks_rcon_idx), 24'h0});
-                        // Compute incrementally to avoid needing new w[]
-                        // Actually compute sequentially — do one word only and increment
-                        // Simplified: compute all 4 in one cycle using blocking
+
                     end
-                    // To keep it simple and synthesisable: compute one word per cycle
+
                     if ((ks_idx % 8) == 0) begin
                         w[ks_idx] <= w[ks_idx-8]
                                      ^ sub_word(rot_word(w[ks_idx-1]))
@@ -639,9 +533,9 @@ always @(posedge clk or negedge rst_n) begin : fsm
                     ks_idx <= ks_idx + 6'd1;
 
                     if (ks_idx == 6'd59) begin
-                        // Key schedule complete — set up first round
+
                         round_r <= 4'd0;
-                        // Initial AddRoundKey with round key 0
+
                         rk0 = w[0]; rk1 = w[1]; rk2 = w[2]; rk3 = w[3];
                         round_key  = {rk0, rk1, rk2, rk3};
                         aes_state  <= apply_ca4_add(aes_state, {rk0,rk1,rk2,rk3});
@@ -652,17 +546,13 @@ always @(posedge clk or negedge rst_n) begin : fsm
                 end
             end
 
-            // ------------------------------------------------------------------
-            // Round processing (rounds 1..13)
-            // ------------------------------------------------------------------
             S_ROUND: begin
-                // SCA stall: skip if LFSR LSB set
+
                 if (sca_lfsr[0] && !sca_stall_r) begin
                     sca_stall_r <= 1'b1;
                 end else begin
                     sca_stall_r <= 1'b0;
 
-                    // Assemble round key for current round
                     rk0 = w[4*round_r];
                     rk1 = w[4*round_r+1];
                     rk2 = w[4*round_r+2];
@@ -671,13 +561,13 @@ always @(posedge clk or negedge rst_n) begin : fsm
                     ca_rule1_r <= rk0[31:24];
 
                     if (!decrypt_r) begin
-                        // Encrypt: CA1→CA2→CA3→CA4
+
                         tmp_state = apply_ca1(aes_state, ca_rule1_r);
                         tmp_state = apply_ca2_shift(tmp_state);
                         tmp_state = apply_ca3_mix(tmp_state);
                         tmp_state = apply_ca4_add(tmp_state, round_key);
                     end else begin
-                        // Decrypt: CA4→CA3inv→CA2inv→CA1inv
+
                         tmp_state = apply_ca4_add(aes_state, round_key);
                         tmp_state = apply_ca3_inv_mix(tmp_state);
                         tmp_state = apply_ca2_inv_shift(tmp_state);
@@ -694,21 +584,18 @@ always @(posedge clk or negedge rst_n) begin : fsm
                 end
             end
 
-            // ------------------------------------------------------------------
-            // Final round (round 14) — no MixColumns
-            // ------------------------------------------------------------------
             S_FINAL: begin
                 rk0 = w[56]; rk1 = w[57]; rk2 = w[58]; rk3 = w[59];
                 round_key  = {rk0, rk1, rk2, rk3};
                 ca_rule1_r <= rk0[31:24];
 
                 if (!decrypt_r) begin
-                    // Encrypt final: CA1→CA2→CA4 (no MixColumns)
+
                     tmp_state = apply_ca1(aes_state, ca_rule1_r);
                     tmp_state = apply_ca2_shift(tmp_state);
                     tmp_state = apply_ca4_add(tmp_state, round_key);
                 end else begin
-                    // Decrypt final: CA4(rk0)→CA2inv→CA1inv
+
                     rk0 = w[0]; rk1 = w[1]; rk2 = w[2]; rk3 = w[3];
                     tmp_state = apply_ca4_add(aes_state, {rk0,rk1,rk2,rk3});
                     tmp_state = apply_ca2_inv_shift(tmp_state);
@@ -722,7 +609,6 @@ always @(posedge clk or negedge rst_n) begin : fsm
                 state_r   <= S_DONE;
             end
 
-            // ------------------------------------------------------------------
             S_DONE: begin
                 done_r  <= 1'b0;
                 state_r <= S_IDLE;
@@ -733,15 +619,8 @@ always @(posedge clk or negedge rst_n) begin : fsm
     end
 end
 
-// ---------------------------------------------------------------------------
-// Direct interface outputs
-// ---------------------------------------------------------------------------
 assign direct_dout = dout_reg;
 assign direct_done = done_r & direct_mode_r;
-
-// ---------------------------------------------------------------------------
-// AXI-Lite register interface
-// ---------------------------------------------------------------------------
 
 reg  [255:0] axi_key_r;
 reg  [127:0] axi_din_r;
@@ -753,7 +632,6 @@ reg          axi_aw_addr_valid;
 assign axi_key = axi_key_r;
 assign axi_din = axi_din_r;
 
-// Write channel
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         s_axil_awready   <= 1'b0;
@@ -784,12 +662,12 @@ always @(posedge clk or negedge rst_n) begin
             s_axil_bresp     <= 2'b00;
 
             case (axi_aw_addr_lat[7:0])
-                8'h00: begin // CTRL
+                8'h00: begin
                     if (s_axil_wdata[0] && state_r == S_IDLE)
                         axi_start_pulse <= 1'b1;
                     axi_decrypt <= s_axil_wdata[1];
                 end
-                // KEY[0..7] — 0x04..0x20
+
                 8'h04: axi_key_r[255:224] <= s_axil_wdata;
                 8'h08: axi_key_r[223:192] <= s_axil_wdata;
                 8'h0C: axi_key_r[191:160] <= s_axil_wdata;
@@ -798,12 +676,12 @@ always @(posedge clk or negedge rst_n) begin
                 8'h18: axi_key_r[95:64]   <= s_axil_wdata;
                 8'h1C: axi_key_r[63:32]   <= s_axil_wdata;
                 8'h20: axi_key_r[31:0]    <= s_axil_wdata;
-                // DIN[0..3] — 0x24..0x30
+
                 8'h24: axi_din_r[127:96]  <= s_axil_wdata;
                 8'h28: axi_din_r[95:64]   <= s_axil_wdata;
                 8'h2C: axi_din_r[63:32]   <= s_axil_wdata;
                 8'h30: axi_din_r[31:0]    <= s_axil_wdata;
-                // DOUT and STATUS are read-only; ignore writes
+
                 default: ;
             endcase
         end else begin
@@ -815,7 +693,6 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 
-// Read channel
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         s_axil_arready <= 1'b0;

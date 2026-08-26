@@ -1,53 +1,25 @@
-// =============================================================================
-// aes_isa_ext.v
-// Custom AES ISA Extension Execution Unit
-// Plugs into rv32im_core's custom-0 sideband port
-//
-// Opcode: 7'b0001011 (custom-0), R-type format
-//
-// Instructions (funct7 + funct3):
-//   aes.esb   funct7=7'b0000000 funct3=3'b000 : Forward SubBytes on selected byte of rs1
-//   aes.emx   funct7=7'b0000001 funct3=3'b000 : MixColumns byte on sbox(selected byte)
-//   aes.esr   funct7=7'b0000010 funct3=3'b000 : ShiftRows partial: rotate-left 8 bits
-//   aes.dsb   funct7=7'b0000100 funct3=3'b000 : Inverse SubBytes on selected byte
-//   aes.dmx   funct7=7'b0000101 funct3=3'b000 : Inverse MixColumns byte on selected byte
-//   aes.disr  funct7=7'b0000110 funct3=3'b000 : Rotate-right 8 bits (InvShiftRows partial)
-//   aes.xk    funct7=7'b0000111 funct3=3'b000 : rs1 XOR rs2 (AddRoundKey)
-//   aes.rcon  funct7=7'b0001000 funct3=3'b000 : RCON for round rs2[3:0]
-//
-// Purely combinational. custom_rd_valid is high whenever custom_valid is high.
-// =============================================================================
-
 `default_nettype none
 `timescale 1ns/1ps
 
 module aes_isa_ext (
-    // Sideband from rv32im_core
+
     input  wire        custom_valid,
     input  wire [31:0] custom_instr,
     input  wire [31:0] custom_rs1,
     input  wire [31:0] custom_rs2,
 
-    // Result back to rv32im_core
     output reg  [31:0] custom_rd,
     output wire        custom_rd_valid
 );
 
-// custom_rd_valid is purely combinational
 assign custom_rd_valid = custom_valid;
 
-// Decode instruction fields
 wire [6:0] funct7 = custom_instr[31:25];
 wire [2:0] funct3 = custom_instr[14:12];
-wire [4:0] rs2f   = custom_instr[24:20]; // rs2 field in instruction encoding
-// Byte selector: use rs2[1:0] runtime value for byte selection
+wire [4:0] rs2f   = custom_instr[24:20];
+
 wire [1:0] byte_sel = custom_rs2[1:0];
 
-// =============================================================================
-// GF(2^8) arithmetic (irreducible polynomial: x^8 + x^4 + x^3 + x + 1 = 0x11B)
-// =============================================================================
-
-// xtime: multiply by x in GF(2^8)
 function [7:0] xtime;
     input [7:0] b;
     begin
@@ -55,7 +27,6 @@ function [7:0] xtime;
     end
 endfunction
 
-// GF multiply by 2
 function [7:0] gf_mul2;
     input [7:0] b;
     begin
@@ -63,7 +34,6 @@ function [7:0] gf_mul2;
     end
 endfunction
 
-// GF multiply by 3 = xtime(b) ^ b
 function [7:0] gf_mul3;
     input [7:0] b;
     begin
@@ -71,7 +41,6 @@ function [7:0] gf_mul3;
     end
 endfunction
 
-// GF multiply by 9 = mul8(b) ^ b = xtime(xtime(xtime(b))) ^ b
 function [7:0] gf_mul9;
     input [7:0] b;
     reg [7:0] t2, t4, t8;
@@ -83,7 +52,6 @@ function [7:0] gf_mul9;
     end
 endfunction
 
-// GF multiply by 11 (0x0B) = mul8 ^ mul2 ^ b
 function [7:0] gf_mul11;
     input [7:0] b;
     reg [7:0] t2, t4, t8;
@@ -95,7 +63,6 @@ function [7:0] gf_mul11;
     end
 endfunction
 
-// GF multiply by 13 (0x0D) = mul8 ^ mul4 ^ b
 function [7:0] gf_mul13;
     input [7:0] b;
     reg [7:0] t2, t4, t8;
@@ -107,7 +74,6 @@ function [7:0] gf_mul13;
     end
 endfunction
 
-// GF multiply by 14 (0x0E) = mul8 ^ mul4 ^ mul2
 function [7:0] gf_mul14;
     input [7:0] b;
     reg [7:0] t2, t4, t8;
@@ -119,9 +85,6 @@ function [7:0] gf_mul14;
     end
 endfunction
 
-// =============================================================================
-// AES Forward S-box (256 entries)
-// =============================================================================
 function [7:0] sbox_fwd;
     input [7:0] x;
     begin
@@ -194,9 +157,6 @@ function [7:0] sbox_fwd;
     end
 endfunction
 
-// =============================================================================
-// AES Inverse S-box (256 entries)
-// =============================================================================
 function [7:0] sbox_inv;
     input [7:0] x;
     begin
@@ -269,9 +229,6 @@ function [7:0] sbox_inv;
     end
 endfunction
 
-// =============================================================================
-// RCON table (AES key schedule round constants)
-// =============================================================================
 function [7:0] rcon_byte;
     input [3:0] rnd;
     begin
@@ -296,16 +253,8 @@ function [7:0] rcon_byte;
     end
 endfunction
 
-// =============================================================================
-// MixColumns: operate on a single word (4 bytes = one column)
-// Standard AES MixColumns matrix multiply in GF(2^8):
-//   [2 3 1 1] [b0]
-//   [1 2 3 1] [b1]
-//   [1 1 2 3] [b2]
-//   [3 1 1 2] [b3]
-// =============================================================================
 function [31:0] mix_col_fwd;
-    input [31:0] col; // col[31:24]=b0, col[23:16]=b1, col[15:8]=b2, col[7:0]=b3
+    input [31:0] col;
     reg [7:0] b0, b1, b2, b3;
     reg [7:0] r0, r1, r2, r3;
     begin
@@ -318,14 +267,6 @@ function [31:0] mix_col_fwd;
     end
 endfunction
 
-// =============================================================================
-// InvMixColumns word
-// Matrix:
-//   [14  11  13   9]
-//   [ 9  14  11  13]
-//   [13   9  14  11]
-//   [11  13   9  14]
-// =============================================================================
 function [31:0] mix_col_inv;
     input [31:0] col;
     reg [7:0] b0, b1, b2, b3;
@@ -340,12 +281,9 @@ function [31:0] mix_col_inv;
     end
 endfunction
 
-// =============================================================================
-// Byte extraction helper
-// =============================================================================
 function [7:0] get_byte;
     input [31:0] word;
-    input [1:0]  sel; // 0=byte[7:0], 1=byte[15:8], 2=byte[23:16], 3=byte[31:24]
+    input [1:0]  sel;
     begin
         case (sel)
             2'd0: get_byte = word[7:0];
@@ -356,7 +294,6 @@ function [7:0] get_byte;
     end
 endfunction
 
-// Insert byte into word at position sel, keeping other bytes from base
 function [31:0] set_byte;
     input [31:0] base;
     input [7:0]  bval;
@@ -372,9 +309,6 @@ function [31:0] set_byte;
     end
 endfunction
 
-// =============================================================================
-// Combinational decode and execute
-// =============================================================================
 reg [7:0] src_byte;
 reg [7:0] sub_byte;
 reg [31:0] mix_word;
@@ -383,25 +317,21 @@ reg [31:0] mix_inv_word;
 always @(*) begin
     custom_rd = 32'd0;
 
-    // Extract selected byte from rs1
     src_byte  = get_byte(custom_rs1, byte_sel);
     sub_byte  = sbox_fwd(src_byte);
 
-    // MixColumns on the full rs1 word (treated as one column)
     mix_word     = mix_col_fwd(custom_rs1);
     mix_inv_word = mix_col_inv(custom_rs1);
 
     if (custom_valid) begin
         casez ({funct7, funct3})
-            // aes.esb: Forward SubBytes on byte[rs2[1:0]] of rs1
+
             10'b0000000_000: begin
                 custom_rd = set_byte(custom_rs1, sbox_fwd(src_byte), byte_sel);
             end
 
-            // aes.emx: MixColumns byte: apply sbox then full MixColumns on column
-            // Returns full column MixColumns result after sbox on selected byte
             10'b0000001_000: begin
-                // Apply sbox to selected byte, reconstruct word, then MixColumns
+
                 begin
                     reg [31:0] tmp;
                     tmp = set_byte(custom_rs1, sbox_fwd(src_byte), byte_sel);
@@ -409,33 +339,26 @@ always @(*) begin
                 end
             end
 
-            // aes.esr: ShiftRows partial - rotate word left by 8 bits
             10'b0000010_000: begin
                 custom_rd = {custom_rs1[23:0], custom_rs1[31:24]};
             end
 
-            // aes.dsb: Inverse SubBytes on byte[rs2[1:0]] of rs1
             10'b0000100_000: begin
                 custom_rd = set_byte(custom_rs1, sbox_inv(src_byte), byte_sel);
             end
 
-            // aes.dmx: Inverse MixColumns on full word
             10'b0000101_000: begin
                 custom_rd = mix_col_inv(custom_rs1);
             end
 
-            // aes.disr: Rotate word right by 8 bits (InvShiftRows partial)
             10'b0000110_000: begin
                 custom_rd = {custom_rs1[7:0], custom_rs1[31:8]};
             end
 
-            // aes.xk: AddRoundKey - XOR rs1 with rs2
             10'b0000111_000: begin
                 custom_rd = custom_rs1 ^ custom_rs2;
             end
 
-            // aes.rcon: RCON byte for round index rs2[3:0]
-            // Returns {rcon_byte, 0x00, 0x00, 0x00} (standard AES RCON word)
             10'b0001000_000: begin
                 custom_rd = {rcon_byte(custom_rs2[3:0]), 24'h000000};
             end

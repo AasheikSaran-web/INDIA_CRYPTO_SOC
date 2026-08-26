@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 create_demo_pdf.py — INDIA_CRYPTO_SOC Professional Demonstration PDF Generator
 Produces INDIA_CRYPTO_SOC_Demo.pdf with 6 pages showing real AES-256-CA encryption.
@@ -9,13 +8,11 @@ import os
 import math
 import io
 
-# ── Add demo dir to path so we can import aes_ca_demo ──────────────────────
 DEMO_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, DEMO_DIR)
 
 import aes_ca_demo as ca
 
-# ── ReportLab imports ────────────────────────────────────────────────────────
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import mm, cm
@@ -31,11 +28,9 @@ from reportlab.graphics.shapes import (
 from reportlab.graphics import renderPDF
 from reportlab.pdfgen import canvas
 
-# PIL / Pillow for image generation
 from PIL import Image as PILImage, ImageDraw, ImageFont, ImageFilter
 import numpy as np
 
-# ── Color Palette ────────────────────────────────────────────────────────────
 NAVY      = colors.HexColor('#0D1B2A')
 NAVY_MID  = colors.HexColor('#1A2F45')
 NAVY_LITE = colors.HexColor('#243B55')
@@ -55,10 +50,6 @@ CONTENT_W = W - 2*MARGIN
 
 OUTPUT_PATH = "/Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/INDIA_CRYPTO_SOC_Demo.pdf"
 
-# ============================================================================
-# PIL Image helpers
-# ============================================================================
-
 def pil_to_rl_image(pil_img, width=None, height=None):
     """Convert a PIL image to a ReportLab Image flowable."""
     buf = io.BytesIO()
@@ -77,20 +68,18 @@ def make_block_diagram():
     img = PILImage.new("RGB", (W_img, H_img), color=(13, 27, 42))
     draw = ImageDraw.Draw(img)
 
-    # Helper to draw a labeled box
     def box(x, y, w, h, fill, outline, label, sublabel=""):
         draw.rectangle([x, y, x+w, y+h], fill=fill, outline=outline, width=2)
-        # Label
+
         draw.text((x + w//2, y + h//2 - 8 if sublabel else y + h//2),
                   label, fill=(255,255,255), anchor="mm")
         if sublabel:
             draw.text((x + w//2, y + h//2 + 10), sublabel,
                       fill=(180,180,180), anchor="mm")
 
-    # Helper to draw an arrow
     def arrow(x1, y1, x2, y2, color=(240, 200, 80)):
         draw.line([x1, y1, x2, y2], fill=color, width=2)
-        # Arrowhead
+
         dx = x2 - x1; dy = y2 - y1
         mag = (dx**2 + dy**2) ** 0.5
         if mag == 0: return
@@ -101,14 +90,12 @@ def make_block_diagram():
         by = y2 - 10*uy + 5*ux
         draw.polygon([(x2, y2), (int(ax), int(ay)), (int(bx), int(by))], fill=color)
 
-    # Title strip
     draw.rectangle([0, 0, W_img, 30], fill=(26, 47, 69))
     draw.text((W_img//2, 15), "INDIA_CRYPTO_SOC — AES-256-CA Architecture", fill=(255,255,255), anchor="mm")
 
     y_center = 140
     bh = 70
 
-    # Boxes (x, y, w, h, fill, outline, label)
     boxes = [
         (10,  y_center-bh//2, 90,  bh, (26,68,100),    (64,158,255),  "Host SPI",    "1 MHz"),
         (120, y_center-bh//2, 110, bh, (26,100,80),     (39,174,96),   "PDF Engine",  "17-state FSM"),
@@ -120,14 +107,12 @@ def make_block_diagram():
     for bx, by, bw, bh2, fill, outline, label, sublabel in boxes:
         box(bx, by, bw, bh2, fill, outline, label, sublabel)
 
-    # Arrows
     arrow(100,  y_center, 120, y_center)
     arrow(230,  y_center, 250, y_center)
     arrow(370,  y_center, 390, y_center)
     arrow(480,  y_center, 500, y_center)
     arrow(590,  y_center, 610, y_center)
 
-    # CA stages annotation
     ca_x, ca_y = 250, y_center - bh//2
     ca_w = 120
     for i, (stage, color) in enumerate([
@@ -146,7 +131,6 @@ def make_block_diagram():
     draw.text((310, ca_y + bh + 52), "4 CA stages per round × 14 rounds = 56 CA operations per 128-bit block",
               fill=(200,200,200), anchor="mm")
 
-    # Key specs box
     specs = [
         "Process: TSMC 28nm HPC",
         "Frequency: 300 MHz",
@@ -166,12 +150,12 @@ def make_fingerprint_placeholder():
     draw = ImageDraw.Draw(img)
 
     cx, cy = W_fp//2, H_fp//2
-    # Concentric elliptical ridges (fingerprint simulation)
+
     for ring in range(30):
         r = ring * 3.5
         for angle in range(0, 360, 2):
             rad = math.radians(angle)
-            # Add slight distortion for realistic look
+
             distort = 0.3 * math.sin(angle * math.pi / 45)
             x = int(cx + (r + distort*r*0.2) * math.cos(rad) * 1.2)
             y = int(cy + (r + distort*r*0.2) * math.sin(rad) * 0.9)
@@ -179,22 +163,18 @@ def make_fingerprint_placeholder():
                 brightness = 40 + (ring % 2) * 160
                 img.putpixel((x, y), brightness)
 
-    # Apply gaussian blur for smooth ridges
     img = img.filter(ImageFilter.GaussianBlur(radius=0.8))
 
-    # Convert to RGB and add green tint (scan overlay)
     img_rgb = PILImage.new("RGB", (W_fp, H_fp))
     for x in range(W_fp):
         for y in range(H_fp):
             g = img.getpixel((x, y))
             img_rgb.putpixel((x, y), (0, int(g*0.6), 0))
 
-    # Add scan line overlay
     draw_rgb = ImageDraw.Draw(img_rgb)
     for y in range(0, H_fp, 4):
         draw_rgb.line([(0, y), (W_fp, y)], fill=(0, 20, 0), width=1)
 
-    # Border
     draw_rgb.rectangle([0, 0, W_fp-1, H_fp-1], outline=(0, 200, 80), width=2)
     draw_rgb.text((W_fp//2, 8), "BIOMETRIC SCAN", fill=(0, 255, 100), anchor="mm")
     draw_rgb.text((W_fp//2, H_fp-8), "FINGERPRINT — RIGHT INDEX", fill=(0, 200, 80), anchor="mm")
@@ -211,7 +191,6 @@ def make_hex_comparison_image(original, decrypted, n_bytes=64):
     draw.text((W_img//2, 14), "Original vs Decrypted — Byte-by-Byte Comparison",
               fill=(255,255,255), anchor="mm")
 
-    # Column headers
     draw.text((10, 38), "Offset", fill=(180,180,180))
     draw.text((65, 38), "ORIGINAL", fill=(243,156,18))
     draw.text((370, 38), "DECRYPTED", fill=(39,174,96))
@@ -225,18 +204,15 @@ def make_hex_comparison_image(original, decrypted, n_bytes=64):
 
         draw.text((10, y), f"0x{i:04x}", fill=(100, 140, 180))
 
-        # Original bytes
         x = 65
         for j, b in enumerate(chunk_orig):
             draw.text((x + j*18, y), f"{b:02x}", fill=(243,156,18))
 
-        # Decrypted bytes — green if match, red if mismatch
         x = 370
         for j, b in enumerate(chunk_dec):
             color = (39,174,96) if chunk_orig[j] == b else (192,57,43)
             draw.text((x + j*18, y), f"{b:02x}", fill=color)
 
-    # PASS badge
     draw.rectangle([W_img-140, H_img-50, W_img-10, H_img-10],
                    fill=(27, 94, 32), outline=(39,174,96), width=2)
     draw.text((W_img-75, H_img-30), "✓  PASS", fill=(39,174,96), anchor="mm")
@@ -278,29 +254,21 @@ def make_area_bar_chart():
         y = 38 + i * row_h
         bar_w = int(bar_max_w * area / max_area)
 
-        # Label
         rgb = tuple(int(c * 255) for c in color_rl.rgb())
         draw.text((5, y + bar_h//2 - 6), name, fill=(200, 200, 200))
 
-        # Bar
         draw.rectangle([bar_x_start, y, bar_x_start + bar_w, y + bar_h],
                        fill=rgb, outline=(255,255,255), width=0)
 
-        # Value label
         pct = 100.0 * area / total
         draw.text((bar_x_start + bar_w + 5, y + bar_h//2 - 6),
                   f"{area:,} ({pct:.1f}%)", fill=(200, 200, 200))
 
-    # Total
     draw.line([0, H_img-28, W_img, H_img-28], fill=(40, 60, 80), width=1)
     draw.text((10, H_img-20), f"Total custom RTL: {total:,} µm²  |  Est. TSMC 28nm: ~{int(total*0.35):,} µm²",
               fill=(180, 200, 220))
 
     return img
-
-# ============================================================================
-# Custom canvas callbacks for page background and header/footer
-# ============================================================================
 
 def draw_page_background(canvas_obj, doc):
     """Draw navy background on all pages."""
@@ -312,11 +280,11 @@ def draw_page_background(canvas_obj, doc):
 def draw_header_footer(canvas_obj, doc):
     """Draw header stripe and footer on content pages (2+)."""
     draw_page_background(canvas_obj, doc)
-    # Top accent line
+
     canvas_obj.saveState()
     canvas_obj.setFillColor(RED)
     canvas_obj.rect(0, H - 12*mm, W, 3*mm, fill=1, stroke=0)
-    # Footer
+
     canvas_obj.setFillColor(NAVY_LITE)
     canvas_obj.rect(0, 0, W, 10*mm, fill=1, stroke=0)
     canvas_obj.setFillColor(GREY_MID)
@@ -325,10 +293,6 @@ def draw_header_footer(canvas_obj, doc):
     canvas_obj.drawRightString(W - MARGIN, 4*mm,
                                f"Page {doc.page}  |  AES-256-CA  |  © 2026")
     canvas_obj.restoreState()
-
-# ============================================================================
-# Style helpers
-# ============================================================================
 
 def style(name, **kwargs):
     base = {
@@ -360,7 +324,6 @@ SUBTITLE = style("SUBTITLE", fontSize=16, fontName="Helvetica",
                  leading=22, alignment=TA_CENTER, textColor=AMBER)
 CENTER = style("CENTER", alignment=TA_CENTER)
 CENTER_BOLD = style("CENTER_BOLD", fontName="Helvetica-Bold", alignment=TA_CENTER)
-
 
 def section_rule():
     return HRFlowable(width="100%", thickness=1, color=NAVY_LITE, spaceAfter=6, spaceBefore=6)
@@ -410,10 +373,6 @@ def spec_table(data, col_widths=None):
     ]))
     return t
 
-# ============================================================================
-# Page builders
-# ============================================================================
-
 def page1_cover(crypto_data):
     """Cover page with dark navy background, large title."""
     elements = []
@@ -421,7 +380,6 @@ def page1_cover(crypto_data):
     elements.append(Paragraph("INDIA_CRYPTO_SOC", TITLE_BIG))
     elements.append(Spacer(1, 4*mm))
 
-    # Red accent rule
     elements.append(HRFlowable(width="80%", thickness=3, color=RED,
                                spaceAfter=8, spaceBefore=4, hAlign='CENTER'))
 
@@ -432,7 +390,6 @@ def page1_cover(crypto_data):
                                      textColor=GREY_MID)))
     elements.append(Spacer(1, 14*mm))
 
-    # Key spec badges row
     badges = [
         ["AES-256-CTR", "Cipher Mode"],
         ["14 Rounds", "AES Rounds"],
@@ -457,7 +414,7 @@ def page1_cover(crypto_data):
          for b in badges],
         colWidths=[cw]*len(badges),
     )
-    # Pivot to row layout
+
     row1 = [Paragraph(b[0], style("bv", fontSize=11, fontName="Helvetica-Bold",
                                   alignment=TA_CENTER, textColor=AMBER)) for b in badges]
     row2 = [Paragraph(b[1], style("bl", fontSize=7, alignment=TA_CENTER, textColor=GREY_MID)) for b in badges]
@@ -473,7 +430,6 @@ def page1_cover(crypto_data):
 
     elements.append(Spacer(1, 16*mm))
 
-    # Live encryption preview
     elements.append(Paragraph(
         "Live Encryption — Real Key, Real Ciphertext",
         style("prev_h", fontSize=10, fontName="Helvetica-Bold",
@@ -499,7 +455,6 @@ def page1_cover(crypto_data):
     elements.append(PageBreak())
     return elements
 
-
 def page2_architecture(crypto_data):
     """Architecture overview page."""
     elements = []
@@ -507,12 +462,10 @@ def page2_architecture(crypto_data):
     elements.append(Paragraph("Architecture Overview", H1))
     elements.append(amber_rule())
 
-    # Block diagram
     bd_img = make_block_diagram()
     elements.append(pil_to_rl_image(bd_img, width=CONTENT_W, height=CONTENT_W * 280/700))
     elements.append(Spacer(1, 5*mm))
 
-    # Key specs table
     elements.append(Paragraph("Silicon Specifications", H2))
     specs = [
         ["Parameter",           "Value"],
@@ -550,7 +503,6 @@ def page2_architecture(crypto_data):
     elements.append(PageBreak())
     return elements
 
-
 def page3_plaintext(crypto_data):
     """Sample Aadhaar e-KYC document page."""
     elements = []
@@ -564,11 +516,9 @@ def page3_plaintext(crypto_data):
         BODY))
     elements.append(Spacer(1, 4*mm))
 
-    # Document frame — two columns
     pt = crypto_data["plaintext"]
     doc_text = pt[:pt.find(b'\x00')].decode("utf-8", errors="replace") if b'\x00' in pt else pt[:256].decode("utf-8", errors="replace")
 
-    # KYC fields table
     elements.append(Paragraph("Identity Fields", H2))
     kyc_fields = [
         ["Field",      "Value"],
@@ -602,7 +552,6 @@ def page3_plaintext(crypto_data):
         ('ROWBACKGROUNDS', (0,0), (-1,-1), [NAVY_MID, NAVY_LITE]),
     ]))
 
-    # Fingerprint image
     fp_img = make_fingerprint_placeholder()
     fp_rl  = pil_to_rl_image(fp_img, width=CONTENT_W*0.27, height=CONTENT_W*0.27*150/200)
 
@@ -632,7 +581,6 @@ def page3_plaintext(crypto_data):
     elements.append(PageBreak())
     return elements
 
-
 def page4_encryption(crypto_data):
     """Encryption process detail page."""
     elements = []
@@ -646,7 +594,6 @@ def page4_encryption(crypto_data):
     ct  = crypto_data["ciphertext"]
     rule = crypto_data["ca_rule"]
 
-    # Key and IV
     elements.append(Paragraph("Cryptographic Parameters (from TRNG)", H2))
     crypt_params = [
         ["AES-256 Key (256-bit)",
@@ -673,13 +620,11 @@ def page4_encryption(crypto_data):
     elements.append(t)
     elements.append(Spacer(1, 5*mm))
 
-    # Side-by-side hex
     elements.append(Paragraph("Plaintext vs Ciphertext (first 64 bytes)", H2))
     elements.extend(colored_hex_pair(pt, ct, 64))
 
     elements.append(Spacer(1, 5*mm))
 
-    # CA-1 Perturbation detail
     elements.append(Paragraph("CA-1 SubBytes Perturbation — Block 0, Round 1", H2))
 
     state_in  = crypto_data["state_in"]
@@ -728,7 +673,6 @@ def page4_encryption(crypto_data):
     elements.append(PageBreak())
     return elements
 
-
 def page5_decryption(crypto_data):
     """Decryption verification page."""
     elements = []
@@ -742,7 +686,6 @@ def page5_decryption(crypto_data):
     tag = crypto_data["hmac_tag"]
     passed = crypto_data["pass"]
 
-    # PASS / FAIL badge
     if passed:
         badge_color = GREEN
         badge_text  = "DECRYPTION VERIFIED — PASS"
@@ -756,7 +699,6 @@ def page5_decryption(crypto_data):
     ))
     elements.append(Spacer(1, 4*mm))
 
-    # HMAC
     elements.append(Paragraph("CA-HMAC-SHA256 Integrity Tag", H2))
     elements.append(Paragraph(
         f"<font name='Courier' size='7.5'><font color='#27AE60'>{tag}</font></font>",
@@ -768,14 +710,12 @@ def page5_decryption(crypto_data):
         BODY))
     elements.append(Spacer(1, 4*mm))
 
-    # Comparison image
     cmp_img = make_hex_comparison_image(pt, dec, 64)
     elements.append(Paragraph("Original vs Decrypted — Byte-by-Byte", H2))
     elements.append(pil_to_rl_image(cmp_img, width=CONTENT_W, height=CONTENT_W * 320/680))
 
     elements.append(Spacer(1, 4*mm))
 
-    # Verification stats
     matches = sum(1 for a, b in zip(pt, dec) if a == b)
     verify_data = [
         ["Total bytes compared",  f"{len(pt)}"],
@@ -805,7 +745,6 @@ def page5_decryption(crypto_data):
     elements.append(PageBreak())
     return elements
 
-
 def page6_silicon(crypto_data):
     """Silicon synthesis results page."""
     elements = []
@@ -819,7 +758,6 @@ def page6_silicon(crypto_data):
         BODY))
     elements.append(Spacer(1, 4*mm))
 
-    # Area table
     elements.append(Paragraph("Block-Level Area Summary", H2))
     synth_data = [
         ["Module",              "Cells",    "Area (µm²)",  "Est. 28nm (µm²)", "Notes"],
@@ -845,7 +783,7 @@ def page6_silicon(crypto_data):
             table_rows.append([Paragraph(c, style("th", fontSize=7.5, fontName="Helvetica-Bold",
                                                     textColor=AMBER)) for c in row])
         elif i == len(synth_data) - 1:
-            # Total row
+
             table_rows.append([Paragraph(c, style("tot", fontSize=7.5, fontName="Helvetica-Bold",
                                                     textColor=WHITE)) for c in row])
         else:
@@ -868,7 +806,6 @@ def page6_silicon(crypto_data):
 
     elements.append(Spacer(1, 5*mm))
 
-    # Area bar chart
     elements.append(Paragraph("Area Breakdown — Nangate45 (µm²)", H2))
     chart_img = make_area_bar_chart()
     elements.append(pil_to_rl_image(chart_img, width=CONTENT_W, height=CONTENT_W * 340/680))
@@ -884,20 +821,14 @@ def page6_silicon(crypto_data):
 
     return elements
 
-# ============================================================================
-# Main PDF build
-# ============================================================================
-
 def build_pdf():
     print("=" * 60)
     print("INDIA_CRYPTO_SOC — PDF Demo Generator")
     print("=" * 60)
 
-    # Run real encryption
     print("\n[1/3] Running AES-256-CA encryption demo...")
     crypto_data = ca.run_demo()
 
-    # Build document
     print("\n[2/3] Building PDF...")
 
     doc = SimpleDocTemplate(
@@ -912,7 +843,6 @@ def build_pdf():
         subject="AES-256-CA Encryption Demonstration",
     )
 
-    # Build all pages
     story = []
     story += page1_cover(crypto_data)
     story += page2_architecture(crypto_data)
@@ -921,7 +851,6 @@ def build_pdf():
     story += page5_decryption(crypto_data)
     story += page6_silicon(crypto_data)
 
-    # Alternate page templates: cover (dark bg) vs content (header/footer)
     def on_page(canvas_obj, doc):
         if doc.page == 1:
             draw_page_background(canvas_obj, doc)
@@ -930,7 +859,6 @@ def build_pdf():
 
     doc.build(story, onFirstPage=on_page, onLaterPages=on_page)
 
-    # Report
     size_bytes = os.path.getsize(OUTPUT_PATH)
     print(f"\n[3/3] PDF generated successfully!")
     print(f"      Path : {OUTPUT_PATH}")

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 pdf_encrypt_decrypt.py
 ───────────────────────────────────────────────────────────────────────────────
@@ -24,7 +23,6 @@ import hmac as hmac_lib
 sys.path.insert(0, os.path.dirname(__file__))
 from aes_ca_demo import aes_ca_ctr_encrypt, aes_ca_ctr_decrypt
 
-# ─── Configuration ────────────────────────────────────────────────────────────
 DEMO_DIR   = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT  = os.path.dirname(DEMO_DIR)
 
@@ -33,7 +31,6 @@ ENC_BIN    = os.path.join(DEMO_DIR, "encrypted_payload.bin")
 DEC_PDF    = os.path.join(DEMO_DIR, "decrypted_output.pdf")
 PROOF_PDF  = os.path.join(REPO_ROOT, "INDIA_CRYPTO_SOC_Encryption_Proof.pdf")
 
-# ─── Deterministic key & IV (for reproducible demo) ──────────────────────────
 KEY = bytes([
     0xDE,0xAD,0xBE,0xEF, 0xCA,0xFE,0xBA,0xBE,
     0x12,0x34,0x56,0x78, 0x9A,0xBC,0xDE,0xF0,
@@ -45,8 +42,6 @@ IV  = bytes([
     0xFE,0xDC,0xBA,0x98, 0x76,0x54,0x32,0x10,
 ])
 
-# ─── Helpers ──────────────────────────────────────────────────────────────────
-
 def sha256_hex(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -57,14 +52,11 @@ def hex_sample(data: bytes, n: int = 32) -> str:
 def human_size(n: int) -> str:
     return f"{n:,} bytes ({n/1024:.1f} KB)"
 
-# ─── Main pipeline ────────────────────────────────────────────────────────────
-
 def run():
     print("=" * 70)
     print("  INDIA_CRYPTO_SOC — PDF Encryption / Decryption Round-Trip Test")
     print("=" * 70)
 
-    # STEP 1: Read original PDF
     if not os.path.exists(INPUT_PDF):
         sys.exit(f"[ERROR] Input PDF not found: {INPUT_PDF}")
 
@@ -78,7 +70,6 @@ def run():
     print(f"         SHA-256: {orig_sha}")
     print(f"         Header: {hex_sample(original, 16)}  ({original[:8]})")
 
-    # STEP 2: Encrypt
     print(f"\n[STEP 2] AES-256-CA Encryption")
     print(f"         Key  : {KEY.hex()}")
     print(f"         IV   : {IV.hex()}")
@@ -91,27 +82,22 @@ def run():
     print(f"         Ciphertext SHA-256: {enc_sha}")
     print(f"         First 32 bytes: {hex_sample(ciphertext, 32)}")
 
-    # Check: ciphertext != original (would be catastrophic if equal)
     assert ciphertext != original, "BUG: ciphertext == plaintext!"
     diff_bytes = sum(1 for a, b in zip(original, ciphertext) if a != b)
     pct = diff_bytes * 100 // len(original)
     print(f"         Bytes changed  : {diff_bytes:,}/{len(original):,}  ({pct}% — confirms diffusion)")
 
-    # STEP 3: Save encrypted blob
     with open(ENC_BIN, "wb") as f:
         f.write(ciphertext)
     print(f"\n[STEP 3] Saved encrypted blob → {os.path.basename(ENC_BIN)}")
 
-    # STEP 4: Decrypt (using same key + IV)
     print(f"\n[STEP 4] AES-256-CA Decryption (same key + IV, CTR mode)")
     decrypted = aes_ca_ctr_decrypt(ciphertext, KEY, IV)
 
-    # STEP 5: Save decrypted PDF
     with open(DEC_PDF, "wb") as f:
         f.write(decrypted)
     print(f"\n[STEP 5] Saved decrypted result → {os.path.basename(DEC_PDF)}")
 
-    # STEP 6: Binary comparison
     dec_sha = sha256_hex(decrypted)
     print(f"\n[STEP 6] Round-Trip Verification")
     print(f"         Original  SHA-256: {orig_sha}")
@@ -126,12 +112,10 @@ def run():
     assert match, "ROUND-TRIP FAILED — decrypted != original!"
     print(f"\n[✅ PASS] Decrypted PDF is byte-for-byte identical to the original.")
 
-    # HMAC authentication tag
     tag = hmac_lib.new(KEY[:16], ciphertext, hashlib.sha256).hexdigest()
     print(f"\n[HMAC-SHA256 Auth Tag] {tag}")
     print(f"         Verifies ciphertext integrity (India PDF Engine model)")
 
-    # STEP 7: Generate proof PDF
     print(f"\n[STEP 7] Generating proof PDF → {os.path.basename(PROOF_PDF)}")
     _generate_proof_pdf(
         original    = original,
@@ -149,9 +133,6 @@ def run():
     print("=" * 70)
     return True
 
-
-# ─── Proof PDF generator ──────────────────────────────────────────────────────
-
 def _generate_proof_pdf(**kw):
     from reportlab.lib.pagesizes import letter
     from reportlab.lib.units import inch
@@ -165,7 +146,6 @@ def _generate_proof_pdf(**kw):
 
     styles = getSampleStyleSheet()
 
-    # Custom styles
     NAVY   = colors.HexColor("#0A1628")
     TEAL   = colors.HexColor("#00B4D8")
     GREEN  = colors.HexColor("#2DC653")
@@ -201,7 +181,6 @@ def _generate_proof_pdf(**kw):
 
     story = []
 
-    # ── Cover header ──────────────────────────────────────────────────────────
     story.append(Spacer(1, 0.2*inch))
     story.append(Paragraph("INDIA_CRYPTO_SOC", title_s))
     story.append(Spacer(1, 4))
@@ -215,7 +194,6 @@ def _generate_proof_pdf(**kw):
     story.append(HRFlowable(width="100%", thickness=2, color=TEAL))
     story.append(Spacer(1, 0.15*inch))
 
-    # ── Overview table ────────────────────────────────────────────────────────
     story.append(Paragraph("Overview", head_s))
 
     orig = kw["original"]
@@ -254,7 +232,6 @@ def _generate_proof_pdf(**kw):
     story.append(tbl)
     story.append(Spacer(1, 0.15*inch))
 
-    # ── Cryptographic key material ────────────────────────────────────────────
     story.append(Paragraph("Key Material", head_s))
     key_hex = " ".join(f"{b:02x}" for b in KEY)
     iv_hex  = " ".join(f"{b:02x}" for b in IV)
@@ -280,7 +257,6 @@ def _generate_proof_pdf(**kw):
     story.append(km_tbl)
     story.append(Spacer(1, 0.15*inch))
 
-    # ── SHA-256 hash verification table ──────────────────────────────────────
     story.append(Paragraph("SHA-256 Hash Verification", head_s))
     story.append(Paragraph(
         "A byte-for-byte match is proven when the SHA-256 of the decrypted output "
@@ -317,7 +293,6 @@ def _generate_proof_pdf(**kw):
     story.append(h_tbl)
     story.append(Spacer(1, 0.15*inch))
 
-    # ── Hex byte samples ──────────────────────────────────────────────────────
     story.append(Paragraph("Byte-Level Evidence", head_s))
     story.append(Paragraph(
         "The table below shows the first 32 bytes of the original PDF, "
@@ -361,7 +336,6 @@ def _generate_proof_pdf(**kw):
     ))
     story.append(Spacer(1, 0.15*inch))
 
-    # ── HMAC auth tag ─────────────────────────────────────────────────────────
     story.append(Paragraph("HMAC-SHA256 Authentication Tag", head_s))
     story.append(Paragraph(
         "The HMAC-SHA256 tag below authenticates the ciphertext, "
@@ -378,7 +352,6 @@ def _generate_proof_pdf(**kw):
     ))
     story.append(Spacer(1, 0.15*inch))
 
-    # ── Final verdict ─────────────────────────────────────────────────────────
     story.append(HRFlowable(width="100%", thickness=1.5, color=TEAL))
     story.append(Spacer(1, 0.1*inch))
     story.append(Paragraph(
@@ -395,7 +368,6 @@ def _generate_proof_pdf(**kw):
     ))
     story.append(Spacer(1, 0.08*inch))
 
-    # Footer note
     story.append(HRFlowable(width="100%", thickness=0.5, color=MGRAY))
     story.append(Spacer(1, 4))
     story.append(Paragraph(
@@ -408,7 +380,6 @@ def _generate_proof_pdf(**kw):
     doc.build(story)
     print(f"         Proof PDF written: {PROOF_PDF}")
     print(f"         Size: {os.path.getsize(PROOF_PDF):,} bytes")
-
 
 if __name__ == "__main__":
     ok = run()

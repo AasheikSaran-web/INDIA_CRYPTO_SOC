@@ -1,37 +1,22 @@
-// =============================================================================
-// axi_lite_xbar.v — Parameterised AXI-Lite Crossbar
-// Project  : INDIA_CRYPTO_SOC
-//
-// N_MASTERS = 2 : m0 = CPU dmem (higher priority), m1 = PDF-engine DMA
-// N_SLAVES  = 8 : s0..s7, address-decoded by BASE/MASK pairs
-//
-// Address decode: combinational, (addr & MASK) == BASE
-// Arbitration:    when both masters target the same slave, m0 wins;
-//                 m1 stalls (m1_awready / m1_arready de-asserted).
-// Error response: if no slave matches, SLVERR (bresp/rresp = 2'b10),
-//                 rdata = 32'hDEAD_BEEF.
-//
-// Flat port style (no unpacked arrays) for synthesis compatibility.
-// =============================================================================
 `default_nettype none
 `timescale 1ns/1ps
 
 module axi_lite_xbar #(
     parameter N_MASTERS = 2,
     parameter N_SLAVES  = 8,
-    // Slave base addresses
-    parameter [31:0] BASE0 = 32'h0000_0000,  // Boot ROM
-    parameter [31:0] BASE1 = 32'h2000_0000,  // SRAM
-    parameter [31:0] BASE2 = 32'h3000_0000,  // AES-CA
-    parameter [31:0] BASE3 = 32'h3000_1000,  // MS-TRNG
-    parameter [31:0] BASE4 = 32'h3000_2000,  // India PDF Engine
-    parameter [31:0] BASE5 = 32'h4000_0000,  // Secure UART
-    parameter [31:0] BASE6 = 32'h4000_1000,  // Secure I2C
-    parameter [31:0] BASE7 = 32'h4000_2000,  // Secure SPI
-    // Address masks (1s = must match)
-    parameter [31:0] MASK0 = 32'hFFFF_8000,  // 32 KB
-    parameter [31:0] MASK1 = 32'hFFFE_0000,  // 128 KB
-    parameter [31:0] MASK2 = 32'hFFFF_F000,  // 4 KB
+
+    parameter [31:0] BASE0 = 32'h0000_0000,
+    parameter [31:0] BASE1 = 32'h2000_0000,
+    parameter [31:0] BASE2 = 32'h3000_0000,
+    parameter [31:0] BASE3 = 32'h3000_1000,
+    parameter [31:0] BASE4 = 32'h3000_2000,
+    parameter [31:0] BASE5 = 32'h4000_0000,
+    parameter [31:0] BASE6 = 32'h4000_1000,
+    parameter [31:0] BASE7 = 32'h4000_2000,
+
+    parameter [31:0] MASK0 = 32'hFFFF_8000,
+    parameter [31:0] MASK1 = 32'hFFFE_0000,
+    parameter [31:0] MASK2 = 32'hFFFF_F000,
     parameter [31:0] MASK3 = 32'hFFFF_F000,
     parameter [31:0] MASK4 = 32'hFFFF_F000,
     parameter [31:0] MASK5 = 32'hFFFF_F000,
@@ -41,35 +26,28 @@ module axi_lite_xbar #(
     input  wire        clk,
     input  wire        rst_n,
 
-    // -------------------------------------------------------------------------
-    // Master 0 — CPU dmem (higher priority)
-    // -------------------------------------------------------------------------
-    // Write address
     input  wire [31:0] m0_awaddr,
     input  wire        m0_awvalid,
     output wire        m0_awready,
-    // Write data
+
     input  wire [31:0] m0_wdata,
     input  wire [3:0]  m0_wstrb,
     input  wire        m0_wvalid,
     output wire        m0_wready,
-    // Write response
+
     output wire [1:0]  m0_bresp,
     output wire        m0_bvalid,
     input  wire        m0_bready,
-    // Read address
+
     input  wire [31:0] m0_araddr,
     input  wire        m0_arvalid,
     output wire        m0_arready,
-    // Read data
+
     output wire [31:0] m0_rdata,
     output wire [1:0]  m0_rresp,
     output wire        m0_rvalid,
     input  wire        m0_rready,
 
-    // -------------------------------------------------------------------------
-    // Master 1 — PDF-engine DMA (lower priority)
-    // -------------------------------------------------------------------------
     input  wire [31:0] m1_awaddr,
     input  wire        m1_awvalid,
     output wire        m1_awready,
@@ -88,9 +66,6 @@ module axi_lite_xbar #(
     output wire        m1_rvalid,
     input  wire        m1_rready,
 
-    // -------------------------------------------------------------------------
-    // Slave 0 — Boot ROM
-    // -------------------------------------------------------------------------
     output wire [31:0] s0_awaddr,  output wire s0_awvalid,  input  wire s0_awready,
     output wire [31:0] s0_wdata,   output wire [3:0] s0_wstrb,
     output wire        s0_wvalid,  input  wire s0_wready,
@@ -99,7 +74,6 @@ module axi_lite_xbar #(
     input  wire [31:0] s0_rdata,   input  wire [1:0] s0_rresp,
     input  wire        s0_rvalid,  output wire s0_rready,
 
-    // Slave 1 — SRAM
     output wire [31:0] s1_awaddr,  output wire s1_awvalid,  input  wire s1_awready,
     output wire [31:0] s1_wdata,   output wire [3:0] s1_wstrb,
     output wire        s1_wvalid,  input  wire s1_wready,
@@ -108,7 +82,6 @@ module axi_lite_xbar #(
     input  wire [31:0] s1_rdata,   input  wire [1:0] s1_rresp,
     input  wire        s1_rvalid,  output wire s1_rready,
 
-    // Slave 2 — AES-CA Accelerator
     output wire [31:0] s2_awaddr,  output wire s2_awvalid,  input  wire s2_awready,
     output wire [31:0] s2_wdata,   output wire [3:0] s2_wstrb,
     output wire        s2_wvalid,  input  wire s2_wready,
@@ -117,7 +90,6 @@ module axi_lite_xbar #(
     input  wire [31:0] s2_rdata,   input  wire [1:0] s2_rresp,
     input  wire        s2_rvalid,  output wire s2_rready,
 
-    // Slave 3 — MS-TRNG
     output wire [31:0] s3_awaddr,  output wire s3_awvalid,  input  wire s3_awready,
     output wire [31:0] s3_wdata,   output wire [3:0] s3_wstrb,
     output wire        s3_wvalid,  input  wire s3_wready,
@@ -126,7 +98,6 @@ module axi_lite_xbar #(
     input  wire [31:0] s3_rdata,   input  wire [1:0] s3_rresp,
     input  wire        s3_rvalid,  output wire s3_rready,
 
-    // Slave 4 — India PDF Engine config
     output wire [31:0] s4_awaddr,  output wire s4_awvalid,  input  wire s4_awready,
     output wire [31:0] s4_wdata,   output wire [3:0] s4_wstrb,
     output wire        s4_wvalid,  input  wire s4_wready,
@@ -135,7 +106,6 @@ module axi_lite_xbar #(
     input  wire [31:0] s4_rdata,   input  wire [1:0] s4_rresp,
     input  wire        s4_rvalid,  output wire s4_rready,
 
-    // Slave 5 — Secure UART
     output wire [31:0] s5_awaddr,  output wire s5_awvalid,  input  wire s5_awready,
     output wire [31:0] s5_wdata,   output wire [3:0] s5_wstrb,
     output wire        s5_wvalid,  input  wire s5_wready,
@@ -144,7 +114,6 @@ module axi_lite_xbar #(
     input  wire [31:0] s5_rdata,   input  wire [1:0] s5_rresp,
     input  wire        s5_rvalid,  output wire s5_rready,
 
-    // Slave 6 — Secure I2C
     output wire [31:0] s6_awaddr,  output wire s6_awvalid,  input  wire s6_awready,
     output wire [31:0] s6_wdata,   output wire [3:0] s6_wstrb,
     output wire        s6_wvalid,  input  wire s6_wready,
@@ -153,7 +122,6 @@ module axi_lite_xbar #(
     input  wire [31:0] s6_rdata,   input  wire [1:0] s6_rresp,
     input  wire        s6_rvalid,  output wire s6_rready,
 
-    // Slave 7 — Secure SPI
     output wire [31:0] s7_awaddr,  output wire s7_awvalid,  input  wire s7_awready,
     output wire [31:0] s7_wdata,   output wire [3:0] s7_wstrb,
     output wire        s7_wvalid,  input  wire s7_wready,
@@ -163,9 +131,6 @@ module axi_lite_xbar #(
     input  wire        s7_rvalid,  output wire s7_rready
 );
 
-// =============================================================================
-// Internal — pack bases/masks for indexed decode
-// =============================================================================
 wire [31:0] BASE [0:7];
 wire [31:0] MASK [0:7];
 assign BASE[0] = BASE0; assign MASK[0] = MASK0;
@@ -177,11 +142,6 @@ assign BASE[5] = BASE5; assign MASK[5] = MASK5;
 assign BASE[6] = BASE6; assign MASK[6] = MASK6;
 assign BASE[7] = BASE7; assign MASK[7] = MASK7;
 
-// =============================================================================
-// Address decode — purely combinational
-// =============================================================================
-
-// m0 write/read slave selects (one-hot, 8 bits + 1 error bit)
 wire [7:0] m0_aw_sel, m0_ar_sel;
 wire [7:0] m1_aw_sel, m1_ar_sel;
 wire       m0_aw_err, m0_ar_err, m1_aw_err, m1_ar_err;
@@ -201,24 +161,11 @@ assign m0_ar_err = (m0_ar_sel == 8'h00);
 assign m1_aw_err = (m1_aw_sel == 8'h00);
 assign m1_ar_err = (m1_ar_sel == 8'h00);
 
-// =============================================================================
-// Arbitration — m0 wins; m1 stalls when same slave targeted simultaneously
-// =============================================================================
-
-// Conflict: both masters address the same slave
 wire [7:0] aw_conflict = m0_aw_sel & m1_aw_sel;
 wire [7:0] ar_conflict = m0_ar_sel & m1_ar_sel;
 wire       m1_aw_stall = (|aw_conflict) & m1_awvalid & m0_awvalid;
 wire       m1_ar_stall = (|ar_conflict) & m1_arvalid & m0_arvalid;
 
-// =============================================================================
-// Per-slave AW mux — m0 has priority; m1 only drives when m0 not selecting
-// =============================================================================
-
-// Slave write address / data bus: driven by winning master
-// We use wires indexed by slave; build 8 sets of mux outputs
-
-// Pack slave outputs for iteration
 wire [31:0] sx_awaddr [0:7];
 wire        sx_awvalid[0:7];
 wire [31:0] sx_wdata  [0:7];
@@ -229,7 +176,6 @@ wire [31:0] sx_araddr [0:7];
 wire        sx_arvalid[0:7];
 wire        sx_rready [0:7];
 
-// Pack slave inputs for return
 wire        sx_awready[0:7];
 wire        sx_wready [0:7];
 wire [1:0]  sx_bresp  [0:7];
@@ -239,7 +185,6 @@ wire [31:0] sx_rdata  [0:7];
 wire [1:0]  sx_rresp  [0:7];
 wire        sx_rvalid [0:7];
 
-// Connect flat slave ports to arrays
 assign sx_awready[0]=s0_awready; assign sx_wready[0]=s0_wready;
 assign sx_bresp[0]=s0_bresp;     assign sx_bvalid[0]=s0_bvalid;
 assign sx_arready[0]=s0_arready; assign sx_rdata[0]=s0_rdata;
@@ -280,34 +225,27 @@ assign sx_bresp[7]=s7_bresp;     assign sx_bvalid[7]=s7_bvalid;
 assign sx_arready[7]=s7_arready; assign sx_rdata[7]=s7_rdata;
 assign sx_rresp[7]=s7_rresp;     assign sx_rvalid[7]=s7_rvalid;
 
-// =============================================================================
-// Slave-side mux: arbitrate which master drives each slave channel
-// m0 wins write/read when it selects that slave; m1 drives otherwise
-// =============================================================================
 generate
     for (i = 0; i < 8; i = i + 1) begin : SMUX
-        // Write address channel
+
         assign sx_awaddr[i]  = m0_aw_sel[i] ? m0_awaddr  : m1_awaddr;
         assign sx_awvalid[i] = m0_aw_sel[i] ? (m0_awvalid & !m0_aw_err) :
                                               (m1_awvalid & m1_aw_sel[i] & !m1_aw_err & !m1_aw_stall);
-        // Write data channel — follow the AW winner
+
         assign sx_wdata[i]   = m0_aw_sel[i] ? m0_wdata   : m1_wdata;
         assign sx_wstrb[i]   = m0_aw_sel[i] ? m0_wstrb   : m1_wstrb;
         assign sx_wvalid[i]  = m0_aw_sel[i] ? m0_wvalid  : (m1_wvalid & m1_aw_sel[i] & !m1_aw_stall);
-        // Write response ready
+
         assign sx_bready[i]  = m0_aw_sel[i] ? m0_bready  : m1_bready;
-        // Read address channel
+
         assign sx_araddr[i]  = m0_ar_sel[i] ? m0_araddr  : m1_araddr;
         assign sx_arvalid[i] = m0_ar_sel[i] ? (m0_arvalid & !m0_ar_err) :
                                               (m1_arvalid & m1_ar_sel[i] & !m1_ar_err & !m1_ar_stall);
-        // Read ready
+
         assign sx_rready[i]  = m0_ar_sel[i] ? m0_rready  : m1_rready;
     end
 endgenerate
 
-// =============================================================================
-// Connect mux outputs to flat slave ports
-// =============================================================================
 assign s0_awaddr=sx_awaddr[0]; assign s0_awvalid=sx_awvalid[0];
 assign s0_wdata=sx_wdata[0];   assign s0_wstrb=sx_wstrb[0]; assign s0_wvalid=sx_wvalid[0];
 assign s0_bready=sx_bready[0]; assign s0_araddr=sx_araddr[0]; assign s0_arvalid=sx_arvalid[0];
@@ -348,12 +286,6 @@ assign s7_wdata=sx_wdata[7];   assign s7_wstrb=sx_wstrb[7]; assign s7_wvalid=sx_
 assign s7_bready=sx_bready[7]; assign s7_araddr=sx_araddr[7]; assign s7_arvalid=sx_arvalid[7];
 assign s7_rready=sx_rready[7];
 
-// =============================================================================
-// Master-side return: steer slave responses back to the correct master
-// For each master, fold across all 8 slaves; error response if no match.
-// =============================================================================
-
-// --- m0 write response ---
 reg [1:0]  m0_bresp_r;
 reg        m0_bvalid_r;
 reg        m0_awready_r;
@@ -361,12 +293,12 @@ reg        m0_wready_r;
 
 always @(*) begin : M0_WR_RESP
     integer j;
-    m0_bresp_r   = 2'b10;   // default: SLVERR
+    m0_bresp_r   = 2'b10;
     m0_bvalid_r  = 1'b0;
     m0_awready_r = 1'b0;
     m0_wready_r  = 1'b0;
     if (m0_aw_err && m0_awvalid) begin
-        // No slave matched — generate immediate SLVERR
+
         m0_awready_r = 1'b1;
         m0_wready_r  = 1'b1;
         m0_bvalid_r  = 1'b1;
@@ -388,7 +320,6 @@ assign m0_wready  = m0_wready_r;
 assign m0_bvalid  = m0_bvalid_r;
 assign m0_bresp   = m0_bresp_r;
 
-// --- m0 read response ---
 reg [31:0] m0_rdata_r;
 reg [1:0]  m0_rresp_r;
 reg        m0_rvalid_r;
@@ -422,7 +353,6 @@ assign m0_rvalid  = m0_rvalid_r;
 assign m0_rresp   = m0_rresp_r;
 assign m0_rdata   = m0_rdata_r;
 
-// --- m1 write response ---
 reg [1:0]  m1_bresp_r;
 reg        m1_bvalid_r;
 reg        m1_awready_r;
@@ -435,7 +365,7 @@ always @(*) begin : M1_WR_RESP
     m1_awready_r = 1'b0;
     m1_wready_r  = 1'b0;
     if (m1_aw_stall) begin
-        // Stall: do not assert ready
+
         m1_awready_r = 1'b0;
         m1_wready_r  = 1'b0;
     end else if (m1_aw_err && m1_awvalid) begin
@@ -460,7 +390,6 @@ assign m1_wready  = m1_wready_r;
 assign m1_bvalid  = m1_bvalid_r;
 assign m1_bresp   = m1_bresp_r;
 
-// --- m1 read response ---
 reg [31:0] m1_rdata_r;
 reg [1:0]  m1_rresp_r;
 reg        m1_rvalid_r;

@@ -1,22 +1,3 @@
-// ============================================================================
-// pulp_spi_wrap.sv
-// Security wrapper around the PULP apb_spi_master peripheral.
-//
-// 10-pin constraint: single chip-select (CS0 only; CS1-3 permanently deasserted)
-//
-// Security features:
-//   1. secure_mode: deasserts CS (1'b1), gates SCK=0, MOSI=0
-//   2. CS lock register (AXI-only, offset 0xFC): CS0 permanent lock;
-//      once set, bit cannot be cleared without reset
-//   3. Transfer length guard (AXI-only, offset 0xF8): 8-bit max_len.
-//      APB writes to the SPI LENGTH register (offset 0x08) are intercepted;
-//      if written value > max_len, it is capped to max_len before forwarding.
-//
-// AXI-only register map (not forwarded to apb_spi_master):
-//   0xF8 [7:0]  : max_len (default 8'hFF = unconstrained)
-//   0xFC [0]    : cs_lock (write-once bit; once 1 cannot be cleared)
-// ============================================================================
-
 module pulp_spi_wrap #(
     parameter int BUFFER_DEPTH    = 8,
     parameter int APB_ADDR_WIDTH  = 12
@@ -25,9 +6,6 @@ module pulp_spi_wrap #(
     input  logic        rst_n,
     input  logic        secure_mode,
 
-    // ----------------------------------------------------------------
-    // AXI-Lite Slave Interface (12-bit addr, 32-bit data)
-    // ----------------------------------------------------------------
     input  logic [11:0] s_awaddr,
     input  logic        s_awvalid,
     output logic        s_awready,
@@ -50,19 +28,13 @@ module pulp_spi_wrap #(
     output logic        s_rvalid,
     input  logic        s_rready,
 
-    // ----------------------------------------------------------------
-    // SPI Physical
-    // ----------------------------------------------------------------
     output logic        spi_sck,
     output logic        spi_mosi,
     input  logic        spi_miso,
-    output logic        spi_cs_n,   // Single CS (10-pin constraint; CS0 only)
+    output logic        spi_cs_n,
     output logic        irq
 );
 
-    // ----------------------------------------------------------------
-    // APB bus wires (bridge <-> apb_spi_master)
-    // ----------------------------------------------------------------
     logic [11:0] apb_paddr;
     logic        apb_psel;
     logic        apb_penable;
@@ -72,25 +44,17 @@ module pulp_spi_wrap #(
     logic        apb_pready;
     logic        apb_pslverr;
 
-    // ----------------------------------------------------------------
-    // AXI-only security registers
-    // ----------------------------------------------------------------
-    logic [7:0]  max_len_r;      // 0xF8
-    logic        cs_lock_r;      // 0xFC [0]  (write-once CS0 lock)
+    logic [7:0]  max_len_r;
+    logic        cs_lock_r;
 
-    // Address decode for AXI-only registers
     localparam logic [11:0] ADDR_MAX_LEN  = 12'hF8;
     localparam logic [11:0] ADDR_CS_LOCK  = 12'hFC;
 
-    // Inline address decode (Yosys-compatible — avoids SV function return with ||)
     logic axil_local_wr;
     logic axil_local_rd;
     assign axil_local_wr = s_awvalid & ((s_awaddr == ADDR_MAX_LEN) | (s_awaddr == ADDR_CS_LOCK));
     assign axil_local_rd = s_arvalid & ((s_araddr == ADDR_MAX_LEN) | (s_araddr == ADDR_CS_LOCK));
 
-    // ----------------------------------------------------------------
-    // Local write handshake FSM
-    // ----------------------------------------------------------------
     typedef enum logic [1:0] {
         LWR_IDLE  = 2'b00,
         LWR_WDATA = 2'b01,
@@ -114,29 +78,24 @@ module pulp_spi_wrap #(
         if (!rst_n) begin
             lwr_state_r <= LWR_IDLE;
             lwr_addr_r  <= 12'h0;
-            max_len_r   <= 8'hFF;   // default: unconstrained
+            max_len_r   <= 8'hFF;
             cs_lock_r   <= 1'b0;
         end else begin
             lwr_state_r <= lwr_state_next;
 
-            // Capture AW address
             if (lwr_state_r == LWR_IDLE && axil_local_wr && s_awvalid)
                 lwr_addr_r <= s_awaddr;
 
-            // Write data to register
             if (lwr_state_r == LWR_WDATA && s_wvalid) begin
                 if (lwr_addr_r == ADDR_MAX_LEN)
                     max_len_r <= s_wdata[7:0];
                 else if (lwr_addr_r == ADDR_CS_LOCK)
-                    // Write-once: bits can only be set, never cleared
-                    cs_lock_r <= cs_lock_r | s_wdata[0];  // CS0 lock only
+
+                    cs_lock_r <= cs_lock_r | s_wdata[0];
             end
         end
     end
 
-    // ----------------------------------------------------------------
-    // Local read handshake FSM
-    // ----------------------------------------------------------------
     typedef enum logic [1:0] {
         LRD_IDLE = 2'b00,
         LRD_DATA = 2'b01
@@ -171,9 +130,6 @@ module pulp_spi_wrap #(
         end
     end
 
-    // ----------------------------------------------------------------
-    // AXI channel mux: local vs. forwarded to bridge
-    // ----------------------------------------------------------------
     logic        fwd_awvalid, fwd_awready;
     logic        fwd_wvalid,  fwd_wready;
     logic [1:0]  fwd_bresp;
@@ -196,12 +152,6 @@ module pulp_spi_wrap #(
     assign s_rdata   = (lrd_state_r == LRD_DATA) ? lrd_rdata_r : fwd_rdata;
     assign s_rresp   = (lrd_state_r == LRD_DATA) ? 2'b00 : fwd_rresp;
 
-    // ----------------------------------------------------------------
-    // Transfer length guard
-    //   SPI LENGTH register in apb_spi_master is at APB offset 0x08.
-    //   Intercept APB write to this address; if pwdata[7:0] > max_len,
-    //   substitute max_len before the data reaches apb_spi_master.
-    // ----------------------------------------------------------------
     localparam logic [11:0] SPI_LEN_REG = 12'h008;
 
     logic [31:0] pwdata_gated;
@@ -214,38 +164,26 @@ module pulp_spi_wrap #(
         end
     end
 
-    // ----------------------------------------------------------------
-    // SPI peripheral outputs from apb_spi_master
-    // ----------------------------------------------------------------
     logic        spi_sck_raw;
     logic        spi_mosi_raw;
-    logic [3:0]  spi_csn_raw;   // [0]=CS0 exposed; [3:1] tied high internally
-    logic [1:0]  spi_mode_nc;   // not used
-    logic [1:0]  events_raw;   // apb_spi_master events_o is [1:0]
+    logic [3:0]  spi_csn_raw;
+    logic [1:0]  spi_mode_nc;
+    logic [1:0]  events_raw;
 
     assign irq = events_raw[1];
 
-    // ----------------------------------------------------------------
-    // Security: CS lock and secure_mode gating
-    //   cs_lock_r=1  -> spi_cs_n permanently deasserted (1)
-    //   secure_mode=1 -> CS deasserted, SCK=0, MOSI=0
-    // Only CS0 is exposed; CS1-3 from apb_spi_master are permanently tied high.
-    // ----------------------------------------------------------------
     always_comb begin
         if (secure_mode) begin
-            spi_cs_n  = 1'b1;   // deassert
+            spi_cs_n  = 1'b1;
             spi_sck   = 1'b0;
             spi_mosi  = 1'b0;
         end else begin
-            spi_cs_n  = spi_csn_raw[0] | cs_lock_r;  // CS0 only; lock forces deassert
+            spi_cs_n  = spi_csn_raw[0] | cs_lock_r;
             spi_sck   = spi_sck_raw;
             spi_mosi  = spi_mosi_raw;
         end
     end
 
-    // ----------------------------------------------------------------
-    // AXI-Lite to APB bridge
-    // ----------------------------------------------------------------
     axil_to_apb u_bridge (
         .clk        (clk),
         .rst_n      (rst_n),
@@ -282,9 +220,6 @@ module pulp_spi_wrap #(
         .pslverr    (apb_pslverr)
     );
 
-    // ----------------------------------------------------------------
-    // apb_spi_master instantiation (PULP)
-    // ----------------------------------------------------------------
     apb_spi_master #(
         .BUFFER_DEPTH   (BUFFER_DEPTH),
         .APB_ADDR_WIDTH (APB_ADDR_WIDTH)
@@ -292,9 +227,8 @@ module pulp_spi_wrap #(
         .HCLK           (clk),
         .HRESETn        (rst_n),
 
-        // APB
         .PADDR          (apb_paddr),
-        .PWDATA         (pwdata_gated),   // length-capped data
+        .PWDATA         (pwdata_gated),
         .PWRITE         (apb_pwrite),
         .PSEL           (apb_psel),
         .PENABLE        (apb_penable),
@@ -302,10 +236,8 @@ module pulp_spi_wrap #(
         .PREADY         (apb_pready),
         .PSLVERR        (apb_pslverr),
 
-        // Events / interrupt
         .events_o       (events_raw),
 
-        // SPI signals
         .spi_clk        (spi_sck_raw),
         .spi_csn0       (spi_csn_raw[0]),
         .spi_csn1       (spi_csn_raw[1]),
@@ -313,7 +245,6 @@ module pulp_spi_wrap #(
         .spi_csn3       (spi_csn_raw[3]),
         .spi_mode       (spi_mode_nc),
 
-        // MOSI/MISO — use SDO0/SDI0 only; other data lines tied/ignored
         .spi_sdo0       (spi_mosi_raw),
         .spi_sdo1       (),
         .spi_sdo2       (),
@@ -326,6 +257,3 @@ module pulp_spi_wrap #(
     );
 
 endmodule
-// ============================================================================
-// End of pulp_spi_wrap.sv
-// ============================================================================

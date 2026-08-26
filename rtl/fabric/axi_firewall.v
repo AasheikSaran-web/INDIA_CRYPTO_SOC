@@ -1,69 +1,20 @@
-// =============================================================================
-// axi_firewall.v — AXI-Lite Security Firewall
-// Project  : INDIA_CRYPTO_SOC
-//
-// Sits between the crossbar slave port and a protected peripheral.
-// Carries a per-(master_id, slave_id) permission table stored in a 32-bit
-// register so synthesis can infer simple flops.
-//
-// Permission table encoding:
-//   perm_table[slave_id * N_MASTERS + master_id] = 1  ->  access allowed
-//   N_MASTERS = 4, N_SLAVES = 8  =>  32-bit register
-//
-// Write-once protection:
-//   After firmware writes lock_table == 32'hDEAD_BEEF the permission table
-//   becomes read-only until reset.
-//
-// Forensic registers (read via firewall config port):
-//   last_denied_addr   : address of the most recent denied transaction
-//   last_denied_master : master_id of the most recent denied transaction
-//   deny_count[15:0]   : accumulated denied access count (write-any to clear)
-//
-// Firewall config port (f_aw*/f_w*/f_b*/f_ar*/f_r*) register map:
-//   0x00  perm_table      [31:0]  RW (locked after DEAD_BEEF)
-//   0x04  lock_table      [31:0]  WO (write 0xDEADBEEF to lock)
-//   0x08  last_denied_addr[31:0]  RO
-//   0x0C  last_denied_master[1:0] RO
-//   0x10  deny_count      [15:0]  RC (write-any to clear)
-//
-// On denied upstream transaction:
-//   - AW/AR accepted (awready/arready asserted) to avoid bus hang
-//   - W channel consumed (wready asserted)
-//   - SLVERR returned immediately on B/R channel
-//   - downstream slave sees nothing
-//
-// On allowed transaction:
-//   - Channels passed through transparently
-//
-// Parameters:
-//   N_SLAVES  = 8
-//   N_MASTERS = 4
-//   DEFAULT_PERM: reset value of perm_table (all CPU allowed, DMA to s1 only)
-// =============================================================================
 `default_nettype none
 `timescale 1ns/1ps
 
 module axi_firewall #(
     parameter N_SLAVES        = 8,
     parameter N_MASTERS       = 4,
-    parameter LOG_DEPTH       = 4,            // deny-log FIFO depth (2^LOG_DEPTH entries)
-    parameter [31:0] LOCK_KEY = 32'hDEADBEEF, // magic value to lock permission table
-    // Default: CPU (id=0) allowed on every slave, DMA (id=1) allowed on slave 1
-    // bit[slave*N_MASTERS + master]: slave 0..7, master 0..3
-    // CPU (master 0) bits: bit 0, 4, 8, 12, 16, 20, 24, 28 => 0x11111111
-    // DMA (master 1) on slave 1: bit[1*4+1] = bit 5 => 0x00000020
-    parameter [31:0] DEFAULT_PERM = 32'h1111_1131  // CPU on all slaves + DMA on slave1
+    parameter LOG_DEPTH       = 4,
+    parameter [31:0] LOCK_KEY = 32'hDEADBEEF,
+
+    parameter [31:0] DEFAULT_PERM = 32'h1111_1131
 )(
     input  wire        clk,
     input  wire        rst_n,
 
-    // Which master is driving the upstream port, and which slave this protects
     input  wire [1:0]  master_id,
     input  wire [2:0]  slave_id,
 
-    // -------------------------------------------------------------------------
-    // Upstream AXI-Lite slave port (from crossbar)
-    // -------------------------------------------------------------------------
     input  wire [31:0] u_awaddr,
     input  wire        u_awvalid,
     output reg         u_awready,
@@ -83,9 +34,6 @@ module axi_firewall #(
     output reg         u_rvalid,
     input  wire        u_rready,
 
-    // -------------------------------------------------------------------------
-    // Downstream AXI-Lite master port (to protected peripheral)
-    // -------------------------------------------------------------------------
     output reg  [31:0] d_awaddr,
     output reg         d_awvalid,
     input  wire        d_awready,
@@ -105,9 +53,6 @@ module axi_firewall #(
     input  wire        d_rvalid,
     output reg         d_rready,
 
-    // -------------------------------------------------------------------------
-    // Firewall configuration AXI-Lite slave port
-    // -------------------------------------------------------------------------
     input  wire [31:0] f_awaddr,
     input  wire        f_awvalid,
     output reg         f_awready,
@@ -127,38 +72,27 @@ module axi_firewall #(
     output reg         f_rvalid,
     input  wire        f_rready,
 
-    // -------------------------------------------------------------------------
-    // Deny IRQ — one-cycle pulse on any denied AW or AR transaction
-    // Aggregated by top-level into seceng_irq
-    // -------------------------------------------------------------------------
     output reg         deny_irq
 );
 
-// =============================================================================
-// Permission & forensic registers
-// =============================================================================
 reg [31:0] perm_table;
 reg        table_locked;
 reg [31:0] last_denied_addr;
 reg [1:0]  last_denied_master;
 reg [15:0] deny_count;
 
-// Permission check: bit index = slave_id * N_MASTERS + master_id
 wire [4:0] perm_idx = ({2'b00, slave_id} * N_MASTERS[4:0]) + {3'b000, master_id};
 wire       wr_allowed = perm_table[perm_idx];
-wire       rd_allowed = perm_table[perm_idx];   // same permission for R and W
+wire       rd_allowed = perm_table[perm_idx];
 
-// =============================================================================
-// Write FSM — 2 states: IDLE, RESP
-// =============================================================================
 localparam WS_IDLE = 2'd0;
-localparam WS_PASS = 2'd1;   // forwarding to downstream
-localparam WS_DENY = 2'd2;   // generating error response locally
-localparam WS_RESP = 2'd3;   // waiting for u_bready after DENY
+localparam WS_PASS = 2'd1;
+localparam WS_DENY = 2'd2;
+localparam WS_RESP = 2'd3;
 
 reg [1:0] wstate;
-reg       aw_captured;       // AW handshake done
-reg       w_captured;        // W handshake done
+reg       aw_captured;
+reg       w_captured;
 reg [31:0] aw_addr_lat;
 
 always @(posedge clk or negedge rst_n) begin
@@ -182,7 +116,7 @@ always @(posedge clk or negedge rst_n) begin
         deny_count      <= 16'h0;
         deny_irq        <= 1'b0;
     end else begin
-        // Default de-assert one-shot signals
+
         u_awready <= 1'b0;
         u_wready  <= 1'b0;
         deny_irq  <= 1'b0;
@@ -193,7 +127,7 @@ always @(posedge clk or negedge rst_n) begin
             d_wvalid  <= 1'b0;
             d_bready  <= 1'b0;
             if (u_awvalid && !aw_captured) begin
-                // Latch address and accept it
+
                 aw_addr_lat <= u_awaddr;
                 u_awready   <= 1'b1;
                 aw_captured <= 1'b1;
@@ -204,22 +138,18 @@ always @(posedge clk or negedge rst_n) begin
             end
             if (aw_captured || (u_awvalid)) begin
                 if (w_captured || u_wvalid) begin
-                    // Both channels ready to decide
+
                     if (wr_allowed) begin
                         wstate    <= WS_PASS;
-                        // Pre-assert d_awvalid/d_wvalid on entry so they are
-                        // driven for exactly one handshake cycle and NOT
-                        // re-asserted every WS_PASS clock (which would cause
-                        // the downstream slave to re-process the same AW
-                        // transaction after d_awready fires)
+
                         d_awvalid <= 1'b1;
                         d_wvalid  <= 1'b1;
                     end else begin
-                        // Log denial and pulse IRQ
+
                         last_denied_addr   <= aw_addr_lat;
                         last_denied_master <= master_id;
                         deny_count         <= deny_count + 16'h1;
-                        deny_irq           <= 1'b1;   // one-cycle pulse to seceng_irq
+                        deny_irq           <= 1'b1;
                         wstate             <= WS_DENY;
                     end
                 end
@@ -227,33 +157,30 @@ always @(posedge clk or negedge rst_n) begin
         end
 
         WS_PASS: begin
-            // Drive stable address/data fields continuously (aw_addr_lat is
-            // stable once set; u_wdata held by master until transaction ends)
+
             d_awaddr <= aw_addr_lat;
             d_wdata  <= u_wdata;
             d_wstrb  <= u_wstrb;
             d_bready <= u_bready;
-            // Clear d_awvalid/d_wvalid exactly once when downstream acks.
-            // Do NOT re-assert them here — they were pre-set in WS_IDLE and
-            // a re-assertion would cause the slave to loop on repeated AW txns.
+
             if (d_awready) d_awvalid <= 1'b0;
             if (d_wready)  d_wvalid  <= 1'b0;
-            // Forward B channel back
+
             u_bvalid <= d_bvalid;
             u_bresp  <= d_bresp;
             if (d_bvalid && u_bready) begin
                 aw_captured <= 1'b0;
                 w_captured  <= 1'b0;
-                d_awvalid   <= 1'b0;   // ensure clean state
+                d_awvalid   <= 1'b0;
                 d_wvalid    <= 1'b0;
                 wstate      <= WS_IDLE;
             end
         end
 
         WS_DENY: begin
-            // Return SLVERR without touching downstream
+
             u_bvalid <= 1'b1;
-            u_bresp  <= 2'b10;   // SLVERR
+            u_bresp  <= 2'b10;
             if (u_bready) begin
                 u_bvalid    <= 1'b0;
                 aw_captured <= 1'b0;
@@ -267,9 +194,6 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 
-// =============================================================================
-// Read FSM
-// =============================================================================
 localparam RS_IDLE = 2'd0;
 localparam RS_PASS = 2'd1;
 localparam RS_DENY = 2'd2;
@@ -300,30 +224,29 @@ always @(posedge clk or negedge rst_n) begin
                 u_arready   <= 1'b1;
                 if (rd_allowed) begin
                     rstate    <= RS_PASS;
-                    // Pre-assert d_arvalid on entry so RS_PASS doesn't
-                    // re-assert it after d_arready fires (same fix as WS_PASS)
+
                     d_arvalid <= 1'b1;
                 end else begin
                     last_denied_addr   <= u_araddr;
                     last_denied_master <= master_id;
                     deny_count         <= deny_count + 16'h1;
-                    deny_irq           <= 1'b1;   // one-cycle pulse to seceng_irq
+                    deny_irq           <= 1'b1;
                     rstate             <= RS_DENY;
                 end
             end
         end
 
         RS_PASS: begin
-            // Drive stable address (ar_addr_lat is set one cycle earlier in RS_IDLE)
+
             d_araddr <= ar_addr_lat;
-            // Clear d_arvalid exactly once when downstream acks; do NOT re-assert
+
             if (d_arready) d_arvalid <= 1'b0;
             d_rready  <= u_rready;
             u_rvalid  <= d_rvalid;
             u_rdata   <= d_rdata;
             u_rresp   <= d_rresp;
             if (d_rvalid && u_rready) begin
-                d_arvalid <= 1'b0;   // ensure clean state
+                d_arvalid <= 1'b0;
                 rstate    <= RS_IDLE;
             end
         end
@@ -343,15 +266,11 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 
-// =============================================================================
-// Firewall configuration port — simple register bank
-// =============================================================================
-// Register addresses (word aligned, use bits [4:2])
-localparam CFG_PERM    = 3'h0;  // 0x00
-localparam CFG_LOCK    = 3'h1;  // 0x04
-localparam CFG_DA_ADDR = 3'h2;  // 0x08
-localparam CFG_DA_MSTR = 3'h3;  // 0x0C
-localparam CFG_DENY_CT = 3'h4;  // 0x10
+localparam CFG_PERM    = 3'h0;
+localparam CFG_LOCK    = 3'h1;
+localparam CFG_DA_ADDR = 3'h2;
+localparam CFG_DA_MSTR = 3'h3;
+localparam CFG_DENY_CT = 3'h4;
 
 reg f_aw_done, f_w_done;
 reg [31:0] f_awaddr_lat;
@@ -372,12 +291,11 @@ always @(posedge clk or negedge rst_n) begin
         f_w_done     <= 1'b0;
         f_awaddr_lat <= 32'h0;
     end else begin
-        // Defaults
+
         f_awready <= 1'b0;
         f_wready  <= 1'b0;
         f_arready <= 1'b0;
 
-        // --- Write path ---
         if (f_awvalid && !f_aw_done) begin
             f_awready    <= 1'b1;
             f_awaddr_lat <= f_awaddr;
@@ -397,21 +315,20 @@ always @(posedge clk or negedge rst_n) begin
                     if (!table_locked)
                         perm_table <= f_wdata;
                     else
-                        f_bresp <= 2'b10;   // SLVERR: locked
+                        f_bresp <= 2'b10;
                 end
                 CFG_LOCK: begin
                     if (f_wdata == 32'hDEADBEEF)
                         table_locked <= 1'b1;
                 end
                 CFG_DENY_CT: begin
-                    deny_count <= 16'h0;   // write-any clears
+                    deny_count <= 16'h0;
                 end
                 default: f_bresp <= 2'b10;
             endcase
         end
         if (f_bvalid && f_bready) f_bvalid <= 1'b0;
 
-        // --- Read path ---
         if (f_arvalid && !f_rvalid) begin
             f_arready <= 1'b1;
             f_rvalid  <= 1'b1;

@@ -1,28 +1,9 @@
-// ============================================================================
-// apb_uart.sv  —  PULP-platform APB UART peripheral (self-contained Verilog)
-//
-// 16550-compatible register map (same as PULP apb_uart VHDL reference):
-//   PADDR[2:0]  DLAB=0 Read     DLAB=0 Write   DLAB=1
-//   3'b000      RBR              THR             DLL
-//   3'b001      IER              IER             DLM
-//   3'b010      IIR (RO)         FCR (WO)        -
-//   3'b011      LCR              LCR             -
-//   3'b100      MCR              MCR             -
-//   3'b101      LSR (RO)         -               -
-//   3'b110      MSR (RO)         -               -
-//   3'b111      SCR              SCR             -
-//
-// Port interface is identical to the OBI apb_uart shim so pulp_uart_wrap.sv
-// connects without any changes.
-// ============================================================================
-
 module apb_uart #(
     parameter FIFO_DEPTH = 16
 )(
     input  wire         CLK,
     input  wire         RSTN,
 
-    // APB slave
     input  wire         PSEL,
     input  wire         PENABLE,
     input  wire         PWRITE,
@@ -32,43 +13,30 @@ module apb_uart #(
     output logic        PREADY,
     output logic        PSLVERR,
 
-    // Interrupt
     output logic        INT,
 
-    // Modem control outputs
     output logic        OUT1N,
     output logic        OUT2N,
     output logic        RTSN,
     output logic        DTRN,
 
-    // Modem control inputs (tied high by wrapper)
     input  wire         CTSN,
     input  wire         DSRN,
     input  wire         DCDN,
     input  wire         RIN,
 
-    // Serial
     input  wire         SIN,
     output logic        SOUT
 );
 
-    // -----------------------------------------------------------------------
-    // Parameters
-    // -----------------------------------------------------------------------
     localparam FDEPTH = FIFO_DEPTH;
     localparam FWID   = $clog2(FDEPTH);
 
-    // -----------------------------------------------------------------------
-    // 16550 Shadow Registers
-    // -----------------------------------------------------------------------
     logic [7:0] dll_r, dlm_r;
     logic [7:0] ier_r, fcr_r, lcr_r, mcr_r, scr_r;
     logic       lsr_oe_r;
     wire        dlab = lcr_r[7];
 
-    // -----------------------------------------------------------------------
-    // TX FIFO
-    // -----------------------------------------------------------------------
     logic [7:0]     txf_mem [0:FDEPTH-1];
     logic [FWID:0]  txf_wptr, txf_rptr;
     wire            txf_empty = (txf_wptr == txf_rptr);
@@ -90,9 +58,6 @@ module apb_uart #(
         else if (txf_ren && !txf_empty) txf_rptr <= txf_rptr + 1'b1;
     end
 
-    // -----------------------------------------------------------------------
-    // RX FIFO
-    // -----------------------------------------------------------------------
     logic [7:0]     rxf_mem [0:FDEPTH-1];
     logic [FWID:0]  rxf_wptr, rxf_rptr;
     wire            rxf_empty = (rxf_wptr == rxf_rptr);
@@ -115,9 +80,6 @@ module apb_uart #(
         else if (rxf_ren && !rxf_empty) rxf_rptr <= rxf_rptr + 1'b1;
     end
 
-    // -----------------------------------------------------------------------
-    // LSR / IIR / MSR (read-only status)
-    // -----------------------------------------------------------------------
     wire [7:0] lsr = {1'b0, txf_empty, txf_empty, 1'b0, 1'b0, 1'b0, lsr_oe_r, ~rxf_empty};
     wire [7:0] msr = {DCDN, RIN, DSRN, CTSN, 4'b0000};
 
@@ -132,9 +94,6 @@ module apb_uart #(
 
     assign INT = ~iir[0];
 
-    // -----------------------------------------------------------------------
-    // APB interface
-    // -----------------------------------------------------------------------
     wire apb_wr = PSEL & PENABLE &  PWRITE;
     wire apb_rd = PSEL & PENABLE & ~PWRITE;
 
@@ -187,10 +146,6 @@ module apb_uart #(
         end
     end
 
-    // -----------------------------------------------------------------------
-    // Baud rate generator  (16× oversampling tick)
-    // baud_div = DLM:DLL  =  Fclk / (baud × 16)
-    // -----------------------------------------------------------------------
     logic [15:0] baud_div;
     logic [15:0] baud_cnt;
     logic        baud_tick;
@@ -212,16 +167,13 @@ module apb_uart #(
         end
     end
 
-    // -----------------------------------------------------------------------
-    // TX engine  (16× baud ticks per bit)
-    // -----------------------------------------------------------------------
     localparam TX_IDLE  = 2'd0;
     localparam TX_START = 2'd1;
     localparam TX_DATA  = 2'd2;
     localparam TX_STOP  = 2'd3;
 
     logic [1:0] tx_state;
-    logic [3:0] tx_sub;      // 0..15 sub-bit counter
+    logic [3:0] tx_sub;
     logic [2:0] tx_bit_idx;
     logic [7:0] tx_shift;
 
@@ -275,16 +227,12 @@ module apb_uart #(
         end
     end
 
-    // -----------------------------------------------------------------------
-    // RX engine  (start-bit detection + 16× oversampling)
-    // 2-stage synchronizer on SIN (metastability protection)
-    // -----------------------------------------------------------------------
     localparam RX_IDLE  = 2'd0;
     localparam RX_START = 2'd1;
     localparam RX_DATA  = 2'd2;
     localparam RX_STOP  = 2'd3;
 
-    logic sin_s1, sin_s2;   // sync chain
+    logic sin_s1, sin_s2;
     always_ff @(posedge CLK or negedge RSTN)
         if (!RSTN) {sin_s2, sin_s1} <= 2'b11;
         else       {sin_s2, sin_s1} <= {sin_s1, SIN};
@@ -293,7 +241,7 @@ module apb_uart #(
     logic [3:0] rx_sub;
     logic [2:0] rx_bit_idx;
     logic [7:0] rx_shift;
-    logic       rx_push;    // pulse: push rx_shift into FIFO
+    logic       rx_push;
 
     assign rxf_wen   = rx_push;
     assign rx_byte_in = rx_shift;
@@ -310,7 +258,7 @@ module apb_uart #(
             if (baud_tick) begin
                 case (rx_state)
                     RX_IDLE: begin
-                        if (!sin_s2) begin   // start edge
+                        if (!sin_s2) begin
                             rx_sub   <= 4'h0;
                             rx_state <= RX_START;
                         end
@@ -318,12 +266,12 @@ module apb_uart #(
                     RX_START: begin
                         rx_sub <= rx_sub + 1'b1;
                         if (rx_sub == 4'h7) begin
-                            if (!sin_s2) begin  // valid start bit mid-point
+                            if (!sin_s2) begin
                                 rx_sub     <= 4'h0;
                                 rx_bit_idx <= 3'h0;
                                 rx_state   <= RX_DATA;
                             end else begin
-                                rx_state <= RX_IDLE; // glitch — abort
+                                rx_state <= RX_IDLE;
                             end
                         end
                     end
@@ -350,15 +298,9 @@ module apb_uart #(
         end
     end
 
-    // -----------------------------------------------------------------------
-    // Modem control outputs
-    // -----------------------------------------------------------------------
     assign OUT1N = ~mcr_r[2];
     assign OUT2N = ~mcr_r[3];
     assign RTSN  = ~mcr_r[1];
     assign DTRN  = ~mcr_r[0];
 
 endmodule
-// ============================================================================
-// End of apb_uart.sv
-// ============================================================================

@@ -1,27 +1,10 @@
-// ============================================================================
-// pulp_i2c_wrap.sv
-// Security wrapper around the PULP apb_i2c peripheral.
-//
-// Security features:
-//   1. secure_mode: releases SCL/SDA as high-Z (tristate)
-//   2. Bus-stuck detection: 24-bit counter; if SCL stays low for
-//      BUS_STUCK_THRESH cycles, sets bus_stuck flag and releases bus
-//   3. Address whitelist: 4-entry 7-bit whitelist with enable bit.
-//      Two AXI-only config registers at offsets 0xF0 and 0xF4.
-//      If whitelist_en and target address not whitelisted, block the
-//      APB transaction and return an immediate PREADY with PSLVERR.
-// ============================================================================
-
 module pulp_i2c_wrap #(
-    parameter int unsigned BUS_STUCK_THRESH = 24'd500_000  // 10 ms @ 50 MHz
+    parameter int unsigned BUS_STUCK_THRESH = 24'd500_000
 ) (
     input  logic        clk,
     input  logic        rst_n,
     input  logic        secure_mode,
 
-    // ----------------------------------------------------------------
-    // AXI-Lite Slave Interface (12-bit addr, 32-bit data)
-    // ----------------------------------------------------------------
     input  logic [11:0] s_awaddr,
     input  logic        s_awvalid,
     output logic        s_awready,
@@ -44,17 +27,11 @@ module pulp_i2c_wrap #(
     output logic        s_rvalid,
     input  logic        s_rready,
 
-    // ----------------------------------------------------------------
-    // I2C Physical (bidirectional open-drain pads)
-    // ----------------------------------------------------------------
     inout  wire         i2c_sda,
     inout  wire         i2c_scl,
     output logic        irq
 );
 
-    // ----------------------------------------------------------------
-    // APB bus wires between bridge and apb_i2c
-    // ----------------------------------------------------------------
     logic [11:0] apb_paddr;
     logic        apb_psel;
     logic        apb_penable;
@@ -64,24 +41,13 @@ module pulp_i2c_wrap #(
     logic        apb_pready;
     logic        apb_pslverr;
 
-    // ----------------------------------------------------------------
-    // I2C pad signals from apb_i2c
-    // ----------------------------------------------------------------
     logic scl_pad_i, scl_pad_o, scl_padoen_o;
     logic sda_pad_i, sda_pad_o, sda_padoen_o;
 
-    // ----------------------------------------------------------------
-    // Security register 1: whitelist (AXI-only, decoded before bridge)
-    //   Register 0xF0: [6:0]=addr, [9:8]=index (which whitelist entry)
-    //   Register 0xF4: [0]=whitelist_en, [1]=clr_stuck
-    // ----------------------------------------------------------------
     logic [6:0]  whitelist_addr [3:0];
     logic        whitelist_en;
-    logic        clr_stuck;     // single-cycle strobe when written
+    logic        clr_stuck;
 
-    // ----------------------------------------------------------------
-    // Bus-stuck detection
-    // ----------------------------------------------------------------
     logic [23:0] stuck_cnt_r;
     logic        bus_stuck_r;
 
@@ -106,31 +72,12 @@ module pulp_i2c_wrap #(
         end
     end
 
-    // ----------------------------------------------------------------
-    // AXI-only register decode
-    //   Address 0xF0 = whitelist entry write
-    //   Address 0xF4 = control (whitelist_en, clr_stuck)
-    //
-    // These are intercepted BEFORE the transaction reaches axil_to_apb.
-    // We insert a small shim that either:
-    //   (a) handles the transaction locally and does NOT forward to bridge, or
-    //   (b) forwards to bridge as normal.
-    //
-    // Implementation: demux the AXI channels.
-    // ----------------------------------------------------------------
-
-    // Detect local-only addresses (write path)
     logic axil_local_wr;
     assign axil_local_wr = s_awvalid && (s_awaddr == 12'hF0 || s_awaddr == 12'hF4);
 
-    // Detect local-only addresses (read path)
     logic axil_local_rd;
     assign axil_local_rd = s_arvalid && (s_araddr == 12'hF0 || s_araddr == 12'hF4);
 
-    // ----------------------------------------------------------------
-    // Local write register capture
-    // ----------------------------------------------------------------
-    // State for local write handshake
     typedef enum logic [1:0] {
         LWR_IDLE  = 2'b00,
         LWR_WDATA = 2'b01,
@@ -141,7 +88,6 @@ module pulp_i2c_wrap #(
     logic [11:0] lwr_addr_r;
     logic [31:0] lwr_wdata_r;
 
-    // clr_stuck is a one-cycle strobe
     logic clr_stuck_r;
     assign clr_stuck = clr_stuck_r;
 
@@ -154,18 +100,16 @@ module pulp_i2c_wrap #(
             clr_stuck_r    <= 1'b0;
             for (int i = 0; i < 4; i++) whitelist_addr[i] <= 7'h0;
         end else begin
-            clr_stuck_r <= 1'b0;  // default: no strobe
+            clr_stuck_r <= 1'b0;
             lwr_state_r <= lwr_state_next;
 
-            // Capture AW
             if (lwr_state_r == LWR_IDLE && axil_local_wr && s_awvalid)
                 lwr_addr_r <= s_awaddr;
 
-            // Capture W and do the register write
             if (lwr_state_r == LWR_WDATA && s_wvalid) begin
                 lwr_wdata_r <= s_wdata;
                 if (lwr_addr_r == 12'hF0) begin
-                    // [6:0]=addr, [9:8]=index
+
                     whitelist_addr[s_wdata[9:8]] <= s_wdata[6:0];
                 end else if (lwr_addr_r == 12'hF4) begin
                     whitelist_en <= s_wdata[0];
@@ -185,7 +129,6 @@ module pulp_i2c_wrap #(
         endcase
     end
 
-    // Local read state
     typedef enum logic [1:0] {
         LRD_IDLE = 2'b00,
         LRD_DATA = 2'b01
@@ -204,7 +147,7 @@ module pulp_i2c_wrap #(
                 if (s_araddr == 12'hF4)
                     lrd_rdata_r <= {30'h0, bus_stuck_r, whitelist_en};
                 else
-                    lrd_rdata_r <= 32'h0;  // whitelist entries write-only for simplicity
+                    lrd_rdata_r <= 32'h0;
             end
         end
     end
@@ -218,10 +161,6 @@ module pulp_i2c_wrap #(
         endcase
     end
 
-    // ----------------------------------------------------------------
-    // AXI mux: steer channels between local handler and bridge
-    // ----------------------------------------------------------------
-    // Only one of local or bridge is active at a time.
     logic        fwd_awvalid, fwd_awready;
     logic        fwd_wvalid,  fwd_wready;
     logic [1:0]  fwd_bresp;
@@ -231,30 +170,23 @@ module pulp_i2c_wrap #(
     logic [1:0]  fwd_rresp;
     logic        fwd_rvalid;
 
-    // Forward to bridge only for non-local addresses
     assign fwd_awvalid = s_awvalid & ~axil_local_wr;
-    assign fwd_wvalid  = s_wvalid  & (lwr_state_r == LWR_IDLE);   // not consumed by local
+    assign fwd_wvalid  = s_wvalid  & (lwr_state_r == LWR_IDLE);
     assign fwd_arvalid = s_arvalid & ~axil_local_rd;
 
-    // AW ready mux
     assign s_awready = axil_local_wr  ? (lwr_state_r == LWR_IDLE) : fwd_awready;
-    // W ready mux
+
     assign s_wready  = (lwr_state_r == LWR_WDATA) ? 1'b1 : fwd_wready;
-    // B channel mux
+
     assign s_bvalid  = (lwr_state_r == LWR_BRESP) ? 1'b1 : fwd_bvalid;
     assign s_bresp   = (lwr_state_r == LWR_BRESP) ? 2'b00 : fwd_bresp;
-    // AR ready mux
+
     assign s_arready = axil_local_rd  ? (lrd_state_r == LRD_IDLE) : fwd_arready;
-    // R channel mux
+
     assign s_rvalid  = (lrd_state_r == LRD_DATA) ? 1'b1 : fwd_rvalid;
     assign s_rdata   = (lrd_state_r == LRD_DATA) ? lrd_rdata_r : fwd_rdata;
     assign s_rresp   = (lrd_state_r == LRD_DATA) ? 2'b00 : fwd_rresp;
 
-    // ----------------------------------------------------------------
-    // Address whitelist check
-    //   Monitor APB writes to address register (offset 0x04 in apb_i2c)
-    //   If whitelist_en and address not in list: block by faking psel
-    // ----------------------------------------------------------------
     localparam logic [11:0] I2C_ADDR_REG = 12'h004;
 
     logic [6:0]  captured_i2c_addr;
@@ -269,7 +201,6 @@ module pulp_i2c_wrap #(
             captured_i2c_addr <= apb_pwdata[6:0];
     end
 
-    // Combinational whitelist check
     always_comb begin
         wl_match = 4'b0;
         for (int k = 0; k < 4; k++)
@@ -281,7 +212,6 @@ module pulp_i2c_wrap #(
                           apb_psel && apb_penable && apb_pwrite &&
                           (apb_paddr == I2C_ADDR_REG);
 
-    // Gated APB signals presented to apb_i2c
     logic        i2c_psel_gated;
     logic        i2c_penable_gated;
     logic [31:0] i2c_prdata_raw;
@@ -291,18 +221,12 @@ module pulp_i2c_wrap #(
     assign i2c_psel_gated    = apb_psel    & ~addr_blocked & ~bus_stuck_r;
     assign i2c_penable_gated = apb_penable & ~addr_blocked & ~bus_stuck_r;
 
-    // When blocked: return PREADY immediately with PSLVERR
     assign apb_pready  = addr_blocked ? 1'b1 :
                          bus_stuck_r  ? 1'b1 : i2c_pready_raw;
     assign apb_pslverr = addr_blocked ? 1'b1 :
                          bus_stuck_r  ? 1'b1 : i2c_pslverr_raw;
     assign apb_prdata  = i2c_prdata_raw;
 
-    // ----------------------------------------------------------------
-    // I2C tristate pad logic
-    //   apb_i2c: sda_padoen_o active-low (0 = drive)
-    //   When secure_mode=1 or bus_stuck: release bus (high-Z)
-    // ----------------------------------------------------------------
     logic bus_safe;
     assign bus_safe = ~secure_mode & ~bus_stuck_r;
 
@@ -312,9 +236,6 @@ module pulp_i2c_wrap #(
     assign sda_pad_i = i2c_sda;
     assign scl_pad_i = i2c_scl;
 
-    // ----------------------------------------------------------------
-    // AXI-Lite to APB bridge
-    // ----------------------------------------------------------------
     axil_to_apb u_bridge (
         .clk        (clk),
         .rst_n      (rst_n),
@@ -351,9 +272,6 @@ module pulp_i2c_wrap #(
         .pslverr    (apb_pslverr)
     );
 
-    // ----------------------------------------------------------------
-    // apb_i2c instantiation (PULP)
-    // ----------------------------------------------------------------
     apb_i2c #(
         .APB_ADDR_WIDTH (12)
     ) u_i2c (
@@ -381,6 +299,3 @@ module pulp_i2c_wrap #(
     );
 
 endmodule
-// ============================================================================
-// End of pulp_i2c_wrap.sv
-// ============================================================================

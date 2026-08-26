@@ -1,19 +1,9 @@
-// Copyright 2015 ETH Zurich and University of Bologna.
-// Copyright and related rights are licensed under the Solderpad Hardware
-// License, Version 0.51 (the “License”); you may not use this file except in
-// compliance with the License.  You may obtain a copy of the License at
-// http://solderpad.org/licenses/SHL-0.51. Unless required by applicable law
-// or agreed to in writing, software, hardware and materials distributed under
-// this License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the
-// specific language governing permissions and limitations under the License.
-
 `define log2(VALUE) ((VALUE) < ( 1 ) ? 0 : (VALUE) < ( 2 ) ? 1 : (VALUE) < ( 4 ) ? 2 : (VALUE) < ( 8 ) ? 3 : (VALUE) < ( 16 )  ? 4 : (VALUE) < ( 32 )  ? 5 : (VALUE) < ( 64 )  ? 6 : (VALUE) < ( 128 ) ? 7 : (VALUE) < ( 256 ) ? 8 : (VALUE) < ( 512 ) ? 9 : (VALUE) < ( 1024 ) ? 10 : (VALUE) < ( 2048 ) ? 11 : (VALUE) < ( 4096 ) ? 12 : (VALUE) < ( 8192 ) ? 13 : (VALUE) < ( 16384 ) ? 14 : (VALUE) < ( 32768 ) ? 15 : (VALUE) < ( 65536 ) ? 16 : (VALUE) < ( 131072 ) ? 17 : (VALUE) < ( 262144 ) ? 18 : (VALUE) < ( 524288 ) ? 19 : (VALUE) < ( 1048576 ) ? 20 : (VALUE) < ( 1048576 * 2 ) ? 21 : (VALUE) < ( 1048576 * 4 ) ? 22 : (VALUE) < ( 1048576 * 8 ) ? 23 : (VALUE) < ( 1048576 * 16 ) ? 24 : 25)
 
 module apb_spi_master
 #(
     parameter BUFFER_DEPTH   = 10,
-    parameter APB_ADDR_WIDTH = 12  //APB slaves are 4KB by default
+    parameter APB_ADDR_WIDTH = 12
 )
 (
     input  logic                      HCLK,
@@ -44,7 +34,6 @@ module apb_spi_master
     input  logic                      spi_sdi2,
     input  logic                      spi_sdi3
 );
-
 
     localparam LOG_BUFFER_DEPTH = `log2(BUFFER_DEPTH);
 
@@ -204,7 +193,6 @@ module apb_spi_master
         endcase
     end
 
-
     always_comb
     begin
         s_state_rx_next = r_state_rx;
@@ -282,7 +270,7 @@ module apb_spi_master
         .spi_int_rd_sta    ( s_int_rd_intsta   ),
         .spi_data_tx       ( spi_data_tx       ),
         .spi_data_tx_valid ( spi_data_tx_valid ),
-        .spi_data_tx_ready ( spi_data_tx_ready ), //FIXME not used inside thhis module
+        .spi_data_tx_ready ( spi_data_tx_ready ),
         .spi_data_rx       ( spi_data_rx       ),
         .spi_data_rx_valid ( spi_data_rx_valid ),
         .spi_data_rx_ready ( spi_data_rx_ready )

@@ -1,8 +1,5 @@
 `timescale 1ns/1ps
-// ============================================================
-// tb_axil_to_apb.v — Testbench for axil_to_apb bridge
-// Bridge latches AW+W simultaneously (both fire in same cycle).
-// ============================================================
+
 module tb_axil_to_apb;
     reg clk = 0; reg rst_n = 0;
     always #5 clk = ~clk;
@@ -27,7 +24,6 @@ module tb_axil_to_apb;
     integer pass=0,fail=0;
     reg [31:0] paddr_cap, pwdata_cap, rdata_got;
 
-    // APB slave: respond with given data after opt delay cycles
     task apb_respond; input [31:0] rd; input integer dly;
         begin
             wait(psel);
@@ -39,24 +35,22 @@ module tb_axil_to_apb;
         end
     endtask
 
-    // AXI-Lite write: drive AW+W together, wait combined ack
     task axil_wr; input [11:0] a; input [31:0] d;
         begin
             @(negedge clk);
             s_awaddr<=a; s_awvalid<=1;
             s_wdata<=d;  s_wstrb<=4'hF; s_wvalid<=1;
-            // wait until BOTH awready and wready are high (same cycle)
+
             @(posedge clk);
             while(!(s_awready && s_wready)) @(posedge clk);
             @(negedge clk); s_awvalid<=0; s_wvalid<=0;
-            // collect B response
+
             s_bready<=1;
             @(posedge clk); while(!s_bvalid) @(posedge clk);
             @(negedge clk); s_bready<=0;
         end
     endtask
 
-    // AXI-Lite read
     task axil_rd; input [11:0] a; output [31:0] d;
         begin
             @(negedge clk); s_araddr<=a; s_arvalid<=1; s_rready<=1;
@@ -74,7 +68,6 @@ module tb_axil_to_apb;
         repeat(4) @(posedge clk); rst_n<=1; @(posedge clk);
         $display("=== tb_axil_to_apb tests ===");
 
-        // TC1: Write — capture APB addr/data
         fork
             axil_wr(12'hABC, 32'hDEAD1234);
             begin
@@ -89,7 +82,6 @@ module tb_axil_to_apb;
             $display("[FAIL] TC1 Write: paddr=0x%03h pwdata=0x%08h",paddr_cap,pwdata_cap); fail=fail+1;
         end
 
-        // TC2: Read — slave returns 0xCAFEBABE
         fork
             axil_rd(12'h100, rdata_got);
             apb_respond(32'hCAFEBABE, 0);
@@ -100,7 +92,6 @@ module tb_axil_to_apb;
             $display("[FAIL] TC2 Read: got 0x%08h",rdata_got); fail=fail+1;
         end
 
-        // TC3: Slave wait (3 extra cycles before pready)
         fork
             axil_rd(12'h200, rdata_got);
             apb_respond(32'h12345678, 3);
@@ -111,7 +102,6 @@ module tb_axil_to_apb;
             $display("[FAIL] TC3 SlaveWait: got 0x%08h",rdata_got); fail=fail+1;
         end
 
-        // TC4: Back-to-back writes x4
         for (k=0; k<4; k=k+1) begin
             fork
                 axil_wr(12'h010+k, 32'hA000_0000+k);
@@ -120,7 +110,6 @@ module tb_axil_to_apb;
         end
         $display("[PASS] TC4 Back-to-back: 4 writes completed"); pass=pass+1;
 
-        // TC5: BRESP=OKAY after no-error slave
         fork
             axil_wr(12'h300, 32'h11223344);
             apb_respond(32'h0, 0);
@@ -131,7 +120,6 @@ module tb_axil_to_apb;
             $display("[FAIL] TC5 BRESP=%b",s_bresp); fail=fail+1;
         end
 
-        // TC6: pwrite=1 on write, pwrite=0 on read
         fork
             axil_wr(12'h400, 32'hFF00FF00);
             begin wait(penable); paddr_cap=(pwrite?32'h1:32'h0); apb_respond(32'h0,0); end

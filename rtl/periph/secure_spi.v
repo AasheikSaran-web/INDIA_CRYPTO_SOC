@@ -1,47 +1,21 @@
-// =============================================================================
-// secure_spi.v — Security-Hardened SPI Master Peripheral
-// AXI-Lite Slave Interface, CPOL/CPHA configurable, 4 chip-selects
-//
-// Attack protections:
-//   1. CS guard        — CS driven only by hardware; auto-deasserts after transfer
-//   2. Clock glitch    — minimum SCK period enforced (DIVIDER >= 2)
-//   3. Transfer length — bytes beyond max_len dropped, overflow_alert raised
-//   4. CS lockout      — cs_lock[i] permanently disables CS[i]
-//   5. Secure lockout  — secure_mode deasserts all CS, stalls transfer
-//
-// Register map (AXI-Lite, 32-bit word addressing):
-//   0x00 DATA    [7:0]  w=TX push, r=RX pop
-//   0x04 STATUS  [6:0]  {UNDERRUN, OVERFLOW, RX_EMPTY, TX_FULL, RX_FULL, TX_EMPTY, BUSY}
-//   0x08 CTRL    [3:0]  {LOOPBACK, CPHA, CPOL, START_TX}
-//   0x0C CS_SEL  [3:0]  chip-select to activate (one-hot)
-//   0x10 DIVIDER [15:0] SCK = clk / (2 * DIVIDER); min enforced = 2
-//   0x14 MAX_LEN [7:0]  maximum transfer length (bytes)
-//   0x18 CS_LOCK [3:0]  permanently lock out CS pins
-//   0x1C ALERT   [1:0]  {CS_GUARD_VIOL, OVERFLOW_ALERT} (write to clear)
-// =============================================================================
-
 `timescale 1ns/1ps
 
 module secure_spi #(
     parameter FIFO_DEPTH = 16,
-    parameter FIFO_AW    = 4       // log2(FIFO_DEPTH)
+    parameter FIFO_AW    = 4
 ) (
     input  wire        clk,
     input  wire        rst_n,
 
-    // Security
     input  wire        secure_mode,
 
-    // SPI bus
     output reg         sck,
     output reg         mosi,
     input  wire        miso,
-    output reg  [3:0]  cs_n,        // active-low, hardware driven
+    output reg  [3:0]  cs_n,
 
-    // Interrupt
     output wire        irq,
 
-    // AXI-Lite slave
     input  wire [31:0] s_axil_awaddr,
     input  wire        s_axil_awvalid,
     output reg         s_axil_awready,
@@ -61,9 +35,6 @@ module secure_spi #(
     input  wire        s_axil_rready
 );
 
-    // =========================================================================
-    // Register address constants
-    // =========================================================================
     localparam ADDR_DATA    = 5'h00;
     localparam ADDR_STATUS  = 5'h04;
     localparam ADDR_CTRL    = 5'h08;
@@ -73,7 +44,6 @@ module secure_spi #(
     localparam ADDR_CS_LOCK = 5'h18;
     localparam ADDR_ALERT   = 5'h1C;
 
-    // SPI FSM states
     localparam SPI_IDLE    = 3'd0;
     localparam SPI_CS_SETUP= 3'd1;
     localparam SPI_SHIFT   = 3'd2;
@@ -81,57 +51,42 @@ module secure_spi #(
     localparam SPI_CS_DES  = 3'd4;
     localparam SPI_DONE    = 3'd5;
 
-    // =========================================================================
-    // Control registers
-    // =========================================================================
-    reg [3:0]  ctrl_reg;      // {LOOPBACK, CPHA, CPOL, START_TX}
-    reg [3:0]  cs_sel_reg;    // one-hot CS selection
-    reg [15:0] divider_reg;   // clock divider (min 2 enforced)
-    reg [7:0]  max_len_reg;   // max transfer bytes
-    reg [3:0]  cs_lock_reg;   // permanent CS lockout
+    reg [3:0]  ctrl_reg;
+    reg [3:0]  cs_sel_reg;
+    reg [15:0] divider_reg;
+    reg [7:0]  max_len_reg;
+    reg [3:0]  cs_lock_reg;
     reg        overflow_alert;
     reg        cs_guard_viol;
 
-    // Effective clock divider (enforce minimum of 2)
     wire [15:0] eff_div = (divider_reg < 16'd2) ? 16'd2 : divider_reg;
 
-    // =========================================================================
-    // TX FIFO
-    // =========================================================================
     reg [7:0]  tx_fifo [0:FIFO_DEPTH-1];
     reg [FIFO_AW:0] tx_wr_ptr, tx_rd_ptr;
     wire tx_full  = (tx_wr_ptr[FIFO_AW] != tx_rd_ptr[FIFO_AW]) &&
                     (tx_wr_ptr[FIFO_AW-1:0] == tx_rd_ptr[FIFO_AW-1:0]);
     wire tx_empty = (tx_wr_ptr == tx_rd_ptr);
 
-    // =========================================================================
-    // RX FIFO
-    // =========================================================================
     reg [7:0]  rx_fifo [0:FIFO_DEPTH-1];
     reg [FIFO_AW:0] rx_wr_ptr, rx_rd_ptr;
     wire rx_full  = (rx_wr_ptr[FIFO_AW] != rx_rd_ptr[FIFO_AW]) &&
                     (rx_wr_ptr[FIFO_AW-1:0] == rx_rd_ptr[FIFO_AW-1:0]);
     wire rx_empty = (rx_wr_ptr == rx_rd_ptr);
 
-    // =========================================================================
-    // SPI Master FSM
-    // =========================================================================
     reg [2:0]  spi_state;
     reg [3:0]  bit_cnt;
     reg [7:0]  tx_shift;
     reg [7:0]  rx_shift;
-    reg [15:0] clk_cnt;     // divider counter
-    reg        clk_phase;   // 0 = first half-period, 1 = second
-    reg [7:0]  byte_cnt;    // bytes transferred this session
+    reg [15:0] clk_cnt;
+    reg        clk_phase;
+    reg [7:0]  byte_cnt;
     reg        busy;
     reg        underrun_flag;
 
-    // CPOL/CPHA from ctrl_reg
     wire cpol = ctrl_reg[1];
     wire cpha = ctrl_reg[2];
     wire loopback = ctrl_reg[3];
 
-    // Sampled MISO (with loopback)
     wire miso_in = loopback ? mosi : miso;
 
     always @(posedge clk or negedge rst_n) begin
@@ -139,7 +94,7 @@ module secure_spi #(
             spi_state   <= SPI_IDLE;
             sck         <= 1'b0;
             mosi        <= 1'b0;
-            cs_n        <= 4'hF;  // all deasserted
+            cs_n        <= 4'hF;
             bit_cnt     <= 4'd0;
             tx_shift    <= 8'd0;
             rx_shift    <= 8'd0;
@@ -152,7 +107,6 @@ module secure_spi #(
             rx_wr_ptr   <= {(FIFO_AW+1){1'b0}};
         end else begin
 
-            // Secure mode: release all CS, stall
             if (secure_mode) begin
                 cs_n      <= 4'hF;
                 sck       <= cpol;
@@ -160,18 +114,17 @@ module secure_spi #(
                 busy      <= 1'b0;
             end
 
-            // Clock divider counter
             clk_cnt <= clk_cnt + 1'b1;
 
             case (spi_state)
-                // -----------------------------------------------------------------
+
                 SPI_IDLE: begin
                     sck   <= cpol;
                     mosi  <= 1'b0;
                     cs_n  <= 4'hF;
                     busy  <= 1'b0;
                     if (ctrl_reg[0] && !secure_mode) begin
-                        // Validate CS: must be one-hot, not locked, not zero
+
                         if ((cs_sel_reg != 4'b0000) &&
                             ((cs_sel_reg & cs_lock_reg) == 4'b0000) &&
                             (cs_sel_reg[3:0] & (cs_sel_reg[3:0] - 4'd1)) == 4'b0000) begin
@@ -183,13 +136,12 @@ module secure_spi #(
                         end else begin
                             cs_guard_viol <= 1'b1;
                         end
-                        ctrl_reg[0] <= 1'b0; // clear START
+                        ctrl_reg[0] <= 1'b0;
                     end
                 end
-                // -----------------------------------------------------------------
-                // CS setup time: assert CS, wait one SCK period
+
                 SPI_CS_SETUP: begin
-                    cs_n  <= ~cs_sel_reg | cs_lock_reg; // assert selected, respect locks
+                    cs_n  <= ~cs_sel_reg | cs_lock_reg;
                     sck   <= cpol;
                     if (clk_cnt >= eff_div - 1) begin
                         clk_cnt   <= 16'd0;
@@ -205,38 +157,37 @@ module secure_spi #(
                         end
                     end
                 end
-                // -----------------------------------------------------------------
-                // Shift 8 bits MSB first
+
                 SPI_SHIFT: begin
                     if (clk_cnt >= eff_div - 1) begin
                         clk_cnt   <= 16'd0;
                         clk_phase <= ~clk_phase;
 
                         if (!clk_phase) begin
-                            // First half: drive MOSI on leading edge
+
                             if (!cpha) begin
-                                // CPHA=0: sample on leading (rising if CPOL=0)
+
                                 sck  <= ~cpol;
                                 mosi <= tx_shift[7];
                             end else begin
-                                // CPHA=1: shift on leading edge
+
                                 sck      <= ~cpol;
                                 rx_shift <= {rx_shift[6:0], miso_in};
                                 if (bit_cnt == 4'd0) begin
-                                    // byte complete — handled on trailing edge
+
                                 end else begin
                                     tx_shift <= {tx_shift[6:0], 1'b0};
                                     bit_cnt  <= bit_cnt - 1'b1;
                                 end
                             end
                         end else begin
-                            // Second half: trailing edge
+
                             if (!cpha) begin
-                                // CPHA=0: sample on trailing edge
+
                                 sck      <= cpol;
                                 rx_shift <= {rx_shift[6:0], miso_in};
                                 if (bit_cnt == 4'd0) begin
-                                    // Byte complete
+
                                     if (!rx_full) begin
                                         rx_fifo[rx_wr_ptr[FIFO_AW-1:0]] <= {rx_shift[6:0], miso_in};
                                         rx_wr_ptr <= rx_wr_ptr + 1'b1;
@@ -253,10 +204,10 @@ module secure_spi #(
                                 end else begin
                                     tx_shift <= {tx_shift[6:0], 1'b0};
                                     bit_cnt  <= bit_cnt - 1'b1;
-                                    mosi     <= tx_shift[6]; // next bit
+                                    mosi     <= tx_shift[6];
                                 end
                             end else begin
-                                // CPHA=1: drive on trailing
+
                                 sck  <= cpol;
                                 mosi <= tx_shift[7];
                                 if (bit_cnt == 4'd0) begin
@@ -281,10 +232,7 @@ module secure_spi #(
                         end
                     end
                 end
-                // -----------------------------------------------------------------
-                // Transfer length overflow: drop byte, raise alert
-                // (checked externally in AXI write logic)
-                // -----------------------------------------------------------------
+
                 SPI_CS_HOLD: begin
                     sck <= cpol;
                     if (clk_cnt >= eff_div - 1) begin
@@ -292,15 +240,15 @@ module secure_spi #(
                         spi_state <= SPI_CS_DES;
                     end
                 end
-                // -----------------------------------------------------------------
+
                 SPI_CS_DES: begin
-                    cs_n <= 4'hF;  // hardware auto-deassert
+                    cs_n <= 4'hF;
                     if (clk_cnt >= eff_div - 1) begin
                         clk_cnt   <= 16'd0;
                         spi_state <= SPI_DONE;
                     end
                 end
-                // -----------------------------------------------------------------
+
                 SPI_DONE: begin
                     busy      <= 1'b0;
                     spi_state <= SPI_IDLE;
@@ -310,9 +258,6 @@ module secure_spi #(
         end
     end
 
-    // =========================================================================
-    // AXI-Lite Write Channel
-    // =========================================================================
     reg        aw_active;
     reg [4:0]  aw_addr_lat;
 
@@ -326,7 +271,7 @@ module secure_spi #(
             aw_addr_lat    <= 5'd0;
             ctrl_reg       <= 4'd0;
             cs_sel_reg     <= 4'd0;
-            divider_reg    <= 16'd4;   // default SCK = clk/8
+            divider_reg    <= 16'd4;
             max_len_reg    <= 8'd255;
             cs_lock_reg    <= 4'd0;
             overflow_alert <= 1'b0;
@@ -348,7 +293,7 @@ module secure_spi #(
 
                 case (aw_addr_lat)
                     ADDR_DATA[4:0]: begin
-                        // Transfer length enforcement
+
                         if (byte_cnt < max_len_reg) begin
                             if (!tx_full) begin
                                 tx_fifo[tx_wr_ptr[FIFO_AW-1:0]] <= s_axil_wdata[7:0];
@@ -364,7 +309,7 @@ module secure_spi #(
                     ADDR_CS_SEL[4:0]:  cs_sel_reg  <= s_axil_wdata[3:0];
                     ADDR_DIVIDER[4:0]: divider_reg <= s_axil_wdata[15:0];
                     ADDR_MAX_LEN[4:0]: max_len_reg <= s_axil_wdata[7:0];
-                    ADDR_CS_LOCK[4:0]: cs_lock_reg <= cs_lock_reg | s_axil_wdata[3:0]; // sticky OR
+                    ADDR_CS_LOCK[4:0]: cs_lock_reg <= cs_lock_reg | s_axil_wdata[3:0];
                     ADDR_ALERT[4:0]: begin
                         if (s_axil_wdata[0]) overflow_alert <= 1'b0;
                         if (s_axil_wdata[1]) cs_guard_viol  <= 1'b0;
@@ -381,9 +326,6 @@ module secure_spi #(
         end
     end
 
-    // =========================================================================
-    // AXI-Lite Read Channel
-    // =========================================================================
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             s_axil_arready <= 1'b0;
@@ -409,13 +351,13 @@ module secure_spi #(
                         end
                     end
                     ADDR_STATUS[4:0]: s_axil_rdata <= {25'd0,
-                                            underrun_flag,  // [6]
-                                            overflow_alert, // [5]
-                                            rx_empty,       // [4]
-                                            tx_full,        // [3]
-                                            rx_full,        // [2]
-                                            tx_empty,       // [1]
-                                            busy            // [0]
+                                            underrun_flag,
+                                            overflow_alert,
+                                            rx_empty,
+                                            tx_full,
+                                            rx_full,
+                                            tx_empty,
+                                            busy
                                         };
                     ADDR_CTRL[4:0]:    s_axil_rdata <= {28'd0, ctrl_reg};
                     ADDR_CS_SEL[4:0]:  s_axil_rdata <= {28'd0, cs_sel_reg};
@@ -432,9 +374,6 @@ module secure_spi #(
         end
     end
 
-    // =========================================================================
-    // IRQ
-    // =========================================================================
     assign irq = !rx_empty | overflow_alert | cs_guard_viol | underrun_flag;
 
 endmodule

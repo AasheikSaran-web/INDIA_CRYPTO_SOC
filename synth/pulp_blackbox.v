@@ -1,10 +1,3 @@
-// =============================================================
-// pulp_blackbox.v  — Black-box stubs for PULP IP sub-modules
-// Used during Yosys synthesis so the tool can see port lists
-// without needing to elaborate the full PULP source (which
-// uses APB/OBI struct macros and is validated separately).
-// =============================================================
-
 (* blackbox *)
 module apb_spi_master #(
     parameter BUFFER_DEPTH   = 8,
@@ -42,7 +35,7 @@ endmodule
 module apb_uart (
     input  wire        CLK,
     input  wire        RSTN,
-    // APB
+
     input  wire        PSEL,
     input  wire        PENABLE,
     input  wire        PWRITE,
@@ -51,17 +44,17 @@ module apb_uart (
     output wire [31:0] PRDATA,
     output wire        PREADY,
     output wire        PSLVERR,
-    // Interrupt
+
     output wire        INT,
-    // Physical UART
+
     input  wire        SIN,
     output wire        SOUT,
-    // Modem control outputs
+
     output wire        OUT1N,
     output wire        OUT2N,
     output wire        RTSN,
     output wire        DTRN,
-    // Modem control inputs
+
     input  wire        CTSN,
     input  wire        DSRN,
     input  wire        DCDN,

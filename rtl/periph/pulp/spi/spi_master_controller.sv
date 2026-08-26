@@ -1,13 +1,3 @@
-// Copyright 2015 ETH Zurich and University of Bologna.
-// Copyright and related rights are licensed under the Solderpad Hardware
-// License, Version 0.51 (the “License”); you may not use this file except in
-// compliance with the License.  You may obtain a copy of the License at
-// http://solderpad.org/licenses/SHL-0.51. Unless required by applicable law
-// or agreed to in writing, software, hardware and materials distributed under
-// this License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the
-// specific language governing permissions and limitations under the License.
-
 `define SPI_STD     2'b00
 `define SPI_QUAD_TX 2'b01
 `define SPI_QUAD_RX 2'b10
@@ -28,7 +18,7 @@ module spi_master_controller
     input  logic                   [15:0] spi_dummy_rd,
     input  logic                   [15:0] spi_dummy_wr,
     input  logic                    [3:0] spi_csreg,
-    input  logic                          spi_swrst, //FIXME Not used at all
+    input  logic                          spi_swrst,
     input  logic                          spi_rd,
     input  logic                          spi_wr,
     input  logic                          spi_qrd,
@@ -74,7 +64,7 @@ module spi_master_controller
 
   logic en_quad;
   logic en_quad_int;
-  logic do_tx; //FIXME NOT USED at all!!
+  logic do_tx;
   logic do_rx;
 
   logic tx_done;
@@ -513,7 +503,6 @@ module spi_master_controller
       end
     endcase
   end
-
 
   always_ff @(posedge clk, negedge rstn)
   begin

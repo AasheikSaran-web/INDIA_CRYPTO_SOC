@@ -4398,7 +4398,7 @@ Running ABC script: <abc-temp-dir>/abc.script
 ABC: ======== ABC command line "source <abc-temp-dir>/abc.script"
 ABC: + read_blif <abc-temp-dir>/input.blif 
 ABC: + read_lib -w /Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/synth/../pdk/nangate45/NangateOpenCellLibrary_typical.lib 
-ABC: Parsing finished successfully.  Parsing time =     0.04 sec
+ABC: Parsing finished successfully.  Parsing time =     0.02 sec
 ABC: Scl_LibertyReadGenlib() skipped cell "ANTENNA_X1" due to dont_use attribute.
 ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X1" without logic function.
 ABC: Scl_LibertyReadGenlib() skipped cell "CLKGATETST_X2" without logic function.
@@ -4444,8 +4444,8 @@ ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X8".
 ABC: Scl_LibertyReadGenlib() skipped three-state cell "TBUF_X16".
 ABC: Scl_LibertyReadGenlib() skipped three-state cell "TINV_X1".
 ABC: Scl_LibertyReadGenlib() skipped sequential cell "TLAT_X1".
-ABC: Library "NangateOpenCellLibrary" from "/Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/synth/../pdk/nangate45/NangateOpenCellLibrary_typical.lib" has 90 cells (45 skipped: 21 seq; 6 tri-state; 8 no func; 10 dont_use; 0 with 2 outputs; 0 with 3+ outputs).  Time =     0.06 sec
-ABC: Memory =   11.38 MB. Time =     0.06 sec
+ABC: Library "NangateOpenCellLibrary" from "/Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/synth/../pdk/nangate45/NangateOpenCellLibrary_typical.lib" has 90 cells (45 skipped: 21 seq; 6 tri-state; 8 no func; 10 dont_use; 0 with 2 outputs; 0 with 3+ outputs).  Time =     0.03 sec
+ABC: Memory =   11.38 MB. Time =     0.03 sec
 ABC: Warning: Detected 2 multi-output cells (for example, "FA_X1").
 ABC: + strash 
 ABC: + &get -n 
@@ -4543,6 +4543,6 @@ Removed 0 unused cells and 2259 unused wires.
 7. Executing Verilog backend.
 Dumping module `\aes_isa_ext'.
 
-End of script. Logfile hash: 457f75b052, time: 3.26s, user: 1.03s, system: 0.04s, MEM: 58.36 MB peak
+End of script. Logfile hash: fd865c187a, time: 4.32s, user: 0.61s, system: 0.03s, MEM: 56.89 MB peak
 Yosys 0.64 (git sha1 d8dab5b32666564eca8e18f412973853ce006e61, clang++ 21.0.0 -fPIC -O3)
-Time spent: 58% 2x abc (1 sec), 15% 1x proc_mux (0 sec), ...
+Time spent: 55% 2x abc (0 sec), 16% 1x proc_mux (0 sec), ...

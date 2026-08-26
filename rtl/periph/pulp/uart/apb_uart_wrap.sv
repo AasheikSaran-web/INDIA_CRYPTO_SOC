@@ -1,13 +1,5 @@
-// Copyright 2025 ETH Zurich and University of Bologna.
-// Solderpad Hardware License, Version 0.51, see LICENSE for details.
-// SPDX-License-Identifier: SHL-0.51
-
-// Paul Scheffler <paulsc@iis.ee.ethz.ch>
-// Nils Wistoff <nwistoff@iis.ee.ethz.ch>
-
 `include "obi/typedef.svh"
 
-// A UART with APB struct ports.
 module apb_uart_wrap #(
   parameter type apb_req_t = logic,
   parameter type apb_rsp_t = logic
@@ -15,11 +7,9 @@ module apb_uart_wrap #(
   input  logic clk_i,
   input  logic rst_ni,
 
-  // APB
   input  apb_req_t apb_req_i,
   output apb_rsp_t apb_rsp_o,
 
-  // Physical interface
   output logic intr_o,
   output logic out1_no,
   output logic out2_no,
@@ -29,8 +19,8 @@ module apb_uart_wrap #(
   input  logic dsr_ni,
   input  logic dcd_ni,
   input  logic rin_ni,
-  input  logic sin_i,   // RX
-  output logic sout_o   // TX
+  input  logic sin_i,
+  output logic sout_o
 );
 
   localparam obi_pkg::obi_cfg_t ObiCfg = obi_pkg::obi_default_cfg(

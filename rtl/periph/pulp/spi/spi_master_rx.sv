@@ -1,13 +1,3 @@
-// Copyright 2015 ETH Zurich and University of Bologna.
-// Copyright and related rights are licensed under the Solderpad Hardware
-// License, Version 0.51 (the “License”); you may not use this file except in
-// compliance with the License.  You may obtain a copy of the License at
-// http://solderpad.org/licenses/SHL-0.51. Unless required by applicable law
-// or agreed to in writing, software, hardware and materials distributed under
-// this License is distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR
-// CONDITIONS OF ANY KIND, either express or implied. See the License for the
-// specific language governing permissions and limitations under the License.
-
 module spi_master_rx
 (
     input  logic        clk,
@@ -38,7 +28,6 @@ module spi_master_rx
   logic        reg_done;
   enum logic [1:0] { IDLE, RECEIVE, WAIT_FIFO, WAIT_FIFO_DONE } rx_CS, rx_NS;
 
-
   assign reg_done  = (!en_quad_in && (counter[4:0] == 5'b11111)) || (en_quad_in && (counter[2:0] == 3'b111));
 
   assign data = data_int_next;
@@ -66,7 +55,6 @@ module spi_master_rx
       IDLE: begin
         clk_en_o = 1'b0;
 
-        // check first if there is available space instead of later
         if (en) begin
           rx_NS = RECEIVE;
         end
@@ -95,7 +83,7 @@ module spi_master_rx
             data_valid = 1'b1;
 
             if (~data_ready) begin
-              // no space in the FIFO, wait for free space
+
               clk_en_o = 1'b0;
               rx_NS    = WAIT_FIFO;
             end
@@ -116,7 +104,6 @@ module spi_master_rx
       end
     endcase
   end
-
 
   always_ff @(posedge clk, negedge rstn)
   begin
