@@ -6,7 +6,7 @@
 # ============================================================
 
 # ---- 1. Read black-box stubs (PULP IP — validated separately) ----
-read_verilog -sv -lib ../pulp_blackbox.v
+read_verilog -sv -lib ../../rtl/periph/vendor/pulp_blackbox.v
 
 # ---- 2. Read all custom RTL ----------------------------------
 

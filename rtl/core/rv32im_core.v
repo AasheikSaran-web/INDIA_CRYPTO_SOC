@@ -755,8 +755,8 @@ always @(posedge clk or negedge rst_n) begin
 
                         mdu_neg_result <= (mdu_op_r == MDU_DIV) ?
                             (mdu_a[31] ^ mdu_b[31]) : mdu_a[31];
-                        mdu_acc  <= {32'd0, mdu_a[31] ? (~mdu_a + 1) : mdu_a};
-                        mdu_b    <= mdu_b[31] ? (~mdu_b + 1) : mdu_b;
+                        mdu_acc  <= {32'd0, mdu_a[31] ? (~mdu_a + 32'd1) : mdu_a};
+                        mdu_b    <= mdu_b[31] ? (~mdu_b + 32'd1) : mdu_b;
                         mdu_cnt  <= 6'd1;
                     end else if (mdu_cnt <= 6'd32) begin
 
