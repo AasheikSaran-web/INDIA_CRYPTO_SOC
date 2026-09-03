@@ -16,3 +16,7 @@ synth_300mhz.log
 # Python cache
 **/__pycache__/
 *.pyc
+
+# Generated demo artifacts
+demo/decrypted_output.pdf
+demo/encrypted_payload.bin
