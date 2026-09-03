@@ -158,7 +158,6 @@ assign seceng_irq = pdf_irq
                   | fw2_deny_irq | fw3_deny_irq | fw4_deny_irq
                   | fw5_deny_irq | fw6_deny_irq | fw7_deny_irq
                   | cpu_ecc_fatal
-                  | sram_ded_sticky
                   | trng_rct_fail | trng_apt_fail
                   | cpu_wdt_reset;
 
@@ -340,7 +339,6 @@ india_pdf_engine u_pdf (
 pulp_uart_wrap u_uart (
     .clk             (clk),
     .rst_n           (rst_n),
-    .secure_mode     (1'b0),
     .uart_rx         (uart_rx),
     .uart_tx         (uart_tx),
     .irq             (uart_irq),
@@ -367,7 +365,6 @@ pulp_uart_wrap u_uart (
 pulp_i2c_wrap u_i2c (
     .clk             (clk),
     .rst_n           (rst_n),
-    .secure_mode     (1'b0),
     .i2c_sda         (i2c_sda),
     .i2c_scl         (i2c_scl),
     .irq             (i2c_irq),
@@ -394,7 +391,6 @@ pulp_i2c_wrap u_i2c (
 pulp_spi_wrap u_spi (
     .clk             (clk),
     .rst_n           (rst_n),
-    .secure_mode     (1'b0),
     .spi_sck         (spi_sck),
     .spi_mosi        (spi_mosi),
     .spi_miso        (spi_miso),
@@ -595,49 +591,14 @@ always_ff @(posedge clk or negedge rst_n) begin
     end
 end
 
-logic [38:0] sram [0:SRAM_WORDS-1];
-
-wire [31:0] sram_pa_corrected;
-wire        sram_pa_sec;
-wire        sram_pa_ded;
-
-wire [31:0] sram_pb_corrected;
-wire        sram_pb_sec;
-wire        sram_pb_ded;
+logic [31:0] sram [0:SRAM_WORDS-1];
 
 wire [31:0] sram_pb_merge;
-wire [38:0] sram_pb_encoded;
-
-logic sram_ded_sticky;
-
-always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) sram_ded_sticky <= 1'b0;
-    else if (sram_pa_ded | sram_pb_ded) sram_ded_sticky <= 1'b1;
-end
-
-hamming_dec u_dec_pa (
-    .din  (sram[cpu_imem_araddr[15:2]]),
-    .dout (sram_pa_corrected),
-    .sec  (sram_pa_sec),
-    .ded  (sram_pa_ded)
-);
-
-hamming_dec u_dec_pb (
-    .din  (sram[xb_s1_araddr[15:2]]),
-    .dout (sram_pb_corrected),
-    .sec  (sram_pb_sec),
-    .ded  (sram_pb_ded)
-);
 
 assign sram_pb_merge[ 7: 0] = pb_wr_wstrb[0] ? pb_wr_wdata[ 7: 0] : sram[pb_wr_word_addr][ 7: 0];
 assign sram_pb_merge[15: 8] = pb_wr_wstrb[1] ? pb_wr_wdata[15: 8] : sram[pb_wr_word_addr][15: 8];
 assign sram_pb_merge[23:16] = pb_wr_wstrb[2] ? pb_wr_wdata[23:16] : sram[pb_wr_word_addr][23:16];
 assign sram_pb_merge[31:24] = pb_wr_wstrb[3] ? pb_wr_wdata[31:24] : sram[pb_wr_word_addr][31:24];
-
-hamming_enc u_enc_pb (
-    .din  (sram_pb_merge),
-    .dout (sram_pb_encoded)
-);
 
 logic pa_rd_pending;
 
@@ -657,7 +618,7 @@ always_ff @(posedge clk or negedge rst_n) begin
         if (pa_rd_pending) begin
             cpu_imem_rvalid <= 1'b1;
 
-            cpu_imem_rdata  <= sram_pa_corrected;
+            cpu_imem_rdata  <= sram[cpu_imem_araddr[15:2]];
             cpu_imem_rresp  <= 2'b00;
             if (cpu_imem_rready) begin
                 cpu_imem_rvalid <= 1'b0;
@@ -708,7 +669,7 @@ always_ff @(posedge clk or negedge rst_n) begin
         end
         if (pb_wr_aw_done && pb_wr_w_done) begin
 
-            sram[pb_wr_word_addr] <= sram_pb_encoded;
+            sram[pb_wr_word_addr] <= sram_pb_merge;
             xb_s1_bvalid  <= 1'b1;
             xb_s1_bresp   <= 2'b00;
             pb_wr_aw_done <= 1'b0;
@@ -723,7 +684,7 @@ always_ff @(posedge clk or negedge rst_n) begin
         if (pb_rd_pending) begin
             xb_s1_rvalid <= 1'b1;
 
-            xb_s1_rdata  <= sram_pb_corrected;
+            xb_s1_rdata  <= sram[xb_s1_araddr[15:2]];
             xb_s1_rresp  <= 2'b00;
             if (xb_s1_rready) begin
                 xb_s1_rvalid  <= 1'b0;
@@ -739,8 +700,5 @@ end
 
 logic _unused_irqs;
 assign _unused_irqs = uart_irq | i2c_irq | spi_irq;
-
-logic _unused_sec;
-assign _unused_sec = sram_pa_sec | sram_pb_sec;
 
 endmodule
