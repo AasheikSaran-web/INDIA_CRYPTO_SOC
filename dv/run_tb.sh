@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # ============================================================
 # run_tb.sh — Compile & run all INDIA_CRYPTO_SOC testbenches
-# Usage: cd dv && bash run_tb.sh
+# Usage: bash dv/run_tb.sh  OR  cd dv && bash run_tb.sh
 # ============================================================
+cd "$(dirname "$0")"
 RTL="../rtl"
 PASS=0; FAIL=0
 RESULTS=()
