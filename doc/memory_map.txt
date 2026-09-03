@@ -1,0 +1,203 @@
+==============================================================================
+  INDIA_CRYPTO_SOC  —  Address Map & Module Reference
+  AES-CA Accelerated RISC-V SoC for Indian Government Document Encryption
+==============================================================================
+
+TARGET APPLICATIONS
+───────────────────
+  1. Aadhaar PDF         (UIDAI / Biometric data)
+  2. Government Document (NIC / DigiLocker / IT Act 2000)
+  3. Medical Record PDF  (ABDM / HL7 FHIR / DICOM)
+
+MEMORY MAP
+──────────
+  Address Range              Size    Module            Slave   Notes
+  ─────────────────────────────────────────────────────────────────────────
+  0x0000_0000–0x0000_7FFF   32 KB   Boot ROM          s0      Read-only, returns NOP
+  0x2000_0000–0x2001_FFFF   128 KB  SRAM              s1      Dual-port; imem+dmem
+  0x3000_0000–0x3000_0FFF   4 KB    AES-CA Accel      s2      Firewall protected
+  0x3000_1000–0x3000_1FFF   4 KB    MS-TRNG           s3      Firewall protected
+  0x3000_2000–0x3000_2FFF   4 KB    India PDF Engine  s4      Firewall protected
+  0x4000_0000–0x4000_0FFF   4 KB    Secure UART       s5      Firewall protected
+  0x4000_1000–0x4000_1FFF   4 KB    Secure I2C        s6      Firewall protected
+  0x4000_2000–0x4000_2FFF   4 KB    Secure SPI        s7      Firewall protected
+
+AXI MASTERS
+───────────
+  m0  CPU data-bus (dmem)       — trusted,       priority HIGH
+  m1  India PDF Engine DMA      — semi-trusted,  priority LOW
+
+FIREWALL PERMISSION TABLE (default after reset)
+──────────────────────────────────────────────
+  Slave \ Master    m0(CPU)   m1(DMA)   m2(rsvd)  m3(debug)
+  ─────────────────────────────────────────────────────────
+  s2 AES-CA          YES       NO        NO        NO
+  s3 MS-TRNG         YES       NO        NO        NO
+  s4 PDF Engine      YES       NO        NO        NO
+  s5 UART            YES       NO        NO        NO
+  s6 I2C             YES       NO        NO        NO
+  s7 SPI             YES       NO        NO        NO
+
+  DMA (m1) is granted s1 (SRAM) access directly via xbar (s1 is unfirewalled).
+  To allow DMA access to other slaves, CPU writes perm_table register.
+
+MODULE REGISTER MAPS
+────────────────────
+
+AES-CA Accel  (0x3000_0000)
+  0x00  CTRL        [0]=START [1]=DECRYPT
+  0x04–0x20  KEY[0..7]   256-bit AES-256 key
+  0x24–0x30  DIN[0..3]   128-bit input block
+  0x34–0x40  DOUT[0..3]  128-bit output block
+  0x44  STATUS      [1]=busy [0]=done
+  0x48  CA_RULE     current CA-1 rule (debug)
+
+MS-TRNG  (0x3000_1000)
+  0x00  STATUS      [0]=valid
+  0x04  DATA        32-bit random word (read clears valid)
+  0x08  HEALTH      [1]=APT_fail [0]=RCT_fail  (write to clear)
+  0x0C  CTRL        [0]=enable [1]=rst_health
+
+India PDF Engine  (0x3000_2000)
+  0x000  CTRL           [0]=START [1]=DECRYPT [2]=IRQ_EN
+  0x004  APP_MODE        [1:0] 0=Aadhaar 1=GovDoc 2=Medical
+  0x008  STATUS          [0]=busy [1]=done [2]=auth_ok [3]=auth_fail [4]=error
+  0x00C  SRC_ADDR        Input PDF base address in SRAM
+  0x010  DST_ADDR        Output base address in SRAM
+  0x014  PDF_LEN         Byte count (must be multiple of 16)
+  0x018–0x024  NONCE[0..3]    128-bit nonce (load from TRNG)
+  0x028–0x044  KEY[0..7]      256-bit AES key (load from TRNG)
+  0x048–0x054  EXP_TAG[0..3]  Expected HMAC tag (decrypt path)
+  0x058  DOC_ID_LO       Document identifier [31:0]
+  0x05C  DOC_ID_HI       Document identifier [63:32]
+  0x060  TIMESTAMP       Unix timestamp
+  0x064  AUTH_LEVEL      [1:0] 0=public 1=restricted 2=secret 3=top-secret
+  0x068–0x074  RESULT_TAG[0..3]  Computed HMAC tag (read after done)
+
+Secure UART  (0x4000_0000)
+  0x00  DATA        [7:0] TX write / RX read
+  0x04  STATUS      [0]=TX_FULL [1]=RX_EMPTY [2]=TX_EMPTY [3]=RX_FULL
+                    [4]=FRAME_ERR [5]=LOCKED [6]=ATTACK_ALERT [7]=STALL_ALERT
+  0x08  BAUD        [15:0] clock divisor
+  0x0C  CTRL        [0]=TX_EN [1]=RX_EN [2]=FIFO_CLR
+  0x10  LOCK        write 0xA5 to lock baud rate
+  0x14  ALERT       write any to clear alerts
+
+Secure I2C  (0x4000_1000)
+  0x00  CTRL        [0]=START [1]=STOP [2]=RW [3]=ACK_EN
+  0x04  ADDR        [6:0] 7-bit device address
+  0x08  WDATA       [7:0] byte to write
+  0x0C  RDATA       [7:0] byte read
+  0x10  STATUS      [0]=BUSY [1]=DONE [2]=ACK_OK [3]=NACK
+                    [4]=BLOCKED [5]=BUS_STUCK [6]=LEN_FAULT
+  0x14  PRESCALE    [15:0] SCL divider
+  0x18  WL_CTRL     [1:0]=index [8]=WL_EN
+  0x1C  WL_ADDR     [6:0] address for whitelist entry
+  0x20  ALERT_CLR   write to clear
+
+Secure SPI  (0x4000_2000)
+  0x00  DATA        [7:0] TX write / RX read
+  0x04  STATUS      [0]=BUSY [1]=TX_EMPTY [2]=RX_FULL [3]=TX_FULL
+                    [4]=RX_EMPTY [5]=OVERFLOW [6]=UNDERRUN
+  0x08  CTRL        [0]=START_TX [1]=CPOL [2]=CPHA [3]=LOOPBACK
+  0x0C  CS_SEL      [3:0] one-hot chip-select
+  0x10  DIVIDER     [15:0] SCK divider
+  0x14  MAX_LEN     [7:0] max transfer bytes
+  0x18  CS_LOCK     [3:0] permanent CS disable
+  0x1C  ALERT       [0]=OVERFLOW [1]=CS_GUARD_VIOL
+
+AXI FIREWALL (one instance per protected slave, config via f_* port)
+  0x00  PERM_TABLE  [31:0] bit[s*N_MASTERS+m] = allow master m → slave s
+  0x04  LOCK_TABLE  write 0xDEADBEEF to make perm_table read-only
+  0x08  LAST_DENIED_ADDR    [31:0] address of most recent denied access
+  0x0C  LAST_DENIED_MASTER  [1:0]  master_id of denied access
+  0x10  DENY_COUNT  [15:0]  cumulative denied access count (write to clear)
+
+CPU CUSTOM CSRs (RV32IM core)
+  0xBC0  pc_min_guard   Minimum valid PC (default 0x0000_0000)
+  0xBC1  pc_max_guard   Maximum valid PC (default 0x2001_FFFF)
+  0xBC2  wdt_reload     Watchdog reload value (24-bit, default 0xFFFFFF)
+
+ATTACK PROTECTION SUMMARY
+─────────────────────────
+  CPU Core:
+    • Instruction parity check (trap on bad parity)
+    • PC range guard (configurable min/max via CSR)
+    • Register file ECC (Hamming 7,4 per nibble — correct single, flag double)
+    • Watchdog timer (24-bit, reloaded each committed instruction)
+
+  AXI Firewall:
+    • Per-(master,slave) access control table
+    • Write-once lock after secure boot
+    • Denied access logging and counter
+
+  Secure UART:
+    • RX glitch filter (3-sample stability)
+    • Secure-mode lockout (silence TX, flush RX)
+    • Frame-error attack detection
+    • Baud-rate lock
+
+  Secure I2C:
+    • Device address whitelist (4 entries)
+    • Bus stuck detection + 9-pulse recovery
+    • SDA glitch filter
+    • Secure-mode lockout
+
+  Secure SPI:
+    • Hardware CS guard (firmware cannot hold CS manually)
+    • Transfer length enforcement
+    • CS pin lockout (per-CS disable after provisioning)
+    • Secure-mode lockout
+
+ENCRYPTION FLOW (software sequence)
+────────────────────────────────────
+  1. Boot: CPU starts at 0x0000_0000 (Boot ROM)
+  2. Collect entropy: poll MS-TRNG STATUS until valid=1, read DATA × 12
+     → 8 words (256 bits) → KEY registers
+     → 4 words (128 bits) → NONCE registers
+  3. Configure PDF Engine:
+     - Write APP_MODE (0/1/2)
+     - Write SRC_ADDR (where PDF lives in SRAM)
+     - Write DST_ADDR (where to write ciphertext)
+     - Write PDF_LEN
+     - Write DOC_ID, TIMESTAMP, AUTH_LEVEL
+     - Write KEY[0..7] and NONCE[0..3] (from step 2)
+  4. Start: write CTRL = 0x05 (START | IRQ_EN)
+  5. Wait for IRQ (PLIC / mip bit)
+  6. Read STATUS: check done=1, auth_ok=1
+  7. Read RESULT_TAG[0..3] and store with document
+
+DECRYPTION FLOW
+───────────────
+  1. Write KEY[0..7], NONCE[0..3] (pre-shared or unwrapped)
+  2. Write EXP_TAG[0..3] (from stored document tag)
+  3. Write SRC_ADDR (ciphertext), DST_ADDR (plaintext output), PDF_LEN
+  4. Write CTRL = 0x07 (START | DECRYPT | IRQ_EN)
+  5. Wait for IRQ
+  6. Read STATUS:
+     - auth_ok=1  → plaintext at DST_ADDR is valid
+     - auth_fail=1 → hardware has zeroed DST_ADDR region; do not use
+
+FILE STRUCTURE
+──────────────
+  INDIA_CRYPTO_SOC/
+  ├── rtl/
+  │   ├── core/
+  │   │   ├── rv32im_core.v        RV32IM 5-stage pipeline + attack protection
+  │   │   └── aes_isa_ext.v        Custom AES ISA extension (combinational)
+  │   ├── crypto/
+  │   │   ├── ms_trng.v            Metastable flip-flop TRNG + health tests
+  │   │   ├── aes_ca_accel.v       AES-256 with 4 CA-based round operations
+  │   │   └── india_pdf_engine.v   PDF streaming encrypt/decrypt engine
+  │   ├── periph/
+  │   │   ├── secure_uart.v        UART + 5 attack protections
+  │   │   ├── secure_i2c.v         I2C master + 5 attack protections
+  │   │   └── secure_spi.v         SPI master + 5 attack protections
+  │   ├── fabric/
+  │   │   ├── axi_lite_xbar.v      2-master 8-slave AXI-Lite crossbar
+  │   │   └── axi_firewall.v       Per-(master,slave) access control
+  │   └── top/
+  │       └── india_crypto_soc.v   Top-level SoC integration
+  └── doc/
+      └── memory_map.txt           This file
+==============================================================================
