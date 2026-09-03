@@ -64,8 +64,6 @@ logic        cpu_dmem_rvalid,  cpu_dmem_rready;
 logic        cpu_custom_valid, cpu_custom_rd_valid;
 logic [31:0] cpu_custom_instr, cpu_custom_rs1, cpu_custom_rs2, cpu_custom_rd;
 
-logic        cpu_ecc_error, cpu_ecc_fatal, cpu_wdt_reset;
-
 `define AXIL_SLAVE_WIRES(N) \
 logic [31:0] xb_s``N``_awaddr, xb_s``N``_wdata, xb_s``N``_araddr, xb_s``N``_rdata; \
 logic [3:0]  xb_s``N``_wstrb; \
@@ -85,25 +83,6 @@ logic        xb_s``N``_rvalid,  xb_s``N``_rready
 `AXIL_SLAVE_WIRES(5);
 `AXIL_SLAVE_WIRES(6);
 `AXIL_SLAVE_WIRES(7);
-
-`define FW_DOWN_WIRES(N) \
-logic [31:0] fw``N``_d_awaddr, fw``N``_d_wdata, fw``N``_d_araddr, fw``N``_d_rdata; \
-logic [3:0]  fw``N``_d_wstrb; \
-logic        fw``N``_d_awvalid, fw``N``_d_awready; \
-logic        fw``N``_d_wvalid,  fw``N``_d_wready; \
-logic [1:0]  fw``N``_d_bresp; \
-logic        fw``N``_d_bvalid,  fw``N``_d_bready; \
-logic        fw``N``_d_arvalid, fw``N``_d_arready; \
-logic [1:0]  fw``N``_d_rresp; \
-logic        fw``N``_d_rvalid,  fw``N``_d_rready; \
-logic        fw``N``_deny_irq
-
-`FW_DOWN_WIRES(2);
-`FW_DOWN_WIRES(3);
-`FW_DOWN_WIRES(4);
-`FW_DOWN_WIRES(5);
-`FW_DOWN_WIRES(6);
-`FW_DOWN_WIRES(7);
 
 logic [31:0] dma_awaddr, dma_wdata, dma_araddr, dma_rdata;
 logic [3:0]  dma_wstrb;
@@ -132,41 +111,10 @@ logic         i2c_irq;
 logic         spi_irq;
 logic         pdf_irq;
 
-logic [1:0] fw2_mid, fw3_mid, fw4_mid, fw5_mid, fw6_mid, fw7_mid;
-
-always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        {fw2_mid, fw3_mid, fw4_mid, fw5_mid, fw6_mid, fw7_mid} <= '0;
-    end else begin
-
-        if (xb_s2_awvalid && xb_s2_awready)
-            fw2_mid <= (dma_awvalid && xb_s2_awaddr == dma_awaddr) ? 2'b01 : 2'b00;
-        if (xb_s3_awvalid && xb_s3_awready)
-            fw3_mid <= (dma_awvalid && xb_s3_awaddr == dma_awaddr) ? 2'b01 : 2'b00;
-        if (xb_s4_awvalid && xb_s4_awready)
-            fw4_mid <= (dma_awvalid && xb_s4_awaddr == dma_awaddr) ? 2'b01 : 2'b00;
-        if (xb_s5_awvalid && xb_s5_awready)
-            fw5_mid <= (dma_awvalid && xb_s5_awaddr == dma_awaddr) ? 2'b01 : 2'b00;
-        if (xb_s6_awvalid && xb_s6_awready)
-            fw6_mid <= (dma_awvalid && xb_s6_awaddr == dma_awaddr) ? 2'b01 : 2'b00;
-        if (xb_s7_awvalid && xb_s7_awready)
-            fw7_mid <= (dma_awvalid && xb_s7_awaddr == dma_awaddr) ? 2'b01 : 2'b00;
-    end
-end
-
-assign seceng_irq = pdf_irq
-                  | fw2_deny_irq | fw3_deny_irq | fw4_deny_irq
-                  | fw5_deny_irq | fw6_deny_irq | fw7_deny_irq
-                  | cpu_ecc_fatal
-                  | trng_rct_fail | trng_apt_fail
-                  | cpu_wdt_reset;
+assign seceng_irq = pdf_irq;
 
 rv32im_core #(
-    .RESET_ADDR    (32'h0000_0000),
-    .WDT_BITS      (24),
-    .ECC_EN        (1),
-    .PARITY_EN     (1),
-    .PC_GUARD_EN   (1)
+    .RESET_ADDR    (32'h0000_0000)
 ) u_cpu (
     .clk             (clk),
     .rst_n           (rst_n),
@@ -174,10 +122,6 @@ rv32im_core #(
     .timer_irq       (1'b0),
     .soft_irq        (1'b0),
     .ext_irq         (seceng_irq),
-
-    .ecc_error       (cpu_ecc_error),
-    .ecc_fatal       (cpu_ecc_fatal),
-    .wdt_reset       (cpu_wdt_reset),
 
     .imem_araddr     (cpu_imem_araddr),
     .imem_arvalid    (cpu_imem_arvalid),
@@ -234,23 +178,23 @@ rosc_trng u_trng (
     .rct_fail        (trng_rct_fail),
     .apt_fail        (trng_apt_fail),
 
-    .s_axil_awaddr   (fw3_d_awaddr[11:0]),
-    .s_axil_awvalid  (fw3_d_awvalid),
-    .s_axil_awready  (fw3_d_awready),
-    .s_axil_wdata    (fw3_d_wdata),
-    .s_axil_wstrb    (fw3_d_wstrb),
-    .s_axil_wvalid   (fw3_d_wvalid),
-    .s_axil_wready   (fw3_d_wready),
-    .s_axil_bresp    (fw3_d_bresp),
-    .s_axil_bvalid   (fw3_d_bvalid),
-    .s_axil_bready   (fw3_d_bready),
-    .s_axil_araddr   (fw3_d_araddr[11:0]),
-    .s_axil_arvalid  (fw3_d_arvalid),
-    .s_axil_arready  (fw3_d_arready),
-    .s_axil_rdata    (fw3_d_rdata),
-    .s_axil_rresp    (fw3_d_rresp),
-    .s_axil_rvalid   (fw3_d_rvalid),
-    .s_axil_rready   (fw3_d_rready)
+    .s_axil_awaddr   (xb_s3_awaddr[11:0]),
+    .s_axil_awvalid  (xb_s3_awvalid),
+    .s_axil_awready  (xb_s3_awready),
+    .s_axil_wdata    (xb_s3_wdata),
+    .s_axil_wstrb    (xb_s3_wstrb),
+    .s_axil_wvalid   (xb_s3_wvalid),
+    .s_axil_wready   (xb_s3_wready),
+    .s_axil_bresp    (xb_s3_bresp),
+    .s_axil_bvalid   (xb_s3_bvalid),
+    .s_axil_bready   (xb_s3_bready),
+    .s_axil_araddr   (xb_s3_araddr[11:0]),
+    .s_axil_arvalid  (xb_s3_arvalid),
+    .s_axil_arready  (xb_s3_arready),
+    .s_axil_rdata    (xb_s3_rdata),
+    .s_axil_rresp    (xb_s3_rresp),
+    .s_axil_rvalid   (xb_s3_rvalid),
+    .s_axil_rready   (xb_s3_rready)
 );
 
 aes_ca_accel u_aes_ca (
@@ -264,46 +208,46 @@ aes_ca_accel u_aes_ca (
     .direct_dout     (aes_dout),
     .direct_done     (aes_done),
 
-    .s_axil_awaddr   (fw2_d_awaddr[11:0]),
-    .s_axil_awvalid  (fw2_d_awvalid),
-    .s_axil_awready  (fw2_d_awready),
-    .s_axil_wdata    (fw2_d_wdata),
-    .s_axil_wstrb    (fw2_d_wstrb),
-    .s_axil_wvalid   (fw2_d_wvalid),
-    .s_axil_wready   (fw2_d_wready),
-    .s_axil_bresp    (fw2_d_bresp),
-    .s_axil_bvalid   (fw2_d_bvalid),
-    .s_axil_bready   (fw2_d_bready),
-    .s_axil_araddr   (fw2_d_araddr[11:0]),
-    .s_axil_arvalid  (fw2_d_arvalid),
-    .s_axil_arready  (fw2_d_arready),
-    .s_axil_rdata    (fw2_d_rdata),
-    .s_axil_rresp    (fw2_d_rresp),
-    .s_axil_rvalid   (fw2_d_rvalid),
-    .s_axil_rready   (fw2_d_rready)
+    .s_axil_awaddr   (xb_s2_awaddr[11:0]),
+    .s_axil_awvalid  (xb_s2_awvalid),
+    .s_axil_awready  (xb_s2_awready),
+    .s_axil_wdata    (xb_s2_wdata),
+    .s_axil_wstrb    (xb_s2_wstrb),
+    .s_axil_wvalid   (xb_s2_wvalid),
+    .s_axil_wready   (xb_s2_wready),
+    .s_axil_bresp    (xb_s2_bresp),
+    .s_axil_bvalid   (xb_s2_bvalid),
+    .s_axil_bready   (xb_s2_bready),
+    .s_axil_araddr   (xb_s2_araddr[11:0]),
+    .s_axil_arvalid  (xb_s2_arvalid),
+    .s_axil_arready  (xb_s2_arready),
+    .s_axil_rdata    (xb_s2_rdata),
+    .s_axil_rresp    (xb_s2_rresp),
+    .s_axil_rvalid   (xb_s2_rvalid),
+    .s_axil_rready   (xb_s2_rready)
 );
 
 india_pdf_engine u_pdf (
     .clk             (clk),
     .rst_n           (rst_n),
 
-    .s_awaddr        (fw4_d_awaddr[11:0]),
-    .s_awvalid       (fw4_d_awvalid),
-    .s_awready       (fw4_d_awready),
-    .s_wdata         (fw4_d_wdata),
-    .s_wstrb         (fw4_d_wstrb),
-    .s_wvalid        (fw4_d_wvalid),
-    .s_wready        (fw4_d_wready),
-    .s_bresp         (fw4_d_bresp),
-    .s_bvalid        (fw4_d_bvalid),
-    .s_bready        (fw4_d_bready),
-    .s_araddr        (fw4_d_araddr[11:0]),
-    .s_arvalid       (fw4_d_arvalid),
-    .s_arready       (fw4_d_arready),
-    .s_rdata         (fw4_d_rdata),
-    .s_rresp         (fw4_d_rresp),
-    .s_rvalid        (fw4_d_rvalid),
-    .s_rready        (fw4_d_rready),
+    .s_awaddr        (xb_s4_awaddr[11:0]),
+    .s_awvalid       (xb_s4_awvalid),
+    .s_awready       (xb_s4_awready),
+    .s_wdata         (xb_s4_wdata),
+    .s_wstrb         (xb_s4_wstrb),
+    .s_wvalid        (xb_s4_wvalid),
+    .s_wready        (xb_s4_wready),
+    .s_bresp         (xb_s4_bresp),
+    .s_bvalid        (xb_s4_bvalid),
+    .s_bready        (xb_s4_bready),
+    .s_araddr        (xb_s4_araddr[11:0]),
+    .s_arvalid       (xb_s4_arvalid),
+    .s_arready       (xb_s4_arready),
+    .s_rdata         (xb_s4_rdata),
+    .s_rresp         (xb_s4_rresp),
+    .s_rvalid        (xb_s4_rvalid),
+    .s_rready        (xb_s4_rready),
 
     .m_awaddr        (dma_awaddr),
     .m_awvalid       (dma_awvalid),
@@ -343,23 +287,23 @@ pulp_uart_wrap u_uart (
     .uart_tx         (uart_tx),
     .irq             (uart_irq),
 
-    .s_awaddr        (fw5_d_awaddr[11:0]),
-    .s_awvalid       (fw5_d_awvalid),
-    .s_awready       (fw5_d_awready),
-    .s_wdata         (fw5_d_wdata),
-    .s_wstrb         (fw5_d_wstrb),
-    .s_wvalid        (fw5_d_wvalid),
-    .s_wready        (fw5_d_wready),
-    .s_bresp         (fw5_d_bresp),
-    .s_bvalid        (fw5_d_bvalid),
-    .s_bready        (fw5_d_bready),
-    .s_araddr        (fw5_d_araddr[11:0]),
-    .s_arvalid       (fw5_d_arvalid),
-    .s_arready       (fw5_d_arready),
-    .s_rdata         (fw5_d_rdata),
-    .s_rresp         (fw5_d_rresp),
-    .s_rvalid        (fw5_d_rvalid),
-    .s_rready        (fw5_d_rready)
+    .s_awaddr        (xb_s5_awaddr[11:0]),
+    .s_awvalid       (xb_s5_awvalid),
+    .s_awready       (xb_s5_awready),
+    .s_wdata         (xb_s5_wdata),
+    .s_wstrb         (xb_s5_wstrb),
+    .s_wvalid        (xb_s5_wvalid),
+    .s_wready        (xb_s5_wready),
+    .s_bresp         (xb_s5_bresp),
+    .s_bvalid        (xb_s5_bvalid),
+    .s_bready        (xb_s5_bready),
+    .s_araddr        (xb_s5_araddr[11:0]),
+    .s_arvalid       (xb_s5_arvalid),
+    .s_arready       (xb_s5_arready),
+    .s_rdata         (xb_s5_rdata),
+    .s_rresp         (xb_s5_rresp),
+    .s_rvalid        (xb_s5_rvalid),
+    .s_rready        (xb_s5_rready)
 );
 
 pulp_i2c_wrap u_i2c (
@@ -369,23 +313,23 @@ pulp_i2c_wrap u_i2c (
     .i2c_scl         (i2c_scl),
     .irq             (i2c_irq),
 
-    .s_awaddr        (fw6_d_awaddr[11:0]),
-    .s_awvalid       (fw6_d_awvalid),
-    .s_awready       (fw6_d_awready),
-    .s_wdata         (fw6_d_wdata),
-    .s_wstrb         (fw6_d_wstrb),
-    .s_wvalid        (fw6_d_wvalid),
-    .s_wready        (fw6_d_wready),
-    .s_bresp         (fw6_d_bresp),
-    .s_bvalid        (fw6_d_bvalid),
-    .s_bready        (fw6_d_bready),
-    .s_araddr        (fw6_d_araddr[11:0]),
-    .s_arvalid       (fw6_d_arvalid),
-    .s_arready       (fw6_d_arready),
-    .s_rdata         (fw6_d_rdata),
-    .s_rresp         (fw6_d_rresp),
-    .s_rvalid        (fw6_d_rvalid),
-    .s_rready        (fw6_d_rready)
+    .s_awaddr        (xb_s6_awaddr[11:0]),
+    .s_awvalid       (xb_s6_awvalid),
+    .s_awready       (xb_s6_awready),
+    .s_wdata         (xb_s6_wdata),
+    .s_wstrb         (xb_s6_wstrb),
+    .s_wvalid        (xb_s6_wvalid),
+    .s_wready        (xb_s6_wready),
+    .s_bresp         (xb_s6_bresp),
+    .s_bvalid        (xb_s6_bvalid),
+    .s_bready        (xb_s6_bready),
+    .s_araddr        (xb_s6_araddr[11:0]),
+    .s_arvalid       (xb_s6_arvalid),
+    .s_arready       (xb_s6_arready),
+    .s_rdata         (xb_s6_rdata),
+    .s_rresp         (xb_s6_rresp),
+    .s_rvalid        (xb_s6_rvalid),
+    .s_rready        (xb_s6_rready)
 );
 
 pulp_spi_wrap u_spi (
@@ -397,23 +341,23 @@ pulp_spi_wrap u_spi (
     .spi_cs_n        (spi_cs_n),
     .irq             (spi_irq),
 
-    .s_awaddr        (fw7_d_awaddr[11:0]),
-    .s_awvalid       (fw7_d_awvalid),
-    .s_awready       (fw7_d_awready),
-    .s_wdata         (fw7_d_wdata),
-    .s_wstrb         (fw7_d_wstrb),
-    .s_wvalid        (fw7_d_wvalid),
-    .s_wready        (fw7_d_wready),
-    .s_bresp         (fw7_d_bresp),
-    .s_bvalid        (fw7_d_bvalid),
-    .s_bready        (fw7_d_bready),
-    .s_araddr        (fw7_d_araddr[11:0]),
-    .s_arvalid       (fw7_d_arvalid),
-    .s_arready       (fw7_d_arready),
-    .s_rdata         (fw7_d_rdata),
-    .s_rresp         (fw7_d_rresp),
-    .s_rvalid        (fw7_d_rvalid),
-    .s_rready        (fw7_d_rready)
+    .s_awaddr        (xb_s7_awaddr[11:0]),
+    .s_awvalid       (xb_s7_awvalid),
+    .s_awready       (xb_s7_awready),
+    .s_wdata         (xb_s7_wdata),
+    .s_wstrb         (xb_s7_wstrb),
+    .s_wvalid        (xb_s7_wvalid),
+    .s_wready        (xb_s7_wready),
+    .s_bresp         (xb_s7_bresp),
+    .s_bvalid        (xb_s7_bvalid),
+    .s_bready        (xb_s7_bready),
+    .s_araddr        (xb_s7_araddr[11:0]),
+    .s_arvalid       (xb_s7_arvalid),
+    .s_arready       (xb_s7_arready),
+    .s_rdata         (xb_s7_rdata),
+    .s_rresp         (xb_s7_rresp),
+    .s_rvalid        (xb_s7_rvalid),
+    .s_rready        (xb_s7_rready)
 );
 
 axi_lite_xbar u_xbar (
@@ -498,55 +442,6 @@ axi_lite_xbar u_xbar (
     .s7_arready(xb_s7_arready),.s7_rdata(xb_s7_rdata),  .s7_rresp(xb_s7_rresp),
     .s7_rvalid(xb_s7_rvalid),.s7_rready(xb_s7_rready)
 );
-
-`define FW_INST(NUM, SID) \
-axi_firewall #( \
-    .DEFAULT_PERM (FW_CPU_ONLY), \
-    .LOCK_KEY     (32'hDEAD_BEEF), \
-    .LOG_DEPTH    (4) \
-) u_fw``NUM ( \
-    .clk        (clk), \
-    .rst_n      (rst_n), \
-    .master_id  (fw``NUM``_mid), \
-    .slave_id   (3'd``SID), \
-     \
-    .u_awaddr   (xb_s``NUM``_awaddr),   .u_awvalid  (xb_s``NUM``_awvalid), \
-    .u_awready  (xb_s``NUM``_awready), \
-    .u_wdata    (xb_s``NUM``_wdata),    .u_wstrb    (xb_s``NUM``_wstrb), \
-    .u_wvalid   (xb_s``NUM``_wvalid),   .u_wready   (xb_s``NUM``_wready), \
-    .u_bresp    (xb_s``NUM``_bresp),    .u_bvalid   (xb_s``NUM``_bvalid), \
-    .u_bready   (xb_s``NUM``_bready), \
-    .u_araddr   (xb_s``NUM``_araddr),   .u_arvalid  (xb_s``NUM``_arvalid), \
-    .u_arready  (xb_s``NUM``_arready), \
-    .u_rdata    (xb_s``NUM``_rdata),    .u_rresp    (xb_s``NUM``_rresp), \
-    .u_rvalid   (xb_s``NUM``_rvalid),   .u_rready   (xb_s``NUM``_rready), \
-     \
-    .d_awaddr   (fw``NUM``_d_awaddr),   .d_awvalid  (fw``NUM``_d_awvalid), \
-    .d_awready  (fw``NUM``_d_awready), \
-    .d_wdata    (fw``NUM``_d_wdata),    .d_wstrb    (fw``NUM``_d_wstrb), \
-    .d_wvalid   (fw``NUM``_d_wvalid),   .d_wready   (fw``NUM``_d_wready), \
-    .d_bresp    (fw``NUM``_d_bresp),    .d_bvalid   (fw``NUM``_d_bvalid), \
-    .d_bready   (fw``NUM``_d_bready), \
-    .d_araddr   (fw``NUM``_d_araddr),   .d_arvalid  (fw``NUM``_d_arvalid), \
-    .d_arready  (fw``NUM``_d_arready), \
-    .d_rdata    (fw``NUM``_d_rdata),    .d_rresp    (fw``NUM``_d_rresp), \
-    .d_rvalid   (fw``NUM``_d_rvalid),   .d_rready   (fw``NUM``_d_rready), \
-     \
-    .deny_irq   (fw``NUM``_deny_irq), \
-     \
-    .f_awaddr(32'h0),.f_awvalid(1'b0),.f_awready(), \
-    .f_wdata(32'h0),.f_wstrb(4'h0),.f_wvalid(1'b0),.f_wready(), \
-    .f_bresp(),.f_bvalid(),.f_bready(1'b1), \
-    .f_araddr(32'h0),.f_arvalid(1'b0),.f_arready(), \
-    .f_rdata(),.f_rresp(),.f_rvalid(),.f_rready(1'b1) \
-)
-
-`FW_INST(2, 2);
-`FW_INST(3, 3);
-`FW_INST(4, 4);
-`FW_INST(5, 5);
-`FW_INST(6, 6);
-`FW_INST(7, 7);
 
 logic        rom_rd_pending;
 

@@ -2,12 +2,7 @@
 `timescale 1ns/1ps
 
 module rv32im_core #(
-    parameter RESET_ADDR  = 32'h0000_0000,
-    parameter WDT_DEFAULT = 24'hFFFFFF,
-    parameter WDT_BITS    = 24,
-    parameter PC_GUARD_EN = 1,
-    parameter ECC_EN      = 1,
-    parameter PARITY_EN   = 1
+    parameter RESET_ADDR  = 32'h0000_0000
 )(
     input  wire        clk,
     input  wire        rst_n,
@@ -15,10 +10,6 @@ module rv32im_core #(
     input  wire        timer_irq,
     input  wire        soft_irq,
     input  wire        ext_irq,
-
-    output reg         ecc_error,
-    output reg         ecc_fatal,
-    output reg         wdt_reset,
 
     output reg  [31:0] imem_araddr,
     output reg         imem_arvalid,
@@ -100,84 +91,18 @@ localparam CSR_MCAUSE   = 12'h342;
 localparam CSR_MIP      = 12'h344;
 localparam CSR_MCYCLE   = 12'hC00;
 localparam CSR_MINSTRET = 12'hC02;
-localparam CSR_PCMIN    = 12'hBC0;
-localparam CSR_PCMAX    = 12'hBC1;
-localparam CSR_WDTREL   = 12'hBC2;
 
 reg [31:0] regfile [0:31];
-
-function [6:0] ham_encode;
-    input [3:0] d;
-    reg p1, p2, p3;
-    begin
-        p1 = d[0] ^ d[1] ^ d[3];
-        p2 = d[0] ^ d[2] ^ d[3];
-        p3 = d[1] ^ d[2] ^ d[3];
-        ham_encode = {d[3], d[2], d[1], p3, d[0], p2, p1};
-    end
-endfunction
-
-function [5:0] ham_decode;
-    input [6:0] c;
-    reg [2:0] synd;
-    reg [6:0] cc;
-    begin
-        synd[0] = c[6] ^ c[4] ^ c[2] ^ c[0];
-        synd[1] = c[6] ^ c[5] ^ c[2] ^ c[1];
-        synd[2] = c[6] ^ c[5] ^ c[4] ^ c[3];
-        cc = c;
-        if (synd != 3'd0 && synd <= 7) cc[synd-1] = ~c[synd-1];
-        ham_decode = {(synd != 0 && synd > 7) ? 1'b1 : 1'b0,
-                      (synd != 0) ? 1'b1 : 1'b0,
-                      cc[6], cc[5], cc[4], cc[2]};
-    end
-endfunction
-
-reg [55:0] regfile_ecc [0:31];
 
 task regfile_write;
     input [4:0]  addr;
     input [31:0] data;
-    integer i;
     begin
         if (addr != 5'd0) begin
             regfile[addr] <= data;
-            regfile_ecc[addr][6:0]   <= ham_encode(data[3:0]);
-            regfile_ecc[addr][13:7]  <= ham_encode(data[7:4]);
-            regfile_ecc[addr][20:14] <= ham_encode(data[11:8]);
-            regfile_ecc[addr][27:21] <= ham_encode(data[15:12]);
-            regfile_ecc[addr][34:28] <= ham_encode(data[19:16]);
-            regfile_ecc[addr][41:35] <= ham_encode(data[23:20]);
-            regfile_ecc[addr][48:42] <= ham_encode(data[27:24]);
-            regfile_ecc[addr][55:49] <= ham_encode(data[31:28]);
         end
     end
 endtask
-
-function [33:0] regfile_read_ecc;
-    input [4:0] addr;
-    reg [5:0] d0,d1,d2,d3,d4,d5,d6,d7;
-    reg any_fatal, any_corr;
-    begin
-        if (addr == 5'd0) begin
-            regfile_read_ecc = 34'd0;
-        end else begin
-            d0 = ham_decode(regfile_ecc[addr][6:0]);
-            d1 = ham_decode(regfile_ecc[addr][13:7]);
-            d2 = ham_decode(regfile_ecc[addr][20:14]);
-            d3 = ham_decode(regfile_ecc[addr][27:21]);
-            d4 = ham_decode(regfile_ecc[addr][34:28]);
-            d5 = ham_decode(regfile_ecc[addr][41:35]);
-            d6 = ham_decode(regfile_ecc[addr][48:42]);
-            d7 = ham_decode(regfile_ecc[addr][55:49]);
-            any_fatal = d0[5]|d1[5]|d2[5]|d3[5]|d4[5]|d5[5]|d6[5]|d7[5];
-            any_corr  = d0[4]|d1[4]|d2[4]|d3[4]|d4[4]|d5[4]|d6[4]|d7[4];
-            regfile_read_ecc = {any_fatal, any_corr,
-                d7[3:0], d6[3:0], d5[3:0], d4[3:0],
-                d3[3:0], d2[3:0], d1[3:0], d0[3:0]};
-        end
-    end
-endfunction
 
 reg [31:0] csr_mstatus;
 reg [31:0] csr_mie;
@@ -188,9 +113,6 @@ reg [31:0] csr_mcause;
 reg [31:0] csr_mip;
 reg [63:0] csr_mcycle;
 reg [63:0] csr_minstret;
-reg [31:0] csr_pc_min;
-reg [31:0] csr_pc_max;
-reg [23:0] csr_wdt_reload;
 
 reg [31:0] ifid_pc;
 reg [31:0] ifid_instr;
@@ -267,9 +189,6 @@ reg trap_req;
 reg [31:0] trap_cause;
 reg [31:0] trap_pc;
 
-reg [23:0] wdt_counter;
-reg        wdt_en;
-
 reg [31:0] pc;
 reg [31:0] next_pc;
 reg        fetch_pending;
@@ -289,14 +208,10 @@ wire [31:0] id_imm_u = {ifid_instr[31:12], 12'd0};
 wire [31:0] id_imm_j = {{11{ifid_instr[31]}}, ifid_instr[31], ifid_instr[19:12],
                          ifid_instr[20], ifid_instr[30:21], 1'b0};
 
-wire id_parity_ok = ~(^ifid_instr);
-
 reg [31:0] fwd_rs1, fwd_rs2;
 
-wire [33:0] rf_rs1_ecc = regfile_read_ecc(id_rs1);
-wire [33:0] rf_rs2_ecc = regfile_read_ecc(id_rs2);
-wire [31:0] rf_rs1_data = rf_rs1_ecc[31:0];
-wire [31:0] rf_rs2_data = rf_rs2_ecc[31:0];
+wire [31:0] rf_rs1_data = (id_rs1 == 5'd0) ? 32'd0 : regfile[id_rs1];
+wire [31:0] rf_rs2_data = (id_rs2 == 5'd0) ? 32'd0 : regfile[id_rs2];
 
 reg [31:0] alu_a, alu_b, alu_result;
 
@@ -348,9 +263,6 @@ always @(*) begin
         CSR_MIP:      csr_rdata = csr_mip;
         CSR_MCYCLE:   csr_rdata = csr_mcycle[31:0];
         CSR_MINSTRET: csr_rdata = csr_minstret[31:0];
-        CSR_PCMIN:    csr_rdata = csr_pc_min;
-        CSR_PCMAX:    csr_rdata = csr_pc_max;
-        CSR_WDTREL:   csr_rdata = {8'd0, csr_wdt_reload};
         default:      csr_rdata = 32'd0;
     endcase
 end
@@ -411,14 +323,6 @@ always @(posedge clk or negedge rst_n) begin
         csr_mip         <= 32'd0;
         csr_mcycle      <= 64'd0;
         csr_minstret    <= 64'd0;
-        csr_pc_min      <= 32'h0000_0000;
-        csr_pc_max      <= 32'h2001_FFFF;
-        csr_wdt_reload  <= WDT_DEFAULT;
-
-        wdt_counter     <= WDT_DEFAULT;
-        wdt_reset       <= 1'b0;
-        ecc_error       <= 1'b0;
-        ecc_fatal       <= 1'b0;
 
         imem_arvalid    <= 1'b0;
         imem_rready     <= 1'b0;
@@ -449,14 +353,10 @@ always @(posedge clk or negedge rst_n) begin
 
         for (i = 0; i < 32; i = i + 1) begin
             regfile[i]     <= 32'd0;
-            regfile_ecc[i] <= 56'd0;
         end
 
     end else begin
 
-        wdt_reset  <= 1'b0;
-        ecc_error  <= 1'b0;
-        ecc_fatal  <= 1'b0;
         dmem_done  <= 1'b0;
         mdu_done   <= 1'b0;
         custom_valid <= 1'b0;
@@ -466,13 +366,6 @@ always @(posedge clk or negedge rst_n) begin
         csr_mip[7] <= timer_irq;
         csr_mip[3] <= soft_irq;
         csr_mip[11]<= ext_irq;
-
-        if (wdt_counter == 24'd0) begin
-            wdt_reset   <= 1'b1;
-            wdt_counter <= csr_wdt_reload;
-        end else begin
-            wdt_counter <= wdt_counter - 24'd1;
-        end
 
         if (!trap_req) begin
             if (csr_mstatus[3] && (csr_mie & csr_mip) != 32'd0) begin
@@ -531,46 +424,29 @@ always @(posedge clk or negedge rst_n) begin
 
         if (!stall_id && ifid_valid && !flush_id) begin
 
-            if (rf_rs1_ecc[33]) ecc_fatal <= 1'b1;
-            else if (rf_rs1_ecc[32]) ecc_error <= 1'b1;
-            if (rf_rs2_ecc[33]) ecc_fatal <= 1'b1;
-            else if (rf_rs2_ecc[32]) ecc_error <= 1'b1;
+            idex_pc       <= ifid_pc;
+            idex_instr    <= ifid_instr;
+            idex_rs1      <= id_rs1;
+            idex_rs2      <= id_rs2;
+            idex_rd       <= id_rd;
+            idex_rs1_val  <= rf_rs1_data;
+            idex_rs2_val  <= rf_rs2_data;
+            idex_mem_read <= 1'b0;
+            idex_mem_write<= 1'b0;
+            idex_reg_write<= 1'b0;
+            idex_mem_to_reg<=1'b0;
+            idex_branch   <= 1'b0;
+            idex_jal      <= 1'b0;
+            idex_jalr     <= 1'b0;
+            idex_mdu_en   <= 1'b0;
+            idex_csr_en   <= 1'b0;
+            idex_custom   <= 1'b0;
+            idex_alu_src  <= 1'b0;
+            idex_is_lui   <= 1'b0;
+            idex_is_auipc <= 1'b0;
+            idex_valid    <= 1'b1;
 
-            if ((ifid_pc < csr_pc_min) || (ifid_pc > csr_pc_max)) begin
-                trap_req   <= 1'b1;
-                trap_pc    <= ifid_pc;
-                trap_cause <= 32'd1;
-                ifid_valid <= 1'b0;
-            end else begin
-                idex_pc       <= ifid_pc;
-                idex_instr    <= ifid_instr;
-                idex_rs1      <= id_rs1;
-                idex_rs2      <= id_rs2;
-                idex_rd       <= id_rd;
-                idex_rs1_val  <= rf_rs1_data;
-                idex_rs2_val  <= rf_rs2_data;
-                idex_mem_read <= 1'b0;
-                idex_mem_write<= 1'b0;
-                idex_reg_write<= 1'b0;
-                idex_mem_to_reg<=1'b0;
-                idex_branch   <= 1'b0;
-                idex_jal      <= 1'b0;
-                idex_jalr     <= 1'b0;
-                idex_mdu_en   <= 1'b0;
-                idex_csr_en   <= 1'b0;
-                idex_custom   <= 1'b0;
-                idex_alu_src  <= 1'b0;
-                idex_is_lui   <= 1'b0;
-                idex_is_auipc <= 1'b0;
-                idex_valid    <= 1'b1;
-
-                if (!id_parity_ok) begin
-                    trap_req   <= 1'b1;
-                    trap_pc    <= ifid_pc;
-                    trap_cause <= 32'd2;
-                    idex_valid <= 1'b0;
-                end else begin
-                    case (id_opcode)
+            case (id_opcode)
                         OP_LUI: begin
                             idex_imm      <= id_imm_u;
                             idex_alu_op   <= ALU_COPY_B;
@@ -682,9 +558,7 @@ always @(posedge clk or negedge rst_n) begin
                             trap_cause <= 32'd2;
                             idex_valid <= 1'b0;
                         end
-                    endcase
-                end
-            end
+            endcase
         end else if (load_use_hazard) begin
             idex_valid <= 1'b0;
         end else if (flush_ex) begin
@@ -850,9 +724,6 @@ always @(posedge clk or negedge rst_n) begin
                     CSR_MSCRATCH: csr_mscratch <= csr_wdata;
                     CSR_MEPC:     csr_mepc     <= csr_wdata;
                     CSR_MCAUSE:   csr_mcause   <= csr_wdata;
-                    CSR_PCMIN:    csr_pc_min   <= csr_wdata;
-                    CSR_PCMAX:    csr_pc_max   <= csr_wdata;
-                    CSR_WDTREL:   csr_wdt_reload <= csr_wdata[23:0];
                     default: ;
                 endcase
             end
@@ -975,7 +846,6 @@ always @(posedge clk or negedge rst_n) begin
             regfile_write(memwb_rd, wb_data);
 
             csr_minstret <= csr_minstret + 64'd1;
-            wdt_counter  <= csr_wdt_reload;
         end
 
     end

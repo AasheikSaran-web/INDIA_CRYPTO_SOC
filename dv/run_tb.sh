@@ -46,11 +46,6 @@ run_test tb_axil_to_apb \
     tb_axil_to_apb.v \
     "$RTL/periph/axil_to_apb.sv"
 
-# ── AXI Firewall ───────────────────────────────────────────
-run_test tb_axi_firewall \
-    tb_axi_firewall.v \
-    "$RTL/fabric/axi_firewall.v"
-
 # ── APB UART (16550) ───────────────────────────────────────
 run_test tb_apb_uart \
     tb_apb_uart.v \
