@@ -10,6 +10,10 @@ read_verilog -sv -lib ../../rtl/periph/vendor/pulp_blackbox.v
 
 # ---- 2. Read all custom RTL ----------------------------------
 
+# SRAM wrapper and arbiter/controller (behavioral model — no +define+HARD_MACRO)
+read_verilog -sv ../../rtl/mem/sram_sp_wrap.v
+read_verilog -sv ../../rtl/mem/sram_ctrl.v
+
 # Top-level SoC
 read_verilog -sv ../../rtl/top/india_crypto_soc.v
 

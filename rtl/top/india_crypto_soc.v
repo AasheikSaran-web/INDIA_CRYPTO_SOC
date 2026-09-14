@@ -484,108 +484,44 @@ always_ff @(posedge clk or negedge rst_n) begin
     end
 end
 
-logic [31:0] sram [0:SRAM_WORDS-1];
+// ── SRAM Controller (arbiter + hard-macro boundary) ──────────────────────────
+// sram_ctrl arbitrates between CPU instruction fetch (Port A, read-only) and
+// the AXI-Lite data port (Port B, read + byte-write).  It instantiates
+// sram_sp_wrap which switches between a behavioral model and the ARM Artisan
+// TS1N28HPCPSVTB16384X32M8SW hard macro when compiled with +define+HARD_MACRO.
 
-wire [31:0] sram_pb_merge;
+sram_ctrl u_sram_ctrl (
+    .clk          (clk),
+    .rst_n        (rst_n),
 
-assign sram_pb_merge[ 7: 0] = pb_wr_wstrb[0] ? pb_wr_wdata[ 7: 0] : sram[pb_wr_word_addr][ 7: 0];
-assign sram_pb_merge[15: 8] = pb_wr_wstrb[1] ? pb_wr_wdata[15: 8] : sram[pb_wr_word_addr][15: 8];
-assign sram_pb_merge[23:16] = pb_wr_wstrb[2] ? pb_wr_wdata[23:16] : sram[pb_wr_word_addr][23:16];
-assign sram_pb_merge[31:24] = pb_wr_wstrb[3] ? pb_wr_wdata[31:24] : sram[pb_wr_word_addr][31:24];
+    // Port A — CPU instruction fetch
+    .cpu_arvalid  (cpu_imem_arvalid),
+    .cpu_araddr   (cpu_imem_araddr),
+    .cpu_arready  (cpu_imem_arready),
+    .cpu_rvalid   (cpu_imem_rvalid),
+    .cpu_rdata    (cpu_imem_rdata),
+    .cpu_rresp    (cpu_imem_rresp),
+    .cpu_rready   (cpu_imem_rready),
 
-logic pa_rd_pending;
-
-always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        cpu_imem_arready <= 1'b0;
-        cpu_imem_rvalid  <= 1'b0;
-        cpu_imem_rdata   <= 32'h0;
-        cpu_imem_rresp   <= 2'b00;
-        pa_rd_pending    <= 1'b0;
-    end else begin
-        cpu_imem_arready <= 1'b0;
-        if (cpu_imem_arvalid && !pa_rd_pending) begin
-            cpu_imem_arready <= 1'b1;
-            pa_rd_pending    <= 1'b1;
-        end
-        if (pa_rd_pending) begin
-            cpu_imem_rvalid <= 1'b1;
-
-            cpu_imem_rdata  <= sram[cpu_imem_araddr[15:2]];
-            cpu_imem_rresp  <= 2'b00;
-            if (cpu_imem_rready) begin
-                cpu_imem_rvalid <= 1'b0;
-                pa_rd_pending   <= 1'b0;
-            end
-        end
-    end
-end
-
-logic        pb_rd_pending;
-logic        pb_wr_aw_done, pb_wr_w_done;
-logic [13:0] pb_wr_word_addr;
-logic [31:0] pb_wr_wdata;
-logic [3:0]  pb_wr_wstrb;
-
-always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        xb_s1_awready   <= 1'b0;
-        xb_s1_wready    <= 1'b0;
-        xb_s1_bvalid    <= 1'b0;
-        xb_s1_bresp     <= 2'b00;
-        xb_s1_arready   <= 1'b0;
-        xb_s1_rvalid    <= 1'b0;
-        xb_s1_rdata     <= 32'h0;
-        xb_s1_rresp     <= 2'b00;
-        pb_rd_pending   <= 1'b0;
-        pb_wr_aw_done   <= 1'b0;
-        pb_wr_w_done    <= 1'b0;
-        pb_wr_word_addr <= 14'h0;
-        pb_wr_wdata     <= 32'h0;
-        pb_wr_wstrb     <= 4'h0;
-    end else begin
-        xb_s1_awready <= 1'b0;
-        xb_s1_wready  <= 1'b0;
-        xb_s1_arready <= 1'b0;
-
-        if (xb_s1_awvalid && !pb_wr_aw_done) begin
-            xb_s1_awready   <= 1'b1;
-            pb_wr_aw_done   <= 1'b1;
-
-            pb_wr_word_addr <= xb_s1_awaddr[15:2];
-        end
-        if (xb_s1_wvalid && !pb_wr_w_done) begin
-            xb_s1_wready <= 1'b1;
-            pb_wr_w_done <= 1'b1;
-            pb_wr_wdata  <= xb_s1_wdata;
-            pb_wr_wstrb  <= xb_s1_wstrb;
-        end
-        if (pb_wr_aw_done && pb_wr_w_done) begin
-
-            sram[pb_wr_word_addr] <= sram_pb_merge;
-            xb_s1_bvalid  <= 1'b1;
-            xb_s1_bresp   <= 2'b00;
-            pb_wr_aw_done <= 1'b0;
-            pb_wr_w_done  <= 1'b0;
-        end
-        if (xb_s1_bvalid && xb_s1_bready) xb_s1_bvalid <= 1'b0;
-
-        if (xb_s1_arvalid && !pb_rd_pending) begin
-            xb_s1_arready <= 1'b1;
-            pb_rd_pending <= 1'b1;
-        end
-        if (pb_rd_pending) begin
-            xb_s1_rvalid <= 1'b1;
-
-            xb_s1_rdata  <= sram[xb_s1_araddr[15:2]];
-            xb_s1_rresp  <= 2'b00;
-            if (xb_s1_rready) begin
-                xb_s1_rvalid  <= 1'b0;
-                pb_rd_pending <= 1'b0;
-            end
-        end
-    end
-end
+    // Port B — AXI-Lite data (crossbar slave 1)
+    .axi_awvalid  (xb_s1_awvalid),
+    .axi_awaddr   (xb_s1_awaddr),
+    .axi_awready  (xb_s1_awready),
+    .axi_wvalid   (xb_s1_wvalid),
+    .axi_wdata    (xb_s1_wdata),
+    .axi_wstrb    (xb_s1_wstrb),
+    .axi_wready   (xb_s1_wready),
+    .axi_bvalid   (xb_s1_bvalid),
+    .axi_bresp    (xb_s1_bresp),
+    .axi_bready   (xb_s1_bready),
+    .axi_arvalid  (xb_s1_arvalid),
+    .axi_araddr   (xb_s1_araddr),
+    .axi_arready  (xb_s1_arready),
+    .axi_rvalid   (xb_s1_rvalid),
+    .axi_rdata    (xb_s1_rdata),
+    .axi_rresp    (xb_s1_rresp),
+    .axi_rready   (xb_s1_rready)
+);
 
 initial begin
     $display("[INDIA_CRYPTO_SOC] uart_irq/i2c_irq/spi_irq available for poll.");

@@ -33,6 +33,10 @@ analyze -format sverilog [glob $RTL_DIR/periph/*.sv]
 # CPU core and AES ISA extension
 analyze -format sverilog [glob $RTL_DIR/core/*.v]
 
+# SRAM wrapper and arbiter/controller (behavioral model — no HARD_MACRO define)
+analyze -format sverilog $RTL_DIR/mem/sram_sp_wrap.v
+analyze -format sverilog $RTL_DIR/mem/sram_ctrl.v
+
 # Crypto blocks
 analyze -format sverilog $RTL_DIR/crypto/aes_ca_accel.v
 analyze -format sverilog $RTL_DIR/crypto/india_pdf_engine.v
