@@ -1,21 +1,13 @@
 #!/usr/bin/env bash
-# =============================================================
-# synth_blocks.sh  — Block-level Yosys synthesis
-# Synthesizes each custom RTL block against Nangate45
-# Usage: cd syn/scripts && bash synth_blocks.sh
-# =============================================================
 
 LIB="../pdk/nangate45/NangateOpenCellLibrary_typical.lib"
 RPT="../reports"
 NET="../netlist"
 mkdir -p "$RPT" "$NET"
 
-# synth_block TOP [-Iincdir ...] file1 file2 ...
-# All files are read with: read_verilog -sv [-Iincdir ...] <file>
 synth_block() {
     local TOP="$1"; shift
 
-    # Collect optional -I include dirs (must come before file args)
     local INCDIRS=()
     while [[ "$1" == -I* ]]; do
         INCDIRS+=("$1")
@@ -42,7 +34,6 @@ tee -o $RPT/${TOP}_stat.txt stat -liberty $LIB
 write_verilog -noattr -noexpr $NET/${TOP}_netlist.v
 YS
 
-    # Run without -q so stat tee output works; send stderr to log
     yosys "$SCRIPT" > "$RPT/${TOP}.log" 2>&1
     local RC=$?
     rm -f "$SCRIPT"
@@ -56,9 +47,6 @@ YS
     fi
 }
 
-# ---------------------------------------------------------------
-# Crypto & fabric blocks (unchanged)
-# ---------------------------------------------------------------
 synth_block hamming_enc      "../../rtl/crypto/hamming_secded.v"
 synth_block hamming_dec      "../../rtl/crypto/hamming_secded.v"
 synth_block rosc_trng        "../../rtl/crypto/rosc_trng.v"
@@ -68,15 +56,9 @@ synth_block axi_firewall     "../../rtl/fabric/axi_firewall.v"
 synth_block axi_lite_xbar    "../../rtl/fabric/axi_lite_xbar.v"
 synth_block axil_to_apb      "../../rtl/periph/axil_to_apb.sv"
 
-# ---------------------------------------------------------------
-# CPU core & ISA extension
-# ---------------------------------------------------------------
 synth_block rv32im_core  "../../rtl/core/rv32im_core.v"
 synth_block aes_isa_ext  "../../rtl/core/aes_isa_ext.v"
 
-# ---------------------------------------------------------------
-# PULP SPI peripheral — real PULP sources (apb_spi_master + subs)
-# ---------------------------------------------------------------
 SPI_DIR="../../rtl/periph/vendor/spi"
 synth_block pulp_spi_wrap \
     "../../rtl/periph/axil_to_apb.sv" \
@@ -89,18 +71,11 @@ synth_block pulp_spi_wrap \
     "$SPI_DIR/spi_master_tx.sv" \
     "../../rtl/periph/pulp_spi_wrap.sv"
 
-# ---------------------------------------------------------------
-# PULP UART peripheral — self-contained 16550-compatible apb_uart
-# ---------------------------------------------------------------
 synth_block pulp_uart_wrap \
     "../../rtl/periph/axil_to_apb.sv" \
     "../../rtl/periph/vendor/uart/apb_uart.sv" \
     "../../rtl/periph/pulp_uart_wrap.sv"
 
-# ---------------------------------------------------------------
-# PULP I2C peripheral — real PULP sources (apb_i2c + bit/byte ctrl)
-# Include dir for `include "i2c_master_defines.sv"
-# ---------------------------------------------------------------
 I2C_DIR="../../rtl/periph/vendor/i2c"
 synth_block pulp_i2c_wrap \
     -I"$I2C_DIR" \

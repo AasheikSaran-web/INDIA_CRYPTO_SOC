@@ -484,17 +484,11 @@ always_ff @(posedge clk or negedge rst_n) begin
     end
 end
 
-// ── SRAM Controller (arbiter + hard-macro boundary) ──────────────────────────
-// sram_ctrl arbitrates between CPU instruction fetch (Port A, read-only) and
-// the AXI-Lite data port (Port B, read + byte-write).  It instantiates
-// sram_sp_wrap which switches between a behavioral model and the ARM Artisan
-// TS1N28HPCPSVTB16384X32M8SW hard macro when compiled with +define+HARD_MACRO.
-
 sram_ctrl u_sram_ctrl (
     .clk          (clk),
     .rst_n        (rst_n),
 
-    // Port A — CPU instruction fetch
+    
     .cpu_arvalid  (cpu_imem_arvalid),
     .cpu_araddr   (cpu_imem_araddr),
     .cpu_arready  (cpu_imem_arready),
@@ -503,7 +497,7 @@ sram_ctrl u_sram_ctrl (
     .cpu_rresp    (cpu_imem_rresp),
     .cpu_rready   (cpu_imem_rready),
 
-    // Port B — AXI-Lite data (crossbar slave 1)
+    
     .axi_awvalid  (xb_s1_awvalid),
     .axi_awaddr   (xb_s1_awaddr),
     .axi_awready  (xb_s1_awready),

@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-# ============================================================
-# run_tb.sh — Compile & run all INDIA_CRYPTO_SOC testbenches
-# Usage: bash dv/run_tb.sh  OR  cd dv && bash run_tb.sh
-# ============================================================
+
 cd "$(dirname "$0")"
 RTL="../rtl"
 PASS=0; FAIL=0
@@ -36,28 +33,23 @@ run_test() {
     fi
 }
 
-# ── Hamming SEC-DED ────────────────────────────────────────
 run_test tb_hamming \
     tb_hamming.v \
     "$RTL/crypto/hamming_secded.v"
 
-# ── AXI-Lite to APB bridge ─────────────────────────────────
 run_test tb_axil_to_apb \
     tb_axil_to_apb.v \
     "$RTL/periph/axil_to_apb.sv"
 
-# ── APB UART (16550) ───────────────────────────────────────
 run_test tb_apb_uart \
     tb_apb_uart.v \
     "$RTL/periph/vendor/uart/apb_uart.sv"
 
-# ── RO-TRNG ────────────────────────────────────────────────
 run_test tb_rosc_trng \
     tb_rosc_trng.v \
     "$RTL/crypto/rosc_trng.v" \
     "$RTL/periph/axil_to_apb.sv"
 
-# ── Summary ────────────────────────────────────────────────
 echo ""
 echo "======================================================"
 echo "  FINAL RESULTS"
