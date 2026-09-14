@@ -21,13 +21,11 @@ read_verilog -sv ../../rtl/core/aes_isa_ext.v
 read_verilog -sv ../../rtl/crypto/aes_ca_accel.v
 read_verilog -sv ../../rtl/crypto/india_pdf_engine.v
 read_verilog -sv ../../rtl/crypto/rosc_trng.v
-read_verilog -sv ../../rtl/crypto/hamming_secded.v
 
 # Fabric
 read_verilog -sv ../../rtl/fabric/axi_lite_xbar.v
-read_verilog -sv ../../rtl/fabric/axi_firewall.v
 
-# Peripheral wrappers (our security logic around PULP IP)
+# Peripheral wrappers
 read_verilog -sv ../../rtl/periph/axil_to_apb.sv
 read_verilog -sv ../../rtl/periph/pulp_spi_wrap.sv
 read_verilog -sv ../../rtl/periph/pulp_uart_wrap.sv

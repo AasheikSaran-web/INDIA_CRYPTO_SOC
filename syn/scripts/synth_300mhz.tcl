@@ -7,7 +7,7 @@
 # ── 0. Setup ─────────────────────────────────────────────────────────────────
 set DESIGN      india_crypto_soc
 set SDC         ../constraints/india_crypto_soc_300mhz.sdc
-set RTL_DIR     ../rtl
+set RTL_DIR     ../../rtl
 set OUT_DIR     ../outputs/300mhz
 
 file mkdir $OUT_DIR
@@ -35,7 +35,7 @@ compile_ultra \
 
 # ── 5. Compile — Phase 2 : Incremental timing-driven ────────────────────────
 # Runs a second pass focusing purely on critical paths identified in Phase 1.
-# This is where the AES-CA round and SRAM+ECC paths get squeezed.
+# This is where the AES-CA round and critical data paths get squeezed.
 compile_ultra \
     -incremental \
     -retime \
