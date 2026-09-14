@@ -27,8 +27,6 @@ localparam ROM_WORDS    = 8192;
 localparam SRAM_AW      = 14;
 localparam ROM_AW       = 13;
 
-localparam [31:0] FW_CPU_ONLY    = 32'h0000_0001;
-
 localparam KEY_REG_BASE  = 12'h010;
 localparam IV_REG_BASE   = 12'h030;
 localparam AES_CTRL_REG  = 12'h000;
