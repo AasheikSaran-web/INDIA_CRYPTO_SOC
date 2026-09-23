@@ -58,6 +58,8 @@ module india_pdf_engine #(
     output reg          irq
 );
 
+reg         decrypt_mode;
+
 assign cipher_decrypt = decrypt_mode;
 
 localparam [4:0]
@@ -91,7 +93,6 @@ reg [31:0]  doc_id_hi;
 reg [31:0]  timestamp;
 reg [1:0]   auth_level;
 reg         irq_en;
-reg         decrypt_mode;
 
 reg         reg_busy;
 reg         reg_done;

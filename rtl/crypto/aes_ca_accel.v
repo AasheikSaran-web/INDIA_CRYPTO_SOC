@@ -56,6 +56,9 @@ reg [5:0]  ks_idx;
 reg [7:0] sca_lfsr;
 reg       sca_stall;
 
+reg          axi_decrypt;
+reg          axi_start_pulse;
+
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         sca_lfsr <= 8'hA5;
@@ -624,8 +627,6 @@ assign direct_done = done_r & direct_mode_r;
 
 reg  [255:0] axi_key_r;
 reg  [127:0] axi_din_r;
-reg          axi_decrypt;
-reg          axi_start_pulse;
 reg  [11:0]  axi_aw_addr_lat;
 reg          axi_aw_addr_valid;
 

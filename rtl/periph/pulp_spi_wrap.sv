@@ -45,7 +45,7 @@ module pulp_spi_wrap #(
 
     logic [1:0]  spi_mode_nc;
     logic [3:0]  spi_csn_raw;
-    logic [1:0]  events_raw;
+    logic [7:0]  events_raw;
 
     assign irq      = events_raw[1];
     assign spi_cs_n = spi_csn_raw[0];
