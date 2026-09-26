@@ -151,9 +151,9 @@ Outputs land in `synthesis/` — netlist, SDC, SDF, area, power, and QoR reports
 |-----|-----|---------|
 | clk | in | 300 MHz system clock |
 | rst_n | in | Async active-low reset |
-| spi_mosi | in | SPI data in |
-| spi_miso | out | SPI data out |
-| spi_sck | in | SPI clock |
+| spi_mosi | out | SPI master data out |
+| spi_miso | in | SPI master data in |
+| spi_sck | out | SPI clock (master-driven) |
 | spi_cs_n | out | Chip select (CS0 only) |
 | uart_rx | in | UART receive |
 | uart_tx | out | UART transmit |

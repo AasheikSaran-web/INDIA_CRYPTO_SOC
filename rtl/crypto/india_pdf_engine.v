@@ -289,6 +289,30 @@ always @(posedge clk or negedge rst_n) begin
 
         if (s_bvalid && s_bready)
             s_bvalid <= 1'b0;
+
+        if ((state == S_TRNG_KEY) && trng_valid) begin
+            case (trng_key_cnt)
+                3'd0: key[255:224] <= trng_data;
+                3'd1: key[223:192] <= trng_data;
+                3'd2: key[191:160] <= trng_data;
+                3'd3: key[159:128] <= trng_data;
+                3'd4: key[127:96]  <= trng_data;
+                3'd5: key[95:64]   <= trng_data;
+                3'd6: key[63:32]   <= trng_data;
+                3'd7: key[31:0]    <= trng_data;
+                default: ;
+            endcase
+        end
+
+        if ((state == S_TRNG_NONCE) && trng_valid) begin
+            case (trng_nonce_cnt)
+                2'd0: nonce[127:96] <= trng_data;
+                2'd1: nonce[95:64]  <= trng_data;
+                2'd2: nonce[63:32]  <= trng_data;
+                2'd3: nonce[31:0]   <= trng_data;
+                default: ;
+            endcase
+        end
     end
 end
 
@@ -428,17 +452,6 @@ always @(posedge clk or negedge rst_n) begin
 
             S_TRNG_KEY: begin
                 if (trng_valid) begin
-                    case (trng_key_cnt)
-                        3'd0: key[255:224] <= trng_data;
-                        3'd1: key[223:192] <= trng_data;
-                        3'd2: key[191:160] <= trng_data;
-                        3'd3: key[159:128] <= trng_data;
-                        3'd4: key[127:96]  <= trng_data;
-                        3'd5: key[95:64]   <= trng_data;
-                        3'd6: key[63:32]   <= trng_data;
-                        3'd7: key[31:0]    <= trng_data;
-                        default: ;
-                    endcase
                     if (trng_key_cnt == 3'd7) begin
                         if (nonce != 128'h0) begin
                             state <= S_BUILD_HDR;
@@ -454,13 +467,6 @@ always @(posedge clk or negedge rst_n) begin
 
             S_TRNG_NONCE: begin
                 if (trng_valid) begin
-                    case (trng_nonce_cnt)
-                        2'd0: nonce[127:96] <= trng_data;
-                        2'd1: nonce[95:64]  <= trng_data;
-                        2'd2: nonce[63:32]  <= trng_data;
-                        2'd3: nonce[31:0]   <= trng_data;
-                        default: ;
-                    endcase
                     if (trng_nonce_cnt == 2'd3) begin
                         state <= S_BUILD_HDR;
                     end else begin

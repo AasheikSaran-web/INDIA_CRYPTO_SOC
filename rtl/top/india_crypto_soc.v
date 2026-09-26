@@ -14,9 +14,9 @@ module india_crypto_soc (
     inout  wire         i2c_sda,
     inout  wire         i2c_scl,
 
-    input  logic        spi_mosi,
-    output logic        spi_miso,
-    input  logic        spi_sck,
+    output logic        spi_mosi,
+    input  logic        spi_miso,
+    output logic        spi_sck,
     output logic        spi_cs_n,
 
     output logic        seceng_irq

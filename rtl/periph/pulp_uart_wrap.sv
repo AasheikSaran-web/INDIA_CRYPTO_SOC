@@ -84,7 +84,7 @@ module pulp_uart_wrap (
         .PSEL       (apb_psel),
         .PENABLE    (apb_penable),
         .PWRITE     (apb_pwrite),
-        .PADDR      (apb_paddr[4:0]),
+        .PADDR      (apb_paddr[4:2]),
         .PWDATA     (apb_pwdata),
         .PRDATA     (apb_prdata),
         .PREADY     (apb_pready),

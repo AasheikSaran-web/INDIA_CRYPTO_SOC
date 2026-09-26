@@ -11,7 +11,24 @@ set PDK_LIB_DIR /pdk/tsmc28nm/tcbn28hpcplusbwp30p140_190a/TSMCHOME/digital/Front
 set target_library [list ${PDK_LIB_DIR}/tcbn28hpcplusbwp30p140tt0p9v25c.db]
 set link_library   [concat * $target_library]
 
-analyze -format sverilog $RTL_DIR/periph/vendor/pulp_blackbox.v
+set VENDOR_DIR  $RTL_DIR/periph/vendor
+set search_path [concat $search_path $VENDOR_DIR/i2c]
+
+analyze -format sverilog $VENDOR_DIR/uart/apb_uart.sv
+
+analyze -format sverilog [list \
+    $VENDOR_DIR/spi/spi_master_apb_if.sv \
+    $VENDOR_DIR/spi/spi_master_clkgen.sv \
+    $VENDOR_DIR/spi/spi_master_controller.sv \
+    $VENDOR_DIR/spi/spi_master_fifo.sv \
+    $VENDOR_DIR/spi/spi_master_rx.sv \
+    $VENDOR_DIR/spi/spi_master_tx.sv \
+    $VENDOR_DIR/spi/apb_spi_master.sv]
+
+analyze -format sverilog [list \
+    $VENDOR_DIR/i2c/i2c_master_bit_ctrl.sv \
+    $VENDOR_DIR/i2c/i2c_master_byte_ctrl.sv \
+    $VENDOR_DIR/i2c/apb_i2c.sv]
 
 analyze -format sverilog [glob $RTL_DIR/periph/*.sv]
 
