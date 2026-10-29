@@ -20,14 +20,39 @@ module tb_pdf_engine;
 localparam CLK_PERIOD   = 10;          // 10 ns → 100 MHz sim clock
 localparam RESET_CYCLES = 20;
 
-// PDF dimensions — use first 256 bytes for fast correctness check.
-// Override: -DFULL_PDF for 89755-byte full run; -DPDF_BYTES_OVERRIDE=N for arbitrary N.
+// ---------------------------------------------------------------------------
+// Test-vector selection
+// All source files live under test_vectors/  (never mix with TB source).
+//   Default : quick 256-byte smoke test from the PDF
+//   -DFULL_PDF          : full 89,755-byte PDF
+//   -DTEST_AADHAR       : 505,086-byte Aadhaar JPEG
+//   -DTEST_GRADIENT     : 196,608-byte synthetic gradient image
+//   -DPDF_BYTES_OVERRIDE=N -DTEST_HEX=\"path\" : arbitrary file
+// ---------------------------------------------------------------------------
+`ifdef TEST_AADHAR
+  `define TEST_HEX "test_vectors/aadhar/aadhar.hex"
+  `define _BYTE_COUNT 505086
+`elsif TEST_GRADIENT
+  `define TEST_HEX "test_vectors/gradient/gradient.hex"
+  `define _BYTE_COUNT 196608
+`elsif FULL_PDF
+  `define TEST_HEX "test_vectors/pdf/original.hex"
+  `define _BYTE_COUNT 89755
+`elsif PDF_BYTES_OVERRIDE
+  // TEST_HEX must be supplied by the caller via -DTEST_HEX=\"path\"
+  `ifndef TEST_HEX
+    `define TEST_HEX "test_vectors/pdf/original.hex"
+  `endif
+  `define _BYTE_COUNT `PDF_BYTES_OVERRIDE
+`else
+  `define TEST_HEX "test_vectors/pdf/original.hex"
+  `define _BYTE_COUNT 256
+`endif
+
 `ifdef PDF_BYTES_OVERRIDE
 localparam PDF_BYTES    = `PDF_BYTES_OVERRIDE;
-`elsif FULL_PDF
-localparam PDF_BYTES    = 89755;
 `else
-localparam PDF_BYTES    = 256;
+localparam PDF_BYTES    = `_BYTE_COUNT;
 `endif
 localparam PDF_WORDS    = (PDF_BYTES + 3) / 4;
 localparam PAD_BLOCKS   = (PDF_BYTES + 15) / 16;        // # of 16-byte AES blocks
@@ -111,9 +136,9 @@ integer mi;
 initial begin
     for (mi = 0; mi < MEM_WORDS; mi = mi + 1)
         mem[mi] = 32'h0;
-    $readmemh("pdf_input.hex", mem, SRC_BASE/4, SRC_BASE/4 + PDF_WORDS - 1);
-    $display("[TB] Loaded %0d words from pdf_input.hex at addr 0x%08x",
-             PDF_WORDS, SRC_BASE);
+    $readmemh(`TEST_HEX, mem, SRC_BASE/4, SRC_BASE/4 + PDF_WORDS - 1);
+    $display("[TB] Loaded %0d words from %s at addr 0x%08x",
+             PDF_WORDS, `TEST_HEX, SRC_BASE);
 end
 
 // ---------------------------------------------------------------------------
