@@ -1,0 +1,15 @@
+[options]
+mode bmc
+depth 500
+
+[engines]
+smtbmc boolector
+
+[script]
+read -formal ../../../rtl/crypto/rosc_trng.v
+read -formal trng_props.sv
+prep -top trng_props_wrap
+
+[files]
+../../../rtl/crypto/rosc_trng.v
+trng_props.sv

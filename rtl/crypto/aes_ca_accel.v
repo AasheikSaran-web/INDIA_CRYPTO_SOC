@@ -457,6 +457,7 @@ always @(posedge clk or negedge rst_n) begin : fsm
     integer i;
     reg [127:0] tmp_state;
     reg [31:0]  rk0, rk1, rk2, rk3;
+    reg [5:0]   rk_sel;
 
     if (!rst_n) begin
         state_r       <= S_IDLE;
@@ -512,7 +513,7 @@ always @(posedge clk or negedge rst_n) begin : fsm
                     end else begin
                         ks_idx <= ks_idx + 6'd1;
                     end
-                end else if (ks_idx <= 6'd56) begin
+                end else if (ks_idx <= 6'd59) begin   // BUG FIX: was 56, need to reach w[59]
 
                     if (ks_idx[2:0] == 3'd0) begin
 
@@ -539,10 +540,15 @@ always @(posedge clk or negedge rst_n) begin : fsm
 
                         round_r <= 4'd0;
 
-                        rk0 = w[0]; rk1 = w[1]; rk2 = w[2]; rk3 = w[3];
+                        // BUG 1 FIX: decrypt initial ARK uses w[56..59], not w[0..3]
+                        if (!decrypt_r) begin
+                            rk0 = w[0];  rk1 = w[1];  rk2 = w[2];  rk3 = w[3];
+                        end else begin
+                            rk0 = w[56]; rk1 = w[57]; rk2 = w[58]; rk3 = w[59];
+                        end
                         round_key  = {rk0, rk1, rk2, rk3};
                         aes_state  <= apply_ca4_add(aes_state, {rk0,rk1,rk2,rk3});
-                        ca_rule1_r <= w[0][31:24];
+                        ca_rule1_r <= rk0[31:24];
                         state_r    <= S_ROUND;
                         round_r    <= 4'd1;
                     end
@@ -556,10 +562,12 @@ always @(posedge clk or negedge rst_n) begin : fsm
                 end else begin
                     sca_stall_r <= 1'b0;
 
-                    rk0 = w[4*round_r];
-                    rk1 = w[4*round_r+1];
-                    rk2 = w[4*round_r+2];
-                    rk3 = w[4*round_r+3];
+                    // BUG 2 FIX: decrypt applies round keys in reverse order
+                    rk_sel = decrypt_r ? (6'd14 - {2'b00, round_r}) : {2'b00, round_r};
+                    rk0 = w[4*rk_sel];
+                    rk1 = w[4*rk_sel+1];
+                    rk2 = w[4*rk_sel+2];
+                    rk3 = w[4*rk_sel+3];
                     round_key  = {rk0, rk1, rk2, rk3};
                     ca_rule1_r <= rk0[31:24];
 

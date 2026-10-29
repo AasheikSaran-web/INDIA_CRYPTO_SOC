@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRIYA RTL Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── Reset & Base ───────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep:       #FFFFFF;
+      --bg-card:       #FAFAFA;
+      --bg-card2:      #F4F4F5;
+      --bg-table-row:  #FAFAFA;
+      --bg-table-alt:  #F4F4F5;
+      --accent:        #000000;
+      --accent-dim:    #333333;
+      --accent-mid:    #555555;
+      --green:         #1A1A1A;
+      --green-glow:    rgba(0,0,0,0.06);
+      --red:           #991B1B;
+      --red-glow:      rgba(153,27,27,0.08);
+      --gray:          #6B7280;
+      --text-primary:  #0F172A;
+      --text-secondary:#374151;
+      --text-muted:    #6B7280;
+      --border:        #E5E7EB;
+      --border-bright: #9CA3AF;
+      --shadow-card:   0 1px 6px rgba(0,0,0,0.07), 0 2px 16px rgba(0,0,0,0.04);
+      --shadow-glow:   0 2px 12px rgba(0,0,0,0.10);
+      --radius:        10px;
+      --radius-sm:     6px;
+      --font-mono:     'SF Mono', 'Fira Code', 'Consolas', monospace;
+      /* alias kept so inline styles using var(--cyan)/var(--amber)/var(--purple) still resolve */
+      --cyan:          #000000;
+      --cyan-dim:      #333333;
+      --amber:         #333333;
+      --amber-dim:     #555555;
+      --purple:        #374151;
+      --orange:        #4B5563;
+    }
+
+    html { font-size: 14px; }
+
+    body {
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F4F4F5; }
+    ::-webkit-scrollbar-thumb { background: #9CA3AF; border-radius: 3px; }
+
+    /* ── Header ─────────────────────────────────────────────────────── */
+    header {
+      background: #000000;
+      border-bottom: 1px solid #000000;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .header-logo-group {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .logo-badge {
+      width: 48px;
+      height: 48px;
+      background: #FFFFFF;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 900;
+      color: #000000;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+
+    .header-titles h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+
+    .header-titles .subtitle {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .header-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .last-updated {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.5);
+      font-family: var(--font-mono);
+    }
+
+    .last-updated span { color: #FFFFFF; }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-back {
+      background: rgba(255,255,255,0.08);
+      color: #FFFFFF;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: var(--radius-sm);
+      padding: 7px 16px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-back:hover {
+      background: rgba(255,255,255,0.16);
+    }
+
+    .btn-refresh {
+      background: #FFFFFF;
+      color: #000000;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 8px 18px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-refresh:hover {
+      transform: translateY(-1px);
+      background: #F3F4F6;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .refresh-icon {
+      display: inline-block;
+      font-size: 14px;
+      transition: transform 0.6s ease;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* ── Main Layout ────────────────────────────────────────────────── */
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px 28px 60px;
+    }
+
+    /* ── Section label ──────────────────────────────────────────────── */
+    .section-group-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 12px;
+      margin-top: 28px;
+      padding-left: 2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-group-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Stat Cards Grid ────────────────────────────────────────────── */
+    .stat-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      background: #000000;
+    }
+
+    .stat-card.cyan::before   { background: #000000; }
+    .stat-card.green::before  { background: #000000; }
+    .stat-card.amber::before  { background: #555555; }
+    .stat-card.purple::before { background: #888888; }
+
+    .stat-card:hover {
+      border-color: var(--border-bright);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .stat-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.5px;
+      color: #000000;
+    }
+
+    .stat-sub {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .stat-icon {
+      position: absolute;
+      top: 16px; right: 18px;
+      font-size: 24px;
+      opacity: 0.08;
+    }
+
+    /* ── Generic card ───────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover { border-color: var(--border-bright); box-shadow: var(--shadow-glow); }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 14px;
+      background: #000000;
+      border-radius: 2px;
+    }
+
+    .card-title.amber::before { background: #555555; }
+    .card-title.green::before { background: var(--green); }
+
+    /* ── Table generic ──────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    thead tr {
+      background: #F4F4F5;
+      border-bottom: 2px solid #000000;
+    }
+
+    thead th {
+      padding: 10px 18px;
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #000000;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:nth-child(even) { background: #FAFAFA; }
+    tbody tr:hover { background: #F0F0F0; }
+
+    td {
+      padding: 10px 18px;
+      vertical-align: middle;
+      color: var(--text-primary);
+    }
+
+    .mono { font-family: var(--font-mono); font-size: 0.8rem; color: #000000; }
+
+    /* ── RTL File Inventory ─────────────────────────────────────────── */
+    .cat-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .cat-Core      { background: #F4F4F5; color: #000000; border: 1px solid #000000; }
+    .cat-Crypto    { background: #F4F4F5; color: #111111; border: 1px solid #333333; }
+    .cat-Fabric    { background: #F4F4F5; color: #222222; border: 1px solid #444444; }
+    .cat-Memory    { background: #F4F4F5; color: #333333; border: 1px solid #555555; }
+    .cat-Peripheral{ background: #F4F4F5; color: #444444; border: 1px solid #666666; }
+    .cat-Top       { background: #000000; color: #FFFFFF; border: 1px solid #000000; }
+    .cat-VendorIP  { background: #EFEFEF; color: #555555; border: 1px solid #999999; }
+    .cat-Other     { background: #FAFAFA; color: #888888; border: 1px solid #CCCCCC; }
+
+    /* ── Footer ─────────────────────────────────────────────────────── */
+    footer {
+      border-top: 2px solid #000000;
+      margin-top: 40px;
+      padding-top: 24px;
+    }
+
+    .footer-inner {
+      text-align: center;
+      padding-bottom: 12px;
+    }
+
+    .footer-chip-line {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.04em;
+    }
+
+    .footer-chip-line strong { color: #000000; }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .footer-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+    }
+
+    .footer-card-label {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .footer-card-value {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #000000;
+      font-family: var(--font-mono);
+    }
+
+    /* ── Divider ─────────────────────────────────────────────────────── */
+    .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+    /* ── Pipeline Performance ───────────────────────────────────────── */
+    .ipc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .ipc-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px 16px;
+      box-shadow: var(--shadow-card);
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .ipc-card:hover { border-color: var(--border-bright); box-shadow: var(--shadow-glow); }
+
+    .ipc-card.cyan  { border-left: 3px solid #000000; }
+    .ipc-card.green { border-left: 3px solid #000000; }
+    .ipc-card.amber { border-left: 3px solid #555555; }
+    .ipc-card.purple{ border-left: 3px solid #888888; }
+
+    .ipc-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .ipc-value {
+      font-size: 2rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      line-height: 1;
+      margin-bottom: 4px;
+      color: #000000;
+    }
+
+    .ipc-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .ipc-sub strong { color: var(--text-secondary); }
+
+    .pipeline-row {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .stall-table { width: 100%; border-collapse: collapse; }
+    .stall-table th {
+      background: #F4F4F5;
+      color: #000000;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 700;
+      border-bottom: 2px solid #000000;
+    }
+    .stall-table th:last-child { text-align: right; }
+    .stall-table td {
+      padding: 9px 12px;
+      font-size: 0.78rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      color: var(--text-primary);
+    }
+    .stall-table tr:last-child td { border-bottom: none; }
+    .stall-table td:last-child { text-align: right; }
+    .stall-table tr:hover td { background: #F4F4F5; }
+
+    .stall-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      letter-spacing: 0.03em;
+    }
+    .stall-load  { background: #F4F4F5; color: #000000; border: 1px solid #000000; }
+    .stall-mdu   { background: #E8E8E8; color: #111111; border: 1px solid #333333; }
+    .stall-branch{ background: #000000; color: #FFFFFF; border: 1px solid #000000; }
+    .stall-mem   { background: #F4F4F5; color: #444444; border: 1px solid #888888; }
+
+    .stall-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stall-bar-bg {
+      flex: 1;
+      height: 8px;
+      background: #E5E7EB;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .stall-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    .stall-bar-pct {
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      min-width: 34px;
+      text-align: right;
+    }
+
+    .pipe-stage-row {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      margin: 12px 0 4px;
+    }
+    .pipe-stage {
+      flex: 1;
+      text-align: center;
+      padding: 10px 6px 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      border-radius: 0;
+      position: relative;
+    }
+    .pipe-stage:first-child { border-radius: 6px 0 0 6px; }
+    .pipe-stage:last-child  { border-radius: 0 6px 6px 0; }
+    .pipe-stage::after {
+      content: '\25B6';
+      position: absolute;
+      right: -7px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.6rem;
+      color: #9CA3AF;
+      z-index: 2;
+    }
+    .pipe-stage:last-child::after { display: none; }
+    .pipe-stage-label {
+      font-size: 0.6rem;
+      font-weight: 400;
+      color: rgba(0,0,0,0.5);
+      margin-top: 2px;
+      display: block;
+    }
+    .ps-if  { background: #000000; color: #FFFFFF; }
+    .ps-id  { background: #222222; color: #FFFFFF; }
+    .ps-ex  { background: #444444; color: #FFFFFF; }
+    .ps-mem { background: #666666; color: #FFFFFF; }
+    .ps-wb  { background: #888888; color: #FFFFFF; }
+
+    .workload-tab-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .workload-tab {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      transition: all 0.15s;
+    }
+    .workload-tab.active {
+      background: #000000;
+      border-color: #000000;
+      color: #FFFFFF;
+    }
+    .workload-tab:hover:not(.active) { border-color: var(--border-bright); color: #000000; }
+
+    /* ── Responsive ─────────────────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .stat-grid-4   { grid-template-columns: repeat(2, 1fr); }
+      .ipc-grid      { grid-template-columns: repeat(2, 1fr); }
+      .pipeline-row  { grid-template-columns: 1fr; }
+      .footer-grid   { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+      .stat-grid-4  { grid-template-columns: repeat(2, 1fr); }
+      .ipc-grid     { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid  { grid-template-columns: repeat(2, 1fr); }
+      main { padding: 16px 14px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ───────────────────────────────────────────────────────── -->
+<header>
+  <div class="header-inner">
+    <div class="header-logo-group">
+      <div class="logo-badge">RTL</div>
+      <div class="header-titles">
+        <h1>CRIYA RTL Dashboard</h1>
+        <div class="subtitle">rv32im_core.v &nbsp;|&nbsp; RV32IM 5-Stage In-Order Pipeline &nbsp;|&nbsp; TSMC 28nm HPC+</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="last-updated">Last updated: <span id="ts-display">2026-10-28</span></div>
+      <div class="header-actions">
+        <a href="index.html" class="btn-back">&#8592; DV Dashboard</a>
+        <a href="syn_dashboard.html" class="btn-back" style="margin-left:8px;">&#9879; Synthesis &#8594;</a>
+        <button class="btn-refresh" onclick="tryLoadMetrics()">
+          <span class="refresh-icon">&#8635;</span> Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Main ─────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- ══ RTL Summary Stat Row ═══════════════════════════════════════ -->
+  <div class="section-group-label">RTL Summary</div>
+
+  <div class="stat-grid-4">
+    <div class="stat-card cyan">
+      <span class="stat-icon">&#128196;</span>
+      <div class="stat-label">Total RTL Files</div>
+      <div class="stat-value">31</div>
+      <div class="stat-sub">Source files scanned</div>
+    </div>
+    <div class="stat-card green">
+      <span class="stat-icon">&#128221;</span>
+      <div class="stat-label">Total LOC</div>
+      <div class="stat-value">8,322</div>
+      <div class="stat-sub">Lines of RTL code</div>
+    </div>
+    <div class="stat-card amber">
+      <span class="stat-icon">&#9670;</span>
+      <div class="stat-label">Modules</div>
+      <div class="stat-value">20</div>
+      <div class="stat-sub">Design modules</div>
+    </div>
+    <div class="stat-card purple">
+      <span class="stat-icon">&#9654;</span>
+      <div class="stat-label">Pipeline Stages</div>
+      <div class="stat-value">5</div>
+      <div class="stat-sub">IF / ID / EX / MEM / WB</div>
+    </div>
+  </div>
+
+  <!-- ══ Section 1: Pipeline Performance Model ═════════════════════ -->
+  <div class="section-group-label">Pipeline Performance Model</div>
+
+  <!-- IPC / CPI stat cards -->
+  <div class="ipc-grid">
+
+    <!-- Pipeline Architecture -->
+    <div class="ipc-card cyan">
+      <div class="ipc-label">Pipeline Architecture</div>
+      <div class="ipc-value" style="color:var(--cyan);font-size:1.4rem;">5-Stage</div>
+      <div class="pipe-stage-row">
+        <div class="pipe-stage ps-if">IF<span class="pipe-stage-label">Fetch</span></div>
+        <div class="pipe-stage ps-id">ID<span class="pipe-stage-label">Decode</span></div>
+        <div class="pipe-stage ps-ex">EX<span class="pipe-stage-label">Execute</span></div>
+        <div class="pipe-stage ps-mem">MEM<span class="pipe-stage-label">Memory</span></div>
+        <div class="pipe-stage ps-wb">WB<span class="pipe-stage-label">Write-back</span></div>
+      </div>
+      <div class="ipc-sub" style="margin-top:6px;">
+        RV32IM &middot; in-order &middot; full forwarding &middot; iterative MDU
+      </div>
+    </div>
+
+    <!-- IPC (Crypto workload) -->
+    <div class="ipc-card green">
+      <div class="ipc-label" id="lbl-ipc-crypto">IPC &mdash; Crypto Workload (AES/HMAC)</div>
+      <div class="ipc-value" style="color:var(--green);" id="ipc-crypto">—</div>
+      <div class="ipc-sub" id="sub-ipc-crypto">
+        <strong id="cpi-crypto-val">CPI: —</strong><br>
+        <span id="sub-crypto-detail">loading from RTL&hellip;</span>
+      </div>
+    </div>
+
+    <!-- IPC (CoreMark) -->
+    <div class="ipc-card amber">
+      <div class="ipc-label" id="lbl-ipc-coremark">IPC &mdash; CoreMark / General</div>
+      <div class="ipc-value" style="color:var(--amber);" id="ipc-coremark">—</div>
+      <div class="ipc-sub" id="sub-ipc-coremark">
+        <strong id="cpi-coremark-val">CPI: —</strong><br>
+        <span id="sub-coremark-detail">loading from RTL&hellip;</span>
+      </div>
+    </div>
+
+    <!-- MCYCLE / MINSTRET CSRs -->
+    <div class="ipc-card purple">
+      <div class="ipc-label">Performance CSRs (RTL)</div>
+      <div class="ipc-value" style="color:var(--purple);font-size:1.0rem;letter-spacing:-0.02em;" id="csr-names">MCYCLE<br>MINSTRET</div>
+      <div class="ipc-sub" style="margin-top:6px;" id="csr-detail">
+        64-bit &middot; CSR 0xC00 / 0xC02<br>
+        <span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--purple);">
+          IPC = MINSTRET / MCYCLE
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pipeline breakdown cards: stall table + stall chart -->
+  <div class="pipeline-row">
+
+    <!-- Stall Sources Table -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="padding:14px 20px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div class="card-title" style="margin-bottom:0;">Stall Sources &mdash; RTL Analysis</div>
+        <div class="workload-tab-row">
+          <button class="workload-tab active" id="tab-crypto"   onclick="switchWorkload('crypto')">Crypto</button>
+          <button class="workload-tab"         id="tab-coremark" onclick="switchWorkload('coremark')">CoreMark</button>
+        </div>
+      </div>
+      <div style="padding:4px 0;">
+        <table class="stall-table">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>RTL Signal</th>
+              <th>Latency</th>
+              <th>Stalls / 1k instr</th>
+            </tr>
+          </thead>
+          <tbody id="stall-tbody">
+            <!-- populated by JS -->
+          </tbody>
+        </table>
+      </div>
+      <div style="padding:10px 20px 12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:0.7rem;color:var(--text-muted);">
+          Ideal CPI&nbsp;=&nbsp;1.0 &nbsp;&middot;&nbsp; Actual CPI&nbsp;=&nbsp;1.0 + Stall overhead
+        </div>
+        <div style="font-family:var(--font-mono);font-size:0.78rem;" id="stall-cpi-footer">
+          CPI = <strong style="color:var(--green);">1.37</strong>
+          &nbsp;&middot;&nbsp; IPC = <strong style="color:var(--green);">0.73</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stall Breakdown Chart -->
+    <div class="card">
+      <div class="card-title">Stall Cycles per 1,000 Instructions</div>
+      <div style="height:220px;position:relative;">
+        <canvas id="stallBarChart"></canvas>
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+        <div style="font-size:0.68rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.07em;">Stall % of total cycles</div>
+        <div id="stall-pct-bars">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MDU detail banner -->
+  <div class="card" style="padding:16px 24px;margin-bottom:0;" id="mdu-banner">
+    <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
+      <div style="flex:0 0 auto;">
+        <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:4px;">MDU Implementation</div>
+        <div style="font-size:1.1rem;font-weight:800;font-family:var(--font-mono);color:var(--amber);" id="mdu-impl-name">Iterative Shift-Add</div>
+        <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;" id="mdu-impl-sub">32-bit sequential, no DSP</div>
+      </div>
+      <div style="flex:1;min-width:200px;display:grid;grid-template-columns:repeat(4,auto);gap:8px 28px;align-items:start;">
+        <div>
+          <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);" id="mdu-mul-ops-label">MUL / MULH / MULHU / MULHSU</div>
+          <div style="font-family:var(--font-mono);font-size:0.9rem;color:var(--amber);font-weight:700;" id="mdu-mul-cycles">— cycles</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);" id="mdu-mul-detail">loading&hellip;</div>
+        </div>
+        <div>
+          <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);" id="mdu-div-ops-label">DIV / DIVU / REM / REMU</div>
+          <div style="font-family:var(--font-mono);font-size:0.9rem;color:var(--amber);font-weight:700;" id="mdu-div-cycles">— cycles</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);" id="mdu-div-detail">loading&hellip;</div>
+        </div>
+        <div>
+          <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">Stall signal</div>
+          <div style="font-family:var(--font-mono);font-size:0.9rem;color:var(--cyan);font-weight:700;" id="mdu-stall-sig">mdu_busy</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);" id="mdu-stall-detail">stall_if &amp; stall_id asserted</div>
+        </div>
+        <div>
+          <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">ISA</div>
+          <div style="font-family:var(--font-mono);font-size:0.9rem;color:var(--cyan);font-weight:700;" id="mdu-isa">RV32IM</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);" id="mdu-core-file">rtl/core/rv32im_core.v</div>
+        </div>
+      </div>
+    </div>
+    <!-- Source badge row -->
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;" id="source-badge-row">
+      <span style="font-size:0.65rem;color:var(--text-muted);">Data source:</span>
+      <span id="source-badge" style="font-size:0.65rem;padding:2px 8px;border-radius:10px;background:rgba(100,116,139,0.15);color:var(--gray);font-family:var(--font-mono);">
+        hardcoded defaults
+      </span>
+      <span id="source-file" style="font-size:0.65rem;color:var(--text-muted);"></span>
+    </div>
+  </div>
+
+  <!-- ══ Section 2: RTL File Inventory ══════════════════════════════ -->
+  <div class="section-group-label">RTL File Inventory</div>
+
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div style="padding:16px 24px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <div class="card-title" style="margin-bottom:0;">Source Files</div>
+      <div style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono);" id="rtl-file-count">31 files</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Module</th>
+            <th>Reference / Type</th>
+            <th>Category</th>
+            <th>File</th>
+            <th style="text-align:right;">LOC</th>
+          </tr>
+        </thead>
+        <tbody id="rtl-file-tbody">
+          <!-- Hardcoded fallback rows — overwritten by rtl_metrics.json if available -->
+          <tr>
+            <td class="mono">india_crypto_soc</td>
+            <td style="color:var(--text-secondary);">top</td>
+            <td><span class="cat-badge cat-Top">Top</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/top/india_crypto_soc.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">rv32im_core</td>
+            <td style="color:var(--text-secondary);">CPU</td>
+            <td><span class="cat-badge cat-Core">Core</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/core/rv32im_core.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">aes_isa_ext</td>
+            <td style="color:var(--text-secondary);">CPU / ISA extension</td>
+            <td><span class="cat-badge cat-Core">Core</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/core/aes_isa_ext.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">rosc_trng</td>
+            <td style="color:var(--text-secondary);">Crypto / TRNG</td>
+            <td><span class="cat-badge cat-Crypto">Crypto</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/crypto/rosc_trng.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">aes_ca_accel</td>
+            <td style="color:var(--text-secondary);">Crypto / AES-CA</td>
+            <td><span class="cat-badge cat-Crypto">Crypto</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/crypto/aes_ca_accel.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">india_pdf_engine</td>
+            <td style="color:var(--text-secondary);">Crypto / PDF engine</td>
+            <td><span class="cat-badge cat-Crypto">Crypto</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/crypto/india_pdf_engine.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">hamming_secded</td>
+            <td style="color:var(--text-secondary);">Crypto / ECC</td>
+            <td><span class="cat-badge cat-Crypto">Crypto</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/crypto/hamming_secded.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">axi_lite_xbar</td>
+            <td style="color:var(--text-secondary);">Fabric / Crossbar</td>
+            <td><span class="cat-badge cat-Fabric">Fabric</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/fabric/axi_lite_xbar.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">sram_ctrl</td>
+            <td style="color:var(--text-secondary);">Memory / Controller</td>
+            <td><span class="cat-badge cat-Memory">Memory</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/mem/sram_ctrl.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">sram_sp_wrap</td>
+            <td style="color:var(--text-secondary);">Memory / Wrapper</td>
+            <td><span class="cat-badge cat-Memory">Memory</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/mem/sram_sp_wrap.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">axil_to_apb</td>
+            <td style="color:var(--text-secondary);">Periph / Bridge</td>
+            <td><span class="cat-badge cat-Peripheral">Peripheral</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/periph/axil_to_apb.sv</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">clint</td>
+            <td style="color:var(--text-secondary);">Periph / Timer</td>
+            <td><span class="cat-badge cat-Peripheral">Peripheral</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/periph/clint.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">plic</td>
+            <td style="color:var(--text-secondary);">Periph / Interrupt ctrl</td>
+            <td><span class="cat-badge cat-Peripheral">Peripheral</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/periph/plic.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">gpio</td>
+            <td style="color:var(--text-secondary);">Periph / GPIO</td>
+            <td><span class="cat-badge cat-Peripheral">Peripheral</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/periph/gpio.v</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">apb_uart</td>
+            <td style="color:var(--text-secondary);">Vendor / UART</td>
+            <td><span class="cat-badge cat-VendorIP">Vendor IP</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/periph/vendor/uart/apb_uart.sv</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">apb_spi_master</td>
+            <td style="color:var(--text-secondary);">Vendor / SPI</td>
+            <td><span class="cat-badge cat-VendorIP">Vendor IP</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/periph/vendor/spi/apb_spi_master.sv</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+          <tr>
+            <td class="mono">apb_i2c</td>
+            <td style="color:var(--text-secondary);">Vendor / I2C</td>
+            <td><span class="cat-badge cat-VendorIP">Vendor IP</span></td>
+            <td class="mono" style="color:var(--text-muted);font-size:0.75rem;">rtl/periph/vendor/i2c/apb_i2c.sv</td>
+            <td class="mono" style="text-align:right;color:var(--text-muted);">&mdash;</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ Footer ═════════════════════════════════════════════════════ -->
+  <div class="divider"></div>
+  <footer>
+    <div class="section-group-label" style="margin-top:0;">Design Targets &amp; Technology</div>
+    <div class="footer-grid">
+      <div class="footer-card">
+        <div class="footer-card-label">Project</div>
+        <div class="footer-card-value">CRIYA SoC</div>
+      </div>
+      <div class="footer-card">
+        <div class="footer-card-label">Technology</div>
+        <div class="footer-card-value">TSMC 28nm HPC+</div>
+      </div>
+      <div class="footer-card">
+        <div class="footer-card-label">ISA</div>
+        <div class="footer-card-value">RV32IM</div>
+      </div>
+      <div class="footer-card">
+        <div class="footer-card-label">Pipeline</div>
+        <div class="footer-card-value">5-Stage In-Order</div>
+      </div>
+      <div class="footer-card">
+        <div class="footer-card-label">Tapeout Target</div>
+        <div class="footer-card-value">Dec 2026</div>
+      </div>
+    </div>
+    <div class="footer-inner">
+      <div class="footer-chip-line">
+        <strong>CRIYA</strong> &nbsp;|&nbsp; Cryptographic RISC-V Indian Yield-optimized Architecture
+        &nbsp;|&nbsp; TSMC 28nm HPC+ &nbsp;|&nbsp; Dec 2026 Tapeout
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+// Pipeline Performance Model — RTL Dashboard
+// Values loaded from rtl_perf.json (generated by collect_rtl_perf.py
+// which parses the actual .v/.sv source files).
+// Hardcoded defaults below are overwritten at DOMContentLoaded.
+// ════════════════════════════════════════════════════════════════════
+
+let WORKLOADS = {
+  crypto: {
+    label: 'Crypto (AES/HMAC)',
+    ipc: 0.727, cpi: 1.375,
+    stalls: {
+      load_use : { label:'Load-Use Hazard',       signal:'load_use_hazard',  lat:'1 cycle',   val: 70,  color:'#000000', cls:'stall-load'   },
+      branch   : { label:'Branch Flush',          signal:'flush_ex/flush_id',lat:'2 cycles',  val: 135, color:'#222222', cls:'stall-branch' },
+      mdu_mul  : { label:'MDU Busy (MUL)',         signal:'mdu_busy',         lat:'33 cycles', val: 165, color:'#444444', cls:'stall-mdu'    },
+      mdu_div  : { label:'MDU Busy (DIV signed)',  signal:'mdu_busy',         lat:'34 cycles', val: 0,   color:'#666666', cls:'stall-mdu'    },
+      mem_wait : { label:'Dmem Wait (SRAM)',       signal:'dmem_op_pending',  lat:'0–1 cycle', val: 5,   color:'#999999', cls:'stall-mem'    },
+    }
+  },
+  coremark: {
+    label: 'CoreMark / General',
+    ipc: 0.474, cpi: 2.108,
+    stalls: {
+      load_use : { label:'Load-Use Hazard',       signal:'load_use_hazard',  lat:'1 cycle',   val: 80,  color:'#000000', cls:'stall-load'   },
+      branch   : { label:'Branch Flush',          signal:'flush_ex/flush_id',lat:'2 cycles',  val: 198, color:'#222222', cls:'stall-branch' },
+      mdu_mul  : { label:'MDU Busy (MUL)',         signal:'mdu_busy',         lat:'33 cycles', val: 660, color:'#444444', cls:'stall-mdu'    },
+      mdu_div  : { label:'MDU Busy (DIV signed)',  signal:'mdu_busy',         lat:'34 cycles', val: 170, color:'#666666', cls:'stall-mdu'    },
+      mem_wait : { label:'Dmem Wait (SRAM)',       signal:'dmem_op_pending',  lat:'0–1 cycle', val: 0,   color:'#999999', cls:'stall-mem'    },
+    }
+  }
+};
+
+let activeWorkload = 'crypto';
+let stallChart = null;
+
+// ── Helpers ──────────────────────────────────────────────────────────
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el && val != null) el.textContent = val;
+}
+
+// ── Build WORKLOADS object from rtl_perf.json ─────────────────────────
+function buildWorkloadsFromPerf(perf) {
+  const p   = perf.pipeline  || {};
+  const mdu = perf.mdu       || {};
+  const wls = perf.workloads || {};
+
+  const branchPenalty = p.branch_flush_cycles || 2;
+  const luhPenalty    = (p.load_use_hazard || {}).stall_cycles || 1;
+  const luhSig        = (p.load_use_hazard || {}).signal || 'load_use_hazard';
+  const flushSigs     = (p.flush_signals   || ['flush_ex','flush_id']).join('/');
+  const memSig        = (p.mem_wait        || {}).signal || 'dmem_op_pending';
+  const mulCyc        = (mdu.mul           || {}).stall_cycles || 33;
+  const divCyc        = (mdu.div_signed    || {}).stall_cycles || 34;
+
+  const built = {};
+  for (const [key, wl] of Object.entries(wls)) {
+    const s1k = wl.stall_cycles_per_1k || {};
+    built[key] = {
+      label: wl.label || key,
+      ipc:   wl.ipc,
+      cpi:   wl.cpi,
+      stalls: {
+        load_use: { label:'Load-Use Hazard',       signal:luhSig,   lat:`${luhPenalty} cycle`,   val:s1k.load_use||0, color:'#000000', cls:'stall-load'   },
+        branch:   { label:'Branch Flush',          signal:flushSigs,lat:`${branchPenalty} cycles`,val:s1k.branch||0,   color:'#222222', cls:'stall-branch' },
+        mdu_mul:  { label:'MDU Busy (MUL)',         signal:mdu.mdu_signal||'mdu_busy', lat:`${mulCyc} cycles`, val:s1k.mdu_mul||0, color:'#444444', cls:'stall-mdu' },
+        mdu_div:  { label:'MDU Busy (DIV signed)',  signal:mdu.mdu_signal||'mdu_busy', lat:`${divCyc} cycles`, val:s1k.mdu_div||0, color:'#666666', cls:'stall-mdu' },
+        mem_wait: { label:'Dmem Wait (SRAM)',       signal:memSig,   lat:'0–1 cycle',             val:s1k.mem_wait||0, color:'#999999', cls:'stall-mem'    },
+      }
+    };
+  }
+  return built;
+}
+
+// ── Update all display elements from rtl_perf.json ─────────────────────
+function applyPerfData(perf) {
+  const p   = perf.pipeline  || {};
+  const mdu = perf.mdu       || {};
+  const isa = perf.isa       || {};
+  const wls = perf.workloads || {};
+  const src = perf.source    || {};
+  const rs  = perf.rtl_summary || {};
+
+  // IPC / CPI stat cards
+  if (wls.crypto) {
+    setText('ipc-crypto',     wls.crypto.ipc.toFixed(3));
+    setText('cpi-crypto-val', `CPI: ${wls.crypto.cpi.toFixed(3)}`);
+    const a = wls.crypto.assumptions || {};
+    setText('sub-crypto-detail',
+      `${a.mul_pct??'—'}% MUL · ${a.div_pct??'—'}% DIV · ${a.load_pct??'—'}% loads`);
+  }
+  if (wls.coremark) {
+    setText('ipc-coremark',     wls.coremark.ipc.toFixed(3));
+    setText('cpi-coremark-val', `CPI: ${wls.coremark.cpi.toFixed(3)}`);
+    const a = wls.coremark.assumptions || {};
+    setText('sub-coremark-detail',
+      `${a.mul_pct??'—'}% MUL · ${a.div_pct??'—'}% DIV · ${a.load_pct??'—'}% loads`);
+  }
+
+  // CSR card
+  const csrs = isa.perf_csrs || {};
+  const csrNames = Object.keys(csrs).map(k => k.replace('CSR_',''));
+  if (csrNames.length) document.getElementById('csr-names').innerHTML = csrNames.join('<br>');
+  const csrLines = Object.entries(csrs)
+    .map(([k,v]) => `${k.replace('CSR_','')}: ${v.replace("12'h","0x")}`).join(' / ');
+  if (csrLines) {
+    document.getElementById('csr-detail').innerHTML =
+      `64-bit · ${csrLines}<br>` +
+      `<span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--purple);">IPC = MINSTRET / MCYCLE</span>`;
+  }
+
+  // MDU banner
+  const mulCyc  = (mdu.mul          || {}).stall_cycles;
+  const divCyc  = (mdu.div_signed   || {}).stall_cycles;
+  const divuCyc = (mdu.div_unsigned || {}).stall_cycles;
+  const mulThr  = (mdu.mul          || {}).threshold_expr || '';
+  const divThr  = (mdu.div_signed   || {}).threshold_expr || '';
+  const mulOps  = ((mdu.mul         || {}).ops || []).join(' / ');
+  const divOps  = [
+    ...((mdu.div_signed   || {}).ops || []),
+    ...((mdu.div_unsigned || {}).ops || [])
+  ].join(' / ');
+
+  if (mulCyc != null) {
+    setText('mdu-mul-ops-label', mulOps || 'MUL / MULH / MULHU / MULHSU');
+    setText('mdu-mul-cycles',    `${mulCyc} cycles`);
+    setText('mdu-mul-detail',    mulThr ? `[${mulThr}]` : `mdu_cnt 0→${mulCyc-1}, then clear`);
+  }
+  if (divCyc != null) {
+    setText('mdu-div-ops-label', divOps || 'DIV / DIVU / REM / REMU');
+    setText('mdu-div-cycles',    `${divCyc}c (signed) / ${divuCyc??divCyc-1}c (unsigned)`);
+    setText('mdu-div-detail',    divThr ? `[${divThr}]` : `1-cycle setup + ${divCyc-2} iterations`);
+  }
+  if (mdu.mdu_signal) {
+    setText('mdu-stall-sig',    mdu.mdu_signal);
+    setText('mdu-stall-detail', `${(p.stall_signals||[]).join(', ')} asserted`);
+  }
+  setText('mdu-isa',       isa.isa || 'RV32IM');
+  setText('mdu-core-file', src.core_file || '');
+
+  // Source badge
+  const fromRtl = src.parsed_from_rtl;
+  const badge = document.getElementById('source-badge');
+  const fileEl = document.getElementById('source-file');
+  if (badge) {
+    badge.textContent = fromRtl ? '✓ parsed from Verilog RTL' : 'hardcoded defaults';
+    badge.style.background = fromRtl ? 'rgba(0,0,0,0.08)' : 'rgba(100,116,139,0.10)';
+    badge.style.color      = fromRtl ? '#000000'          : 'var(--gray)';
+  }
+  if (fileEl && src.core_file) fileEl.textContent = `· ${src.core_file}`;
+
+  // RTL summary top row
+  setText('stat-total-files',   rs.total_files);
+  setText('stat-total-loc',     rs.total_loc ? rs.total_loc.toLocaleString() : null);
+  setText('stat-total-modules', rs.total_modules);
+}
+
+function switchWorkload(key) {
+  activeWorkload = key;
+  document.getElementById('tab-crypto').classList.toggle('active', key === 'crypto');
+  document.getElementById('tab-coremark').classList.toggle('active', key === 'coremark');
+  renderStallTable(key);
+  renderStallChart(key);
+  renderStallPctBars(key);
+  const wl = WORKLOADS[key];
+  document.getElementById('stall-cpi-footer').innerHTML =
+    `CPI = <strong style="color:var(--${key==='crypto'?'green':'amber'});">${wl.cpi.toFixed(2)}</strong>` +
+    ` &nbsp;&middot;&nbsp; IPC = <strong style="color:var(--${key==='crypto'?'green':'amber'});">${wl.ipc.toFixed(2)}</strong>`;
+  document.getElementById('ipc-crypto').textContent   = WORKLOADS.crypto.ipc.toFixed(2);
+  document.getElementById('ipc-coremark').textContent = WORKLOADS.coremark.ipc.toFixed(2);
+}
+
+function renderStallTable(key) {
+  const wl = WORKLOADS[key];
+  const tbody = document.getElementById('stall-tbody');
+  const totalStalls = Object.values(wl.stalls).reduce((s,x)=>s+x.val,0);
+  tbody.innerHTML = Object.entries(wl.stalls).map(([k,s]) => {
+    const stalledCycles = s.val;
+    return `<tr>
+      <td><span class="stall-badge ${s.cls}">${s.label}</span></td>
+      <td style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);">${s.signal}</td>
+      <td style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-secondary);">${s.lat}</td>
+      <td>
+        <div class="stall-bar-wrap">
+          <div class="stall-bar-bg">
+            <div class="stall-bar-fill" style="width:${Math.min(100,stalledCycles/10)}%;background:${s.color};"></div>
+          </div>
+          <span class="stall-bar-pct" style="color:${s.color};">${stalledCycles === 0 ? '&mdash;' : stalledCycles}</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('') + `<tr style="background:rgba(0,0,0,0.03);">
+    <td colspan="3" style="font-weight:700;font-size:0.78rem;color:var(--text-secondary);">Total stall overhead</td>
+    <td style="text-align:right;font-family:var(--font-mono);font-weight:700;color:#000000;">
+      ${totalStalls} cycles / 1k instr
+    </td>
+  </tr>`;
+}
+
+function renderStallChart(key) {
+  const wl = WORKLOADS[key];
+  const labels = Object.values(wl.stalls).map(s => s.label);
+  const data   = Object.values(wl.stalls).map(s => s.val);
+  const colors = Object.values(wl.stalls).map(s => s.color);
+
+  const ctx = document.getElementById('stallBarChart').getContext('2d');
+  if (stallChart) stallChart.destroy();
+  stallChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Stall cycles / 1000 instr',
+        data,
+        backgroundColor: colors.map(c => c + 'BB'),
+        borderColor: colors,
+        borderWidth: 1,
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.raw === 0
+              ? ' Not applicable for this workload'
+              : ` ${ctx.raw} stall cycles per 1,000 instructions`
+          },
+          backgroundColor: '#FFFFFF',
+          borderColor: '#000000',
+          borderWidth: 1,
+          titleColor: '#0F172A',
+          bodyColor: '#374151',
+          padding: 10
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.07)' },
+          ticks: { color: '#374151', font: { size: 10 } },
+          title: {
+            display: true,
+            text: 'Stall cycles per 1,000 instructions',
+            color: '#6B7280',
+            font: { size: 10 }
+          }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: '#374151', font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+function renderStallPctBars(key) {
+  const wl = WORKLOADS[key];
+  const totalCycles = 1000 + Object.values(wl.stalls).reduce((s,x)=>s+x.val,0);
+  const container = document.getElementById('stall-pct-bars');
+  container.innerHTML = Object.entries(wl.stalls).map(([k,s]) => {
+    if (s.val === 0) return '';
+    const pct = (s.val / totalCycles * 100).toFixed(1);
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <div style="font-size:0.68rem;color:${s.color};min-width:150px;white-space:nowrap;">${s.label}</div>
+      <div style="flex:1;height:6px;background:rgba(0,0,0,0.08);border-radius:3px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:${s.color};border-radius:3px;transition:width 0.5s;"></div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);min-width:36px;text-align:right;">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ── RTL file table from metrics JSON ──────────────────────────────
+const CAT_CSS_MAP = {
+  'Core':       'cat-Core',
+  'Crypto':     'cat-Crypto',
+  'Fabric':     'cat-Fabric',
+  'Memory':     'cat-Memory',
+  'Peripheral': 'cat-Peripheral',
+  'Top':        'cat-Top',
+  'Vendor IP':  'cat-VendorIP',
+};
+
+function catCss(cat) {
+  return CAT_CSS_MAP[cat] || 'cat-Other';
+}
+
+function escHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function populateRtlTable(files) {
+  if (!files || files.length === 0) return;
+  const tbody = document.getElementById('rtl-file-tbody');
+  const counter = document.getElementById('rtl-file-count');
+  if (counter) counter.textContent = files.length + ' files scanned';
+
+  tbody.innerHTML = files.map(f => {
+    const cssClass = catCss(f.category);
+    const locStr = f.loc > 0 ? f.loc.toLocaleString() : '&mdash;';
+    const fname = f.file || '';
+    const shortFile = fname.replace(/^rtl\//, '');
+    return `
+      <tr>
+        <td class="mono">${escHtml(f.module)}</td>
+        <td style="color:var(--text-secondary);font-size:0.78rem;">${escHtml(f.category)}</td>
+        <td><span class="cat-badge ${cssClass}">${escHtml(f.category)}</span></td>
+        <td class="mono" style="color:var(--text-muted);font-size:0.74rem;" title="${escHtml(fname)}">${escHtml(shortFile)}</td>
+        <td class="mono" style="text-align:right;color:var(--text-secondary);">${locStr}</td>
+      </tr>`;
+  }).join('');
+}
+
+// ── Load rtl_perf.json (primary) then rtl_metrics.json (fallback) ──
+async function tryLoadMetrics() {
+  // 1. Try rtl_perf.json — generated by collect_rtl_perf.py from Verilog source
+  try {
+    const resp = await fetch('rtl_perf.json?_=' + Date.now());
+    if (resp.ok) {
+      const perf = await resp.json();
+
+      // Rebuild WORKLOADS from parsed RTL data
+      const built = buildWorkloadsFromPerf(perf);
+      if (Object.keys(built).length) WORKLOADS = built;
+
+      // Update all display elements
+      applyPerfData(perf);
+
+      // Rebuild charts/table with RTL-derived data
+      renderStallTable(activeWorkload);
+      renderStallChart(activeWorkload);
+      renderStallPctBars(activeWorkload);
+
+      // File table from perf data
+      if (perf.rtl_files) populateRtlTable(perf.rtl_files);
+
+      // Timestamp
+      const tsEl = document.getElementById('ts-display');
+      if (tsEl && perf.generated_at)
+        tsEl.textContent = perf.generated_at + ' (from RTL)';
+      return;
+    }
+  } catch (e) { /* fall through */ }
+
+  // 2. Fallback: try rtl_metrics.json (older collector output)
+  try {
+    const resp = await fetch('rtl_metrics.json?_=' + Date.now());
+    if (!resp.ok) return;
+    const data = await resp.json();
+    if (data.rtl_files) populateRtlTable(data.rtl_files);
+    const tsEl = document.getElementById('ts-display');
+    if (tsEl && data.generated_at)
+      tsEl.textContent = data.generated_at + ' (rtl_metrics)';
+  } catch (e) { /* silently use hardcoded defaults */ }
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const tsEl = document.getElementById('ts-display');
+  if (tsEl) tsEl.textContent = 'loading…';
+
+  // Render pipeline model with defaults immediately, will update on load
+  renderStallTable('crypto');
+  renderStallChart('crypto');
+  renderStallPctBars('crypto');
+
+  // Load from RTL-parsed JSON (updates display after fetch)
+  tryLoadMetrics();
+});
+</script>
+</body>
+</html>

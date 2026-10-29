@@ -60,7 +60,8 @@ module india_pdf_engine #(
 
 reg         decrypt_mode;
 
-assign cipher_decrypt = decrypt_mode;
+// BUG 3 FIX: CTR mode always encrypts the counter block regardless of direction
+assign cipher_decrypt = 1'b0;
 
 localparam [4:0]
     S_IDLE       = 5'd0,

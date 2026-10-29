@@ -1,0 +1,15 @@
+[options]
+mode bmc
+depth 100
+
+[engines]
+smtbmc boolector
+
+[script]
+read -formal ../../../rtl/crypto/aes_ca_accel.v
+read -formal aes_props.sv
+prep -top aes_props_wrap
+
+[files]
+../../../rtl/crypto/aes_ca_accel.v
+aes_props.sv

@@ -20,3 +20,18 @@ synth_300mhz.log
 # Generated demo artifacts
 demo/decrypted_output.pdf
 demo/encrypted_payload.bin
+
+# Compiled simulation binaries and waveforms
+*.vvp
+*.vcd
+a.out
+
+# Temporary Office files
+~$*
+
+# Large binary artifacts
+*.bin
+CRIYA_SoC_Presentation.pptx
+INDIA_CRYPTO_SOC_Presentation.pptx
+gen_ppt.js
+"India Crypto SoC PPA Analysis.pdf"

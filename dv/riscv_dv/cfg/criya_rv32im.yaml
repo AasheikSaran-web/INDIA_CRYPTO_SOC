@@ -1,0 +1,41 @@
+# CRIYA SoC — riscv-dv configuration
+# https://github.com/chipsalliance/riscv-dv
+
+# Core parameters
+march: rv32im
+mabi: ilp32
+num_of_tests: 50
+num_of_instructions: 1000
+privileged_mode: machine  # M-mode only (no S/U on CRIYA)
+
+# Instruction distribution (weight relative, total ~1000)
+instr_distribution:
+  - {name: rv32i_instr,   weight: 40}  # base integer
+  - {name: rv32m_instr,   weight: 20}  # multiply/divide
+  - {name: load_store,    weight: 20}  # memory ops
+  - {name: branch_instr,  weight: 15}  # control flow
+  - {name: csr_instr,     weight: 5}   # CSR (mstatus, mtvec, mcause)
+
+# Memory layout (must match link.ld)
+start_pc: 0x00010000   # SRAM base
+data_page_pattern:
+  - {pattern: random, size: 4096}
+
+# Hazard stress
+no_load_use_hazard: 0        # generate load-use hazards
+no_branch_jump: 0            # allow branches
+enable_interrupt: 0          # keep simple for initial closure
+num_of_sub_program: 5
+
+# ISS comparison
+iss: spike
+iss_opts: "--isa=rv32im --priv=m"
+
+# Trap handlers
+gen_trap_handlers: 1
+illegal_instr_ratio: 2       # 2% illegal instructions to test trap
+
+# Output
+output_dir: riscv_dv_out
+asm_test_dir: riscv_dv_out/asm_test
+log_dir: riscv_dv_out/sim

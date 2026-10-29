@@ -1,0 +1,15 @@
+[options]
+mode bmc
+depth 40
+
+[engines]
+smtbmc boolector
+
+[script]
+read -formal ../../sva/axil_checker.sv
+read -formal axil_wrap.sv
+prep -top axil_wrap
+
+[files]
+../../sva/axil_checker.sv
+axil_wrap.sv

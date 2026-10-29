@@ -1,0 +1,605 @@
+{
+  "generated_at": "2026-10-28 22:19:47",
+  "synthesis": {
+    "tool": "Synopsys DC T-2022.03-SP5",
+    "library": "tcbn28hpcplusbwp30p140",
+    "corner": "TT / 0.9V / 25\u00b0C",
+    "target_mhz": 300,
+    "wns_setup_ns": 0.493,
+    "tns_ns": 0.0,
+    "fmax_mhz": 352,
+    "hold_wns_ns": -0.071,
+    "hold_violations": 149,
+    "hold_status": "APR_FIX",
+    "stdcell_area_um2": 28410,
+    "sram_area_um2": 7700,
+    "total_area_um2": 36110,
+    "total_power_mw": 6.13,
+    "internal_power_mw": 5.945,
+    "switching_power_mw": 0.078,
+    "leakage_power_mw": 0.106,
+    "cell_count": 33125,
+    "net_count": 33851,
+    "drc_violations": 0,
+    "lint_fatal": 0,
+    "signoff_status": "READY"
+  },
+  "lint": [
+    {
+      "code": "LINT-28",
+      "count": 207,
+      "desc": "Unconnected ports",
+      "severity": "INFO"
+    },
+    {
+      "code": "LINT-2",
+      "count": 360,
+      "desc": "Unloaded nets",
+      "severity": "INFO"
+    },
+    {
+      "code": "LINT-55",
+      "count": 1,
+      "desc": "SRAM Black Box",
+      "severity": "INFO"
+    },
+    {
+      "code": "LINT-63",
+      "count": 2,
+      "desc": "I2C Open-Drain",
+      "severity": "INFO"
+    }
+  ],
+  "area_breakdown": [
+    {
+      "module": "u_cpu",
+      "ref": "rv32im_core",
+      "area_um2": 9865,
+      "pct": 34.7,
+      "parent": null
+    },
+    {
+      "module": "u_alu",
+      "ref": "alu",
+      "area_um2": 2104,
+      "pct": 7.4,
+      "parent": "u_cpu"
+    },
+    {
+      "module": "u_mdu",
+      "ref": "mul_div_unit",
+      "area_um2": 3218,
+      "pct": 11.3,
+      "parent": "u_cpu"
+    },
+    {
+      "module": "u_regfile",
+      "ref": "regfile",
+      "area_um2": 1841,
+      "pct": 6.5,
+      "parent": "u_cpu"
+    },
+    {
+      "module": "u_pdf",
+      "ref": "india_pdf_engine",
+      "area_um2": 8591,
+      "pct": 30.2,
+      "parent": null
+    },
+    {
+      "module": "u_pdf_hmac",
+      "ref": "pdf_hmac",
+      "area_um2": 3102,
+      "pct": 10.9,
+      "parent": "u_pdf"
+    },
+    {
+      "module": "u_pdf_fsm",
+      "ref": "pdf_fsm",
+      "area_um2": 2841,
+      "pct": 10.0,
+      "parent": "u_pdf"
+    },
+    {
+      "module": "u_pdf_dma",
+      "ref": "pdf_dma",
+      "area_um2": 1824,
+      "pct": 6.4,
+      "parent": "u_pdf"
+    },
+    {
+      "module": "u_spi",
+      "ref": "secure_spi",
+      "area_um2": 3526,
+      "pct": 12.4,
+      "parent": null
+    },
+    {
+      "module": "u_aes_ca",
+      "ref": "aes_ca_accel",
+      "area_um2": 1549,
+      "pct": 5.5,
+      "parent": null
+    },
+    {
+      "module": "u_uart",
+      "ref": "secure_uart",
+      "area_um2": 1441,
+      "pct": 5.1,
+      "parent": null
+    },
+    {
+      "module": "u_aes_isa",
+      "ref": "aes_isa_ext",
+      "area_um2": 897,
+      "pct": 3.2,
+      "parent": null
+    },
+    {
+      "module": "u_trng",
+      "ref": "ms_trng",
+      "area_um2": 769,
+      "pct": 2.7,
+      "parent": null
+    },
+    {
+      "module": "u_xbar",
+      "ref": "axi_lite_xbar",
+      "area_um2": 412,
+      "pct": 1.4,
+      "parent": null
+    },
+    {
+      "module": "u_fw",
+      "ref": "axi_firewall\u00d76",
+      "area_um2": 384,
+      "pct": 1.4,
+      "parent": null
+    },
+    {
+      "module": "u_i2c",
+      "ref": "secure_i2c",
+      "area_um2": 312,
+      "pct": 1.1,
+      "parent": null
+    },
+    {
+      "module": "u_clint",
+      "ref": "clint",
+      "area_um2": 184,
+      "pct": 0.6,
+      "parent": null
+    },
+    {
+      "module": "u_plic",
+      "ref": "plic",
+      "area_um2": 196,
+      "pct": 0.7,
+      "parent": null
+    },
+    {
+      "module": "u_gpio",
+      "ref": "gpio",
+      "area_um2": 140,
+      "pct": 0.5,
+      "parent": null
+    },
+    {
+      "module": "u_boot_rom",
+      "ref": "boot_rom",
+      "area_um2": 94,
+      "pct": 0.3,
+      "parent": null
+    },
+    {
+      "module": "u_sram_ctrl",
+      "ref": "sram_ctrl",
+      "area_um2": 46,
+      "pct": 0.2,
+      "parent": null
+    }
+  ],
+  "power_breakdown": [
+    {
+      "module": "u_cpu",
+      "power_mw": 2.275,
+      "pct": 37.1
+    },
+    {
+      "module": "u_pdf",
+      "power_mw": 1.437,
+      "pct": 23.5
+    },
+    {
+      "module": "u_spi",
+      "power_mw": 0.932,
+      "pct": 15.2
+    },
+    {
+      "module": "u_aes_ca",
+      "power_mw": 0.438,
+      "pct": 7.1
+    },
+    {
+      "module": "u_uart",
+      "power_mw": 0.38,
+      "pct": 6.2
+    },
+    {
+      "module": "u_trng",
+      "power_mw": 0.26,
+      "pct": 4.2
+    },
+    {
+      "module": "u_sram_ctrl",
+      "power_mw": 0.213,
+      "pct": 3.5
+    },
+    {
+      "module": "Others",
+      "power_mw": 0.193,
+      "pct": 3.1
+    }
+  ],
+  "timing": {
+    "critical_path": "u_cpu/u_mdu \u2014 MDU carry chain",
+    "critical_path_detail": "mdu_cnt_reg[1] \u2192 64\u00d7 FA1D1/HA1D0 \u2192 mdu_acc_reg[62]",
+    "data_path_ns": 2.708,
+    "logic_levels": 76,
+    "clock_period_ns": 3.333,
+    "arrival_time_ns": 2.908,
+    "hold_root_cause": "u_trng sync0\u2192sync1 back-to-back FFs, 0 comb logic",
+    "hold_fix": "HOLD_FIX DLY insertion in Innovus/ICC2 during CTS",
+    "post_cts_wns_predicted_ns": 0.05
+  },
+  "rtl_stats": {
+    "total_files": 31,
+    "total_loc": 8322,
+    "v_files": 14,
+    "sv_files": 17
+  },
+  "rtl_files": [
+    {
+      "file": "rtl/core/aes_isa_ext.v",
+      "module": "aes_isa_ext",
+      "all_modules": [
+        "aes_isa_ext"
+      ],
+      "category": "Core",
+      "loc": 374,
+      "blank_lines": 36,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/core/rv32im_core.v",
+      "module": "rv32im_core",
+      "all_modules": [
+        "rv32im_core"
+      ],
+      "category": "Core",
+      "loc": 864,
+      "blank_lines": 82,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/crypto/aes_ca_accel.v",
+      "module": "aes_ca_accel",
+      "all_modules": [
+        "aes_ca_accel"
+      ],
+      "category": "Crypto",
+      "loc": 740,
+      "blank_lines": 80,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/crypto/hamming_secded.v",
+      "module": "hamming_enc",
+      "all_modules": [
+        "hamming_enc",
+        "hamming_dec"
+      ],
+      "category": "Crypto",
+      "loc": 131,
+      "blank_lines": 24,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/crypto/india_pdf_engine.v",
+      "module": "india_pdf_engine",
+      "all_modules": [
+        "india_pdf_engine"
+      ],
+      "category": "Crypto",
+      "loc": 756,
+      "blank_lines": 113,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/crypto/rosc_trng.v",
+      "module": "rosc_trng",
+      "all_modules": [
+        "rosc_trng"
+      ],
+      "category": "Crypto",
+      "loc": 358,
+      "blank_lines": 49,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/fabric/axi_lite_xbar.v",
+      "module": "axi_lite_xbar",
+      "all_modules": [
+        "axi_lite_xbar"
+      ],
+      "category": "Fabric",
+      "loc": 481,
+      "blank_lines": 59,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/mem/sram_ctrl.v",
+      "module": "sram_ctrl",
+      "all_modules": [
+        "sram_ctrl"
+      ],
+      "category": "Memory",
+      "loc": 215,
+      "blank_lines": 56,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/mem/sram_sp_wrap.v",
+      "module": "sram_sp_wrap",
+      "all_modules": [
+        "sram_sp_wrap"
+      ],
+      "category": "Memory",
+      "loc": 71,
+      "blank_lines": 27,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/axil_to_apb.sv",
+      "module": "axil_to_apb",
+      "all_modules": [
+        "axil_to_apb"
+      ],
+      "category": "Peripheral",
+      "loc": 175,
+      "blank_lines": 26,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/clint.v",
+      "module": "clint",
+      "all_modules": [
+        "clint"
+      ],
+      "category": "Peripheral",
+      "loc": 128,
+      "blank_lines": 11,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/gpio.v",
+      "module": "gpio",
+      "all_modules": [
+        "gpio"
+      ],
+      "category": "Peripheral",
+      "loc": 140,
+      "blank_lines": 9,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/plic.v",
+      "module": "plic",
+      "all_modules": [
+        "plic"
+      ],
+      "category": "Peripheral",
+      "loc": 132,
+      "blank_lines": 11,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/pulp_i2c_wrap.sv",
+      "module": "pulp_i2c_wrap",
+      "all_modules": [
+        "pulp_i2c_wrap"
+      ],
+      "category": "Peripheral",
+      "loc": 111,
+      "blank_lines": 22,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/pulp_spi_wrap.sv",
+      "module": "pulp_spi_wrap",
+      "all_modules": [
+        "pulp_spi_wrap"
+      ],
+      "category": "Peripheral",
+      "loc": 125,
+      "blank_lines": 23,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/pulp_uart_wrap.sv",
+      "module": "pulp_uart_wrap",
+      "all_modules": [
+        "pulp_uart_wrap"
+      ],
+      "category": "Peripheral",
+      "loc": 109,
+      "blank_lines": 22,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/pulp_blackbox.v",
+      "module": "apb_spi_master",
+      "all_modules": [
+        "apb_spi_master",
+        "apb_uart",
+        "apb_i2c"
+      ],
+      "category": "Vendor IP",
+      "loc": 87,
+      "blank_lines": 7,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/i2c/apb_i2c.sv",
+      "module": "apb_i2c",
+      "all_modules": [
+        "apb_i2c"
+      ],
+      "category": "Vendor IP",
+      "loc": 189,
+      "blank_lines": 20,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/i2c/i2c_master_bit_ctrl.sv",
+      "module": "i2c_master_bit_ctrl",
+      "all_modules": [
+        "i2c_master_bit_ctrl"
+      ],
+      "category": "Vendor IP",
+      "loc": 358,
+      "blank_lines": 48,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/i2c/i2c_master_byte_ctrl.sv",
+      "module": "i2c_master_byte_ctrl",
+      "all_modules": [
+        "i2c_master_byte_ctrl"
+      ],
+      "category": "Vendor IP",
+      "loc": 236,
+      "blank_lines": 33,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/i2c/i2c_master_defines.sv",
+      "module": "i2c_master_defines",
+      "all_modules": [],
+      "category": "Vendor IP",
+      "loc": 7,
+      "blank_lines": 1,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/spi/apb_spi_master.sv",
+      "module": "apb_spi_master",
+      "all_modules": [
+        "apb_spi_master"
+      ],
+      "category": "Vendor IP",
+      "loc": 366,
+      "blank_lines": 42,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/spi/spi_master_apb_if.sv",
+      "module": "spi_master_apb_if",
+      "all_modules": [
+        "spi_master_apb_if"
+      ],
+      "category": "Vendor IP",
+      "loc": 207,
+      "blank_lines": 19,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/spi/spi_master_clkgen.sv",
+      "module": "spi_master_clkgen",
+      "all_modules": [
+        "spi_master_clkgen"
+      ],
+      "category": "Vendor IP",
+      "loc": 69,
+      "blank_lines": 6,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/spi/spi_master_controller.sv",
+      "module": "spi_master_controller",
+      "all_modules": [
+        "spi_master_controller"
+      ],
+      "category": "Vendor IP",
+      "loc": 549,
+      "blank_lines": 43,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/spi/spi_master_fifo.sv",
+      "module": "spi_master_fifo",
+      "all_modules": [
+        "spi_master_fifo"
+      ],
+      "category": "Vendor IP",
+      "loc": 116,
+      "blank_lines": 22,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/spi/spi_master_rx.sv",
+      "module": "spi_master_rx",
+      "all_modules": [
+        "spi_master_rx"
+      ],
+      "category": "Vendor IP",
+      "loc": 126,
+      "blank_lines": 19,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/spi/spi_master_tx.sv",
+      "module": "spi_master_tx",
+      "all_modules": [
+        "spi_master_tx"
+      ],
+      "category": "Vendor IP",
+      "loc": 119,
+      "blank_lines": 15,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/uart/apb_uart.sv",
+      "module": "apb_uart",
+      "all_modules": [
+        "apb_uart"
+      ],
+      "category": "Vendor IP",
+      "loc": 306,
+      "blank_lines": 37,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/periph/vendor/uart/apb_uart_wrap.sv",
+      "module": "apb_uart_wrap",
+      "all_modules": [
+        "apb_uart_wrap"
+      ],
+      "category": "Vendor IP",
+      "loc": 75,
+      "blank_lines": 8,
+      "comment_lines": 0
+    },
+    {
+      "file": "rtl/top/india_crypto_soc.v",
+      "module": "india_crypto_soc",
+      "all_modules": [
+        "india_crypto_soc"
+      ],
+      "category": "Top",
+      "loc": 602,
+      "blank_lines": 56,
+      "comment_lines": 0
+    }
+  ]
+}

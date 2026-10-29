@@ -1,0 +1,15 @@
+[options]
+mode prove
+depth 20
+
+[engines]
+smtbmc z3
+
+[script]
+read -formal ../../sva/reset_checker.sv
+read -formal reset_wrap.sv
+prep -top reset_wrap
+
+[files]
+../../sva/reset_checker.sv
+reset_wrap.sv
