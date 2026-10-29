@@ -30,7 +30,8 @@ a.out
 ~$*
 
 # Large binary artifacts
-*.bin
+demo/encrypted_payload.bin
+demo/decrypted_model_B_rtl_buggy.bin
 CRIYA_SoC_Presentation.pptx
 INDIA_CRYPTO_SOC_Presentation.pptx
 gen_ppt.js
