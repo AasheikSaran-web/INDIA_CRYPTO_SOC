@@ -164,6 +164,108 @@ Outputs land in `synthesis/` — netlist, SDC, SDF, area, power, and QoR reports
 
 ---
 
+## RTL Verification — Encrypt & Decrypt
+
+The `india_pdf_engine` RTL is verified end-to-end: any file is encrypted using
+**AES-256-CA CTR mode** + **CA-30 HMAC authentication**, then decrypted, and
+the output is compared byte-for-byte with the original.
+
+Three real test vectors are included under `dv/tb/test_vectors/`:
+
+| Folder | File | Size | Type |
+|--------|------|------|------|
+| `pdf/` | `original.bin` | 89,755 B | 7-page PDF document |
+| `aadhar/` | `aadhar.jpeg` | 505,086 B | AI-generated Aadhaar card (JPEG) |
+| `gradient/` | `gradient.png` | 196,608 B | Synthetic 256×256 RGB test image |
+
+### Prerequisites
+
+```bash
+# macOS
+brew install icarus-verilog
+
+# Ubuntu / Debian
+sudo apt install iverilog
+```
+
+### Run the tests
+
+Clone the repo and enter the testbench directory:
+
+```bash
+git clone https://github.com/AasheikSaran-web/INDIA_CRYPTO_SOC.git
+cd INDIA_CRYPTO_SOC/dv/tb
+```
+
+**Quick smoke test** — 256 bytes of the PDF (completes in ~5 seconds):
+
+```bash
+iverilog -g2012 -o sim.vvp \
+    ../../rtl/crypto/aes_ca_accel.v \
+    ../../rtl/crypto/india_pdf_engine.v \
+    tb_pdf_engine.v
+vvp sim.vvp
+```
+
+**Full PDF** — all 89,755 bytes (~15 seconds):
+
+```bash
+iverilog -g2012 -DFULL_PDF -o sim.vvp \
+    ../../rtl/crypto/aes_ca_accel.v \
+    ../../rtl/crypto/india_pdf_engine.v \
+    tb_pdf_engine.v
+vvp sim.vvp
+```
+
+**AI-generated Aadhaar card JPEG** — 505,086 bytes (~40 seconds):
+
+```bash
+iverilog -g2012 -DTEST_AADHAR -o sim.vvp \
+    ../../rtl/crypto/aes_ca_accel.v \
+    ../../rtl/crypto/india_pdf_engine.v \
+    tb_pdf_engine.v
+vvp sim.vvp
+```
+
+**Synthetic gradient image** — 196,608 bytes (~20 seconds):
+
+```bash
+iverilog -g2012 -DTEST_GRADIENT -o sim.vvp \
+    ../../rtl/crypto/aes_ca_accel.v \
+    ../../rtl/crypto/india_pdf_engine.v \
+    tb_pdf_engine.v
+vvp sim.vvp
+```
+
+### Expected output (all tests)
+
+```
+[TB]  INDIA_CRYPTO_SOC — PDF Engine RTL Verification
+[TB]  PDF size: 89755 bytes (22439 words)
+[TB] STEP 1: Encrypt  SRC=0x00000000 → DST=...
+[TB] Encrypt done. block_index=5611 hmac=...
+[TB] STEP 2a: Load auth tag from blob → exp_tag CSR
+[TB] STEP 2b: Decrypt  SRC=... → DST=...
+[TB] Decrypt done. block_index=5611 hmac=...  ← must match encrypt
+[TB] Auth tag: PASS
+========================================================
+[TB] TEST PASSED — RTL decrypt matches original PDF exactly
+[TB]   All 22439 words (89755 bytes) byte-for-byte identical
+[TB]   Auth tag: verified
+========================================================
+```
+
+### Verified results
+
+| Test vector | Blocks | Auth tag | Result |
+|-------------|--------|----------|--------|
+| PDF (256 B) | 16 | `bfb8b903 4d0967dc 33487c01 c019dcd0` | ✅ PASS |
+| PDF (full 89,755 B) | 5,611 | `15eeec04 d5f6bb95 45081712 712dea11` | ✅ PASS |
+| Aadhaar JPEG (505,086 B) | 31,569 | `71b343c1 3aa58c04 9b718b2f 30073f1f` | ✅ PASS |
+| Gradient image (196,608 B) | 12,288 | `de25e66a 5f23cec5 d43113b1 539afed5` | ✅ PASS |
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE)
