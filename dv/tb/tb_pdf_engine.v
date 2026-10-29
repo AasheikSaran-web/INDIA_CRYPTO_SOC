@@ -35,17 +35,15 @@ localparam PAD_BYTES    = PAD_BLOCKS * 16;              // padded byte count (mu
 localparam PAD_WORDS    = PAD_BLOCKS * 4;               // padded size in 32-bit words
 localparam BLOB_WORDS   = 4 + PAD_WORDS + 4;            // header + body + tag (in 32-bit words)
 
-// Address map (word-addressed internally, byte-addressed on bus)
-// OUT_BASE must be past the end of the DST blob to prevent ciphertext self-overwrite:
-//   DST blob ends at DST_BASE + 16 + PAD_BYTES + 16 = 0x10000 + 89792 = 0x25EC0
-//   OUT_BASE = 0x30000 gives a safe margin for any PDF up to ~196 KB
-localparam SRC_BASE  = 32'h0000_0000;   // original PDF
-localparam DST_BASE  = 32'h0001_0000;   // encrypted blob
-localparam OUT_BASE  = 32'h0003_0000;   // decrypted output (past full DST blob)
-
-// Behavioural SRAM size — must hold SRC + DST + OUT blobs
-// OUT_BASE + blob_size = 0x30000 + 89792 = 0x45EC0 → round up to 0x60000
-localparam MEM_WORDS = 32'h0006_0000 / 4;  // 98304 words = 384 KB
+// Address map — computed dynamically so any file size works.
+// Each region starts at the next 64 KB boundary after the previous region ends.
+//   SRC  : [SRC_BASE .. SRC_BASE + PAD_BYTES)
+//   DST  : [DST_BASE .. DST_BASE + 16 + PAD_BYTES + 16)   (header + body + tag)
+//   OUT  : [OUT_BASE .. OUT_BASE + 16 + PAD_BYTES)         (header + decrypted body)
+localparam SRC_BASE  = 32'h0000_0000;
+localparam DST_BASE  = ((SRC_BASE + PAD_BYTES + 32'hFFFF) & ~32'hFFFF);  // 64KB-aligned after SRC
+localparam OUT_BASE  = ((DST_BASE + 32 + PAD_BYTES + 32'hFFFF) & ~32'hFFFF); // 64KB-aligned after DST blob
+localparam MEM_WORDS = ((OUT_BASE + 32 + PAD_BYTES + 32'hFFFF) & ~32'hFFFF) / 4; // covers full OUT region
 
 // AES-256 test key and nonce
 localparam [255:0] TEST_KEY   = 256'hdeadbeefcafebabe123456789abcdef00fedcba987654321aabbccddeeff0011;
@@ -393,7 +391,7 @@ initial begin
             enc_cycles = enc_cycles + 1;
             if ((enc_cycles % 1000000) == 0)
                 $display("[TB] Encrypt progress: %0d Mcycles, state=%0d", enc_cycles/1000000, u_pdf.state);
-            if (enc_cycles > 50000000) begin
+            if (enc_cycles > 200000000) begin
                 $display("[TB] TIMEOUT in encrypt after %0d cycles", enc_cycles);
                 $finish;
             end
@@ -479,7 +477,7 @@ initial begin
             dec_cycles = dec_cycles + 1;
             if ((dec_cycles % 1000000) == 0)
                 $display("[TB] Decrypt progress: %0d Mcycles, state=%0d", dec_cycles/1000000, u_pdf.state);
-            if (dec_cycles > 50000000) begin
+            if (dec_cycles > 200000000) begin
                 $display("[TB] TIMEOUT in decrypt after %0d cycles", dec_cycles);
                 $finish;
             end
@@ -582,7 +580,7 @@ end
 // Watchdog
 // ---------------------------------------------------------------------------
 initial begin
-    #2_000_000_000; // 2 s sim time
+    #8_000_000_000; // 8 s sim time (supports up to ~500KB files)
     $display("[TB] WATCHDOG TIMEOUT");
     $finish;
 end
