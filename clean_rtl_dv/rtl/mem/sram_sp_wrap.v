@@ -4,14 +4,14 @@
 
 // sram_sp_wrap: hardware module definition
 module sram_sp_wrap #(
-    parameter DEPTH = 16384,   
-    parameter WIDTH = 32       
+    parameter DEPTH = 131072,
+    parameter WIDTH = 32
 )(
     input  wire              clk,
-    input  wire              cen,    
-    input  wire              wen,    
-    input  wire [3:0]        bwen,   
-    input  wire [13:0]       addr,
+    input  wire              cen,
+    input  wire              wen,
+    input  wire [3:0]        bwen,
+    input  wire [16:0]       addr,
     input  wire [31:0]       wdata,
     output reg  [31:0]       rdata
 );
@@ -34,7 +34,7 @@ module sram_sp_wrap #(
     
     
 
-    TS1N28HPCPSVTB16384X32M8SW u_sram_macro (
+    TS1N28HPCPSVTB131072X32M8SW u_sram_macro (
         .CLK   ( clk    ),
         .CEB   (~cen    ),   
         .WEB   (~wen    ),   
@@ -53,7 +53,6 @@ module sram_sp_wrap #(
     
     reg [WIDTH-1:0] mem [0:DEPTH-1];
 
-    // SRAM single-port wrapper — latch address and write-enable on clock edge
     always @(posedge clk) begin
         if (cen) begin
             if (wen) begin

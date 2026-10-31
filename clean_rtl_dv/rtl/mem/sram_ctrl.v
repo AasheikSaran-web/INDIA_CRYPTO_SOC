@@ -50,12 +50,12 @@ module sram_ctrl (
     reg          sram_cen;
     reg          sram_wen;
     reg  [3:0]   sram_bwen;
-    reg  [13:0]  sram_addr;
+    reg  [16:0]  sram_addr;
     reg  [31:0]  sram_wdata;
     wire [31:0]  sram_rdata;
 
     sram_sp_wrap #(
-        .DEPTH (16384),
+        .DEPTH (131072),
         .WIDTH (32)
     ) u_sram (
         .clk   (clk),
@@ -68,19 +68,19 @@ module sram_ctrl (
     );
 
     
-    reg          wr_aw_done;   
-    reg          wr_w_done;    
-    reg  [13:0]  wr_addr;      
-    reg  [31:0]  wr_wdata;     
-    reg  [3:0]   wr_wstrb;     
+    reg          wr_aw_done;
+    reg          wr_w_done;
+    reg  [16:0]  wr_addr;
+    reg  [31:0]  wr_wdata;
+    reg  [3:0]   wr_wstrb;
 
     
     
 
     reg          cpu_rd_wait,  cpu_rd_pend,  cpu_rd_pend2;
     reg          axi_rd_wait,  axi_rd_pend,  axi_rd_pend2;
-    reg  [13:0]  cpu_rd_addr;
-    reg  [13:0]  axi_rd_addr;
+    reg  [16:0]  cpu_rd_addr;
+    reg  [16:0]  axi_rd_addr;
 
     
     wire do_wr      = wr_aw_done && wr_w_done;
@@ -88,7 +88,6 @@ module sram_ctrl (
     wire do_cpu_rd  = cpu_rd_wait && !do_wr && !axi_rd_wait;
 
     
-    // SRAM controller AXI-Lite write FSM — address, data, response phases
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             
@@ -134,7 +133,7 @@ module sram_ctrl (
             if (axi_awvalid && !wr_aw_done) begin
                 axi_awready <= 1'b1;
                 wr_aw_done  <= 1'b1;
-                wr_addr     <= axi_awaddr[15:2];
+                wr_addr     <= axi_awaddr[18:2];
             end
 
             
@@ -149,13 +148,13 @@ module sram_ctrl (
             if (cpu_arvalid && !cpu_rd_wait && !cpu_rd_pend) begin
                 cpu_arready <= 1'b1;
                 cpu_rd_wait <= 1'b1;
-                cpu_rd_addr <= cpu_araddr[15:2];   
+                cpu_rd_addr <= cpu_araddr[18:2];
             end
             if (axi_arvalid && !axi_rd_wait && !axi_rd_pend
                             && !axi_rd_pend2 && !axi_rvalid) begin
                 axi_arready <= 1'b1;
                 axi_rd_wait <= 1'b1;
-                axi_rd_addr <= axi_araddr[15:2];
+                axi_rd_addr <= axi_araddr[18:2];
             end
 
             

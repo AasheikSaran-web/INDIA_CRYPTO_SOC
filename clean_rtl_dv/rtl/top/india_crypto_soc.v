@@ -29,9 +29,9 @@ module india_crypto_soc #(
     output logic        seceng_irq
 );
 
-localparam SRAM_WORDS   = 16384;
+localparam SRAM_WORDS   = 131072;
 localparam ROM_WORDS    = 8192;
-localparam SRAM_AW      = 14;
+localparam SRAM_AW      = 17;
 localparam ROM_AW       = 13;
 
 `define AXIL_SLAVE_WIRES(N) \
@@ -420,6 +420,7 @@ gpio u_gpio (
 );
 
 axi_lite_xbar #(
+    .MASK1  (32'hFFF8_0000),
     .BASE8  (32'h0200_0000), .MASK8  (32'hFFFF_F000),
     .BASE9  (32'h0C00_0000), .MASK9  (32'hFFFF_F000),
     .BASE10 (32'h4000_3000), .MASK10 (32'hFFFF_F000)
