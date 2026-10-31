@@ -1,7 +1,9 @@
 `timescale 1ns/1ps
 `default_nettype none
 
-module india_crypto_soc (
+module india_crypto_soc #(
+    parameter [31:0] RESET_ADDR = 32'h0000_0000
+) (
 
     input  logic        clk,
     input  logic        rst_n,
@@ -19,27 +21,40 @@ module india_crypto_soc (
     output logic        spi_sck,
     output logic        spi_cs_n,
 
+    input  logic [31:0] gpio_in,
+    output logic [31:0] gpio_out,
+    output logic [31:0] gpio_dir,
+
     output logic        seceng_irq
 );
 
-localparam SRAM_WORDS   = 16384;
+localparam SRAM_WORDS   = 131072;  // 512 KB (131072 × 32-bit words)
 localparam ROM_WORDS    = 8192;
-localparam SRAM_AW      = 14;
+localparam SRAM_AW      = 17;      // 17-bit word address → bits [18:2] of byte addr
 localparam ROM_AW       = 13;
 
-localparam KEY_REG_BASE  = 12'h010;
-localparam IV_REG_BASE   = 12'h030;
-localparam AES_CTRL_REG  = 12'h000;
-localparam AES_STAT_REG  = 12'h004;
+`define AXIL_SLAVE_WIRES(N) \
+logic [31:0] xb_s``N``_awaddr, xb_s``N``_wdata, xb_s``N``_araddr, xb_s``N``_rdata; \
+logic [3:0]  xb_s``N``_wstrb; \
+logic        xb_s``N``_awvalid, xb_s``N``_awready; \
+logic        xb_s``N``_wvalid,  xb_s``N``_wready; \
+logic [1:0]  xb_s``N``_bresp; \
+logic        xb_s``N``_bvalid,  xb_s``N``_bready; \
+logic        xb_s``N``_arvalid, xb_s``N``_arready; \
+logic [1:0]  xb_s``N``_rresp; \
+logic        xb_s``N``_rvalid,  xb_s``N``_rready
 
-localparam PDF_CTRL_REG  = 12'h000;
-localparam PDF_STAT_REG  = 12'h004;
-localparam PDF_LEN_REG   = 12'h008;
-localparam PDF_TAG_REG   = 12'h010;
-
-localparam TRNG_DATA_REG = 12'h000;
-localparam TRNG_STAT_REG = 12'h004;
-localparam TRNG_CTRL_REG = 12'h008;
+`AXIL_SLAVE_WIRES(0);
+`AXIL_SLAVE_WIRES(1);
+`AXIL_SLAVE_WIRES(2);
+`AXIL_SLAVE_WIRES(3);
+`AXIL_SLAVE_WIRES(4);
+`AXIL_SLAVE_WIRES(5);
+`AXIL_SLAVE_WIRES(6);
+`AXIL_SLAVE_WIRES(7);
+`AXIL_SLAVE_WIRES(8);
+`AXIL_SLAVE_WIRES(9);
+`AXIL_SLAVE_WIRES(10);
 
 logic [31:0] cpu_imem_araddr;
 logic        cpu_imem_arvalid, cpu_imem_arready;
@@ -61,26 +76,6 @@ logic        cpu_dmem_rvalid,  cpu_dmem_rready;
 
 logic        cpu_custom_valid, cpu_custom_rd_valid;
 logic [31:0] cpu_custom_instr, cpu_custom_rs1, cpu_custom_rs2, cpu_custom_rd;
-
-`define AXIL_SLAVE_WIRES(N) \
-logic [31:0] xb_s``N``_awaddr, xb_s``N``_wdata, xb_s``N``_araddr, xb_s``N``_rdata; \
-logic [3:0]  xb_s``N``_wstrb; \
-logic        xb_s``N``_awvalid, xb_s``N``_awready; \
-logic        xb_s``N``_wvalid,  xb_s``N``_wready; \
-logic [1:0]  xb_s``N``_bresp; \
-logic        xb_s``N``_bvalid,  xb_s``N``_bready; \
-logic        xb_s``N``_arvalid, xb_s``N``_arready; \
-logic [1:0]  xb_s``N``_rresp; \
-logic        xb_s``N``_rvalid,  xb_s``N``_rready
-
-`AXIL_SLAVE_WIRES(0);
-`AXIL_SLAVE_WIRES(1);
-`AXIL_SLAVE_WIRES(2);
-`AXIL_SLAVE_WIRES(3);
-`AXIL_SLAVE_WIRES(4);
-`AXIL_SLAVE_WIRES(5);
-`AXIL_SLAVE_WIRES(6);
-`AXIL_SLAVE_WIRES(7);
 
 logic [31:0] dma_awaddr, dma_wdata, dma_araddr, dma_rdata;
 logic [3:0]  dma_wstrb;
@@ -108,18 +103,23 @@ logic         uart_irq;
 logic         i2c_irq;
 logic         spi_irq;
 logic         pdf_irq;
+logic         gpio_irq;
 
-assign seceng_irq = pdf_irq;
+logic         clint_timer_irq;
+logic         clint_soft_irq;
+logic         plic_ext_irq;
+
+assign seceng_irq = pdf_irq | trng_rct_fail | trng_apt_fail;
 
 rv32im_core #(
-    .RESET_ADDR    (32'h0000_0000)
+    .RESET_ADDR    (RESET_ADDR)
 ) u_cpu (
     .clk             (clk),
     .rst_n           (rst_n),
 
-    .timer_irq       (1'b0),
-    .soft_irq        (1'b0),
-    .ext_irq         (seceng_irq),
+    .timer_irq       (clint_timer_irq),
+    .soft_irq        (clint_soft_irq),
+    .ext_irq         (plic_ext_irq),
 
     .imem_araddr     (cpu_imem_araddr),
     .imem_arvalid    (cpu_imem_arvalid),
@@ -167,15 +167,11 @@ aes_isa_ext u_aes_isa (
 rosc_trng u_trng (
     .clk             (clk),
     .rst_n           (rst_n),
-
     .rosc_ext        (rosc_ext),
-
     .trng_data       (trng_data),
     .trng_valid      (trng_valid),
-
     .rct_fail        (trng_rct_fail),
     .apt_fail        (trng_apt_fail),
-
     .s_axil_awaddr   (xb_s3_awaddr[11:0]),
     .s_axil_awvalid  (xb_s3_awvalid),
     .s_axil_awready  (xb_s3_awready),
@@ -198,14 +194,12 @@ rosc_trng u_trng (
 aes_ca_accel u_aes_ca (
     .clk             (clk),
     .rst_n           (rst_n),
-
     .direct_key      (aes_key),
     .direct_din      (aes_din),
     .direct_start    (aes_start),
     .direct_decrypt  (aes_decrypt),
     .direct_dout     (aes_dout),
     .direct_done     (aes_done),
-
     .s_axil_awaddr   (xb_s2_awaddr[11:0]),
     .s_axil_awvalid  (xb_s2_awvalid),
     .s_axil_awready  (xb_s2_awready),
@@ -228,7 +222,6 @@ aes_ca_accel u_aes_ca (
 india_pdf_engine u_pdf (
     .clk             (clk),
     .rst_n           (rst_n),
-
     .s_awaddr        (xb_s4_awaddr[11:0]),
     .s_awvalid       (xb_s4_awvalid),
     .s_awready       (xb_s4_awready),
@@ -246,7 +239,6 @@ india_pdf_engine u_pdf (
     .s_rresp         (xb_s4_rresp),
     .s_rvalid        (xb_s4_rvalid),
     .s_rready        (xb_s4_rready),
-
     .m_awaddr        (dma_awaddr),
     .m_awvalid       (dma_awvalid),
     .m_awready       (dma_awready),
@@ -264,17 +256,14 @@ india_pdf_engine u_pdf (
     .m_rresp         (dma_rresp),
     .m_rvalid        (dma_rvalid),
     .m_rready        (dma_rready),
-
     .cipher_key      (aes_key),
     .cipher_din      (aes_din),
     .cipher_start    (aes_start),
     .cipher_decrypt  (aes_decrypt),
     .cipher_dout     (aes_dout),
     .cipher_done     (aes_done),
-
     .trng_data       (trng_data),
     .trng_valid      (trng_valid),
-
     .irq             (pdf_irq)
 );
 
@@ -284,7 +273,6 @@ pulp_uart_wrap u_uart (
     .uart_rx         (uart_rx),
     .uart_tx         (uart_tx),
     .irq             (uart_irq),
-
     .s_awaddr        (xb_s5_awaddr[11:0]),
     .s_awvalid       (xb_s5_awvalid),
     .s_awready       (xb_s5_awready),
@@ -310,7 +298,6 @@ pulp_i2c_wrap u_i2c (
     .i2c_sda         (i2c_sda),
     .i2c_scl         (i2c_scl),
     .irq             (i2c_irq),
-
     .s_awaddr        (xb_s6_awaddr[11:0]),
     .s_awvalid       (xb_s6_awvalid),
     .s_awready       (xb_s6_awready),
@@ -338,7 +325,6 @@ pulp_spi_wrap u_spi (
     .spi_miso        (spi_miso),
     .spi_cs_n        (spi_cs_n),
     .irq             (spi_irq),
-
     .s_awaddr        (xb_s7_awaddr[11:0]),
     .s_awvalid       (xb_s7_awvalid),
     .s_awready       (xb_s7_awready),
@@ -358,7 +344,87 @@ pulp_spi_wrap u_spi (
     .s_rready        (xb_s7_rready)
 );
 
-axi_lite_xbar u_xbar (
+clint u_clint (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    .timer_irq       (clint_timer_irq),
+    .soft_irq        (clint_soft_irq),
+    .s_axil_awaddr   (xb_s8_awaddr[11:0]),
+    .s_axil_awvalid  (xb_s8_awvalid),
+    .s_axil_awready  (xb_s8_awready),
+    .s_axil_wdata    (xb_s8_wdata),
+    .s_axil_wstrb    (xb_s8_wstrb),
+    .s_axil_wvalid   (xb_s8_wvalid),
+    .s_axil_wready   (xb_s8_wready),
+    .s_axil_bresp    (xb_s8_bresp),
+    .s_axil_bvalid   (xb_s8_bvalid),
+    .s_axil_bready   (xb_s8_bready),
+    .s_axil_araddr   (xb_s8_araddr[11:0]),
+    .s_axil_arvalid  (xb_s8_arvalid),
+    .s_axil_arready  (xb_s8_arready),
+    .s_axil_rdata    (xb_s8_rdata),
+    .s_axil_rresp    (xb_s8_rresp),
+    .s_axil_rvalid   (xb_s8_rvalid),
+    .s_axil_rready   (xb_s8_rready)
+);
+
+plic #(.N_SRC(8)) u_plic (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    .irq_src         ({2'b00, trng_rct_fail | trng_apt_fail, gpio_irq, pdf_irq, spi_irq, i2c_irq, uart_irq}),
+    .irq_out         (plic_ext_irq),
+    .s_axil_awaddr   (xb_s9_awaddr[11:0]),
+    .s_axil_awvalid  (xb_s9_awvalid),
+    .s_axil_awready  (xb_s9_awready),
+    .s_axil_wdata    (xb_s9_wdata),
+    .s_axil_wstrb    (xb_s9_wstrb),
+    .s_axil_wvalid   (xb_s9_wvalid),
+    .s_axil_wready   (xb_s9_wready),
+    .s_axil_bresp    (xb_s9_bresp),
+    .s_axil_bvalid   (xb_s9_bvalid),
+    .s_axil_bready   (xb_s9_bready),
+    .s_axil_araddr   (xb_s9_araddr[11:0]),
+    .s_axil_arvalid  (xb_s9_arvalid),
+    .s_axil_arready  (xb_s9_arready),
+    .s_axil_rdata    (xb_s9_rdata),
+    .s_axil_rresp    (xb_s9_rresp),
+    .s_axil_rvalid   (xb_s9_rvalid),
+    .s_axil_rready   (xb_s9_rready)
+);
+
+gpio u_gpio (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    .gpio_in         (gpio_in),
+    .gpio_out        (gpio_out),
+    .gpio_dir        (gpio_dir),
+    .irq             (gpio_irq),
+    .s_axil_awaddr   (xb_s10_awaddr[11:0]),
+    .s_axil_awvalid  (xb_s10_awvalid),
+    .s_axil_awready  (xb_s10_awready),
+    .s_axil_wdata    (xb_s10_wdata),
+    .s_axil_wstrb    (xb_s10_wstrb),
+    .s_axil_wvalid   (xb_s10_wvalid),
+    .s_axil_wready   (xb_s10_wready),
+    .s_axil_bresp    (xb_s10_bresp),
+    .s_axil_bvalid   (xb_s10_bvalid),
+    .s_axil_bready   (xb_s10_bready),
+    .s_axil_araddr   (xb_s10_araddr[11:0]),
+    .s_axil_arvalid  (xb_s10_arvalid),
+    .s_axil_arready  (xb_s10_arready),
+    .s_axil_rdata    (xb_s10_rdata),
+    .s_axil_rresp    (xb_s10_rresp),
+    .s_axil_rvalid   (xb_s10_rvalid),
+    .s_axil_rready   (xb_s10_rready)
+);
+
+axi_lite_xbar #(
+    // SRAM: 512 KB window (0x2000_0000–0x2007_FFFF); MASK clears bits 18:0
+    .MASK1  (32'hFFF8_0000),
+    .BASE8  (32'h0200_0000), .MASK8  (32'hFFFF_F000),
+    .BASE9  (32'h0C00_0000), .MASK9  (32'hFFFF_F000),
+    .BASE10 (32'h4000_3000), .MASK10 (32'hFFFF_F000)
+) u_xbar (
     .clk        (clk),
     .rst_n      (rst_n),
 
@@ -438,57 +504,55 @@ axi_lite_xbar u_xbar (
     .s7_wready(xb_s7_wready),.s7_bresp(xb_s7_bresp),    .s7_bvalid(xb_s7_bvalid),
     .s7_bready(xb_s7_bready),.s7_araddr(xb_s7_araddr),  .s7_arvalid(xb_s7_arvalid),
     .s7_arready(xb_s7_arready),.s7_rdata(xb_s7_rdata),  .s7_rresp(xb_s7_rresp),
-    .s7_rvalid(xb_s7_rvalid),.s7_rready(xb_s7_rready)
+    .s7_rvalid(xb_s7_rvalid),.s7_rready(xb_s7_rready),
+
+    .s8_awaddr(xb_s8_awaddr),.s8_awvalid(xb_s8_awvalid),.s8_awready(xb_s8_awready),
+    .s8_wdata(xb_s8_wdata),  .s8_wstrb(xb_s8_wstrb),    .s8_wvalid(xb_s8_wvalid),
+    .s8_wready(xb_s8_wready),.s8_bresp(xb_s8_bresp),    .s8_bvalid(xb_s8_bvalid),
+    .s8_bready(xb_s8_bready),.s8_araddr(xb_s8_araddr),  .s8_arvalid(xb_s8_arvalid),
+    .s8_arready(xb_s8_arready),.s8_rdata(xb_s8_rdata),  .s8_rresp(xb_s8_rresp),
+    .s8_rvalid(xb_s8_rvalid),.s8_rready(xb_s8_rready),
+
+    .s9_awaddr(xb_s9_awaddr),.s9_awvalid(xb_s9_awvalid),.s9_awready(xb_s9_awready),
+    .s9_wdata(xb_s9_wdata),  .s9_wstrb(xb_s9_wstrb),    .s9_wvalid(xb_s9_wvalid),
+    .s9_wready(xb_s9_wready),.s9_bresp(xb_s9_bresp),    .s9_bvalid(xb_s9_bvalid),
+    .s9_bready(xb_s9_bready),.s9_araddr(xb_s9_araddr),  .s9_arvalid(xb_s9_arvalid),
+    .s9_arready(xb_s9_arready),.s9_rdata(xb_s9_rdata),  .s9_rresp(xb_s9_rresp),
+    .s9_rvalid(xb_s9_rvalid),.s9_rready(xb_s9_rready),
+
+    .s10_awaddr(xb_s10_awaddr),.s10_awvalid(xb_s10_awvalid),.s10_awready(xb_s10_awready),
+    .s10_wdata(xb_s10_wdata),  .s10_wstrb(xb_s10_wstrb),    .s10_wvalid(xb_s10_wvalid),
+    .s10_wready(xb_s10_wready),.s10_bresp(xb_s10_bresp),    .s10_bvalid(xb_s10_bvalid),
+    .s10_bready(xb_s10_bready),.s10_araddr(xb_s10_araddr),  .s10_arvalid(xb_s10_arvalid),
+    .s10_arready(xb_s10_arready),.s10_rdata(xb_s10_rdata),  .s10_rresp(xb_s10_rresp),
+    .s10_rvalid(xb_s10_rvalid),.s10_rready(xb_s10_rready)
 );
 
-logic        rom_rd_pending;
-
-always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        xb_s0_arready <= 1'b0;
-        xb_s0_rvalid  <= 1'b0;
-        xb_s0_rdata   <= 32'h0;
-        xb_s0_rresp   <= 2'b00;
-        rom_rd_pending <= 1'b0;
-        xb_s0_awready <= 1'b0;
-        xb_s0_wready  <= 1'b0;
-        xb_s0_bvalid  <= 1'b0;
-        xb_s0_bresp   <= 2'b10;
-    end else begin
-        xb_s0_arready <= 1'b0;
-        xb_s0_awready <= 1'b0;
-        xb_s0_wready  <= 1'b0;
-
-        if (xb_s0_arvalid && !rom_rd_pending) begin
-            xb_s0_arready  <= 1'b1;
-            rom_rd_pending <= 1'b1;
-        end
-        if (rom_rd_pending) begin
-            xb_s0_rvalid <= 1'b1;
-
-            xb_s0_rdata  <= 32'h0000_0013;
-            xb_s0_rresp  <= 2'b00;
-            if (xb_s0_rready) begin
-                xb_s0_rvalid   <= 1'b0;
-                rom_rd_pending <= 1'b0;
-            end
-        end
-
-        if (xb_s0_awvalid) xb_s0_awready <= 1'b1;
-        if (xb_s0_wvalid)  xb_s0_wready  <= 1'b1;
-        if (xb_s0_awvalid && xb_s0_wvalid) begin
-            xb_s0_bvalid <= 1'b1;
-            xb_s0_bresp  <= 2'b10;
-        end
-        if (xb_s0_bvalid && xb_s0_bready) xb_s0_bvalid <= 1'b0;
-    end
-end
+boot_rom u_boot_rom (
+    .clk            (clk),
+    .rst_n          (rst_n),
+    .s_axil_araddr  (xb_s0_araddr),
+    .s_axil_arvalid (xb_s0_arvalid),
+    .s_axil_arready (xb_s0_arready),
+    .s_axil_rdata   (xb_s0_rdata),
+    .s_axil_rresp   (xb_s0_rresp),
+    .s_axil_rvalid  (xb_s0_rvalid),
+    .s_axil_rready  (xb_s0_rready),
+    .s_axil_awaddr  (xb_s0_awaddr),
+    .s_axil_awvalid (xb_s0_awvalid),
+    .s_axil_awready (xb_s0_awready),
+    .s_axil_wdata   (xb_s0_wdata),
+    .s_axil_wstrb   (xb_s0_wstrb),
+    .s_axil_wvalid  (xb_s0_wvalid),
+    .s_axil_wready  (xb_s0_wready),
+    .s_axil_bresp   (xb_s0_bresp),
+    .s_axil_bvalid  (xb_s0_bvalid),
+    .s_axil_bready  (xb_s0_bready)
+);
 
 sram_ctrl u_sram_ctrl (
     .clk          (clk),
     .rst_n        (rst_n),
-
-    
     .cpu_arvalid  (cpu_imem_arvalid),
     .cpu_araddr   (cpu_imem_araddr),
     .cpu_arready  (cpu_imem_arready),
@@ -496,8 +560,6 @@ sram_ctrl u_sram_ctrl (
     .cpu_rdata    (cpu_imem_rdata),
     .cpu_rresp    (cpu_imem_rresp),
     .cpu_rready   (cpu_imem_rready),
-
-    
     .axi_awvalid  (xb_s1_awvalid),
     .axi_awaddr   (xb_s1_awaddr),
     .axi_awready  (xb_s1_awready),
@@ -518,10 +580,7 @@ sram_ctrl u_sram_ctrl (
 );
 
 initial begin
-    $display("[INDIA_CRYPTO_SOC] uart_irq/i2c_irq/spi_irq available for poll.");
+    $display("[INDIA_CRYPTO_SOC] PLIC/CLINT/GPIO integrated. 11-slave AXI crossbar active.");
 end
-
-logic _unused_irqs;
-assign _unused_irqs = uart_irq | i2c_irq | spi_irq;
 
 endmodule

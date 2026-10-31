@@ -49,12 +49,12 @@ module sram_ctrl (
     reg          sram_cen;
     reg          sram_wen;
     reg  [3:0]   sram_bwen;
-    reg  [13:0]  sram_addr;
+    reg  [16:0]  sram_addr;   // 17-bit word address for 512 KB (131072 words)
     reg  [31:0]  sram_wdata;
     wire [31:0]  sram_rdata;
 
     sram_sp_wrap #(
-        .DEPTH (16384),
+        .DEPTH (131072),
         .WIDTH (32)
     ) u_sram (
         .clk   (clk),
@@ -67,19 +67,19 @@ module sram_ctrl (
     );
 
     
-    reg          wr_aw_done;   
-    reg          wr_w_done;    
-    reg  [13:0]  wr_addr;      
-    reg  [31:0]  wr_wdata;     
-    reg  [3:0]   wr_wstrb;     
+    reg          wr_aw_done;
+    reg          wr_w_done;
+    reg  [16:0]  wr_addr;      // 17-bit word address
+    reg  [31:0]  wr_wdata;
+    reg  [3:0]   wr_wstrb;
 
     
     
-    
-    reg          cpu_rd_wait,  cpu_rd_pend;
-    reg          axi_rd_wait,  axi_rd_pend;
-    reg  [13:0]  cpu_rd_addr;  
-    reg  [13:0]  axi_rd_addr;  
+
+    reg          cpu_rd_wait,  cpu_rd_pend,  cpu_rd_pend2;
+    reg          axi_rd_wait,  axi_rd_pend,  axi_rd_pend2;
+    reg  [16:0]  cpu_rd_addr;  // 17-bit word address
+    reg  [16:0]  axi_rd_addr;  // 17-bit word address
 
     
     wire do_wr      = wr_aw_done && wr_w_done;
@@ -101,6 +101,7 @@ module sram_ctrl (
             cpu_rdata      <= 32'h0;
             cpu_rd_wait    <= 1'b0;
             cpu_rd_pend    <= 1'b0;
+            cpu_rd_pend2   <= 1'b0;
             cpu_rd_addr    <= 14'h0;
             
             axi_awready    <= 1'b0;
@@ -117,6 +118,7 @@ module sram_ctrl (
             axi_rdata      <= 32'h0;
             axi_rd_wait    <= 1'b0;
             axi_rd_pend    <= 1'b0;
+            axi_rd_pend2   <= 1'b0;
             axi_rd_addr    <= 14'h0;
         end else begin
             
@@ -130,7 +132,7 @@ module sram_ctrl (
             if (axi_awvalid && !wr_aw_done) begin
                 axi_awready <= 1'b1;
                 wr_aw_done  <= 1'b1;
-                wr_addr     <= axi_awaddr[15:2];
+                wr_addr     <= axi_awaddr[18:2];  // byte→word: strip byte-lane bits
             end
 
             
@@ -145,14 +147,22 @@ module sram_ctrl (
             if (cpu_arvalid && !cpu_rd_wait && !cpu_rd_pend) begin
                 cpu_arready <= 1'b1;
                 cpu_rd_wait <= 1'b1;
-                cpu_rd_addr <= cpu_araddr[15:2];   
+                cpu_rd_addr <= cpu_araddr[18:2];
             end
 
             
-            if (axi_arvalid && !axi_rd_wait && !axi_rd_pend) begin
+            // Strictly one AXI read transaction at a time.
+            // Do NOT accept a new AR while any pipeline stage is active
+            // (rd_wait, rd_pend, rd_pend2) or while rvalid is outstanding.
+            // Without this guard the pipeline-stage-2 (pend2) cycle has
+            // rd_wait=0 and rd_pend=0, letting a second AR sneak in the
+            // cycle before rvalid fires; the second master's rready then
+            // consumes the response meant for the first master (DMA deadlock).
+            if (axi_arvalid && !axi_rd_wait && !axi_rd_pend
+                            && !axi_rd_pend2 && !axi_rvalid) begin
                 axi_arready <= 1'b1;
                 axi_rd_wait <= 1'b1;
-                axi_rd_addr <= axi_araddr[15:2];   
+                axi_rd_addr <= axi_araddr[18:2];
             end
 
             
@@ -170,38 +180,47 @@ module sram_ctrl (
                 axi_bvalid <= 1'b1;   
 
             end else if (do_axi_rd) begin
-                
+                // Issue SRAM read - data arrives after 2 posedges (registered SRAM)
                 sram_cen      <= 1'b1;
                 sram_wen      <= 1'b0;
                 sram_bwen     <= 4'hF;
                 sram_addr     <= axi_rd_addr;
                 axi_rd_wait   <= 1'b0;
-                axi_rd_pend   <= 1'b1;   
+                axi_rd_pend   <= 1'b1;    // pipeline stage 1
 
             end else if (do_cpu_rd) begin
-                
+                // Issue SRAM read - data arrives after 2 posedges (registered SRAM)
                 sram_cen      <= 1'b1;
                 sram_wen      <= 1'b0;
                 sram_bwen     <= 4'hF;
                 sram_addr     <= cpu_rd_addr;
                 cpu_rd_wait   <= 1'b0;
-                cpu_rd_pend   <= 1'b1;   
+                cpu_rd_pend   <= 1'b1;    // pipeline stage 1
             end
 
-            
+            // Pipeline stage 1 → stage 2: wait for SRAM registered output
             if (axi_rd_pend) begin
-                axi_rvalid  <= 1'b1;
-                axi_rdata   <= sram_rdata;   
-                axi_rd_pend <= 1'b0;
+                axi_rd_pend  <= 1'b0;
+                axi_rd_pend2 <= 1'b1;
+            end
+            if (cpu_rd_pend) begin
+                cpu_rd_pend  <= 1'b0;
+                cpu_rd_pend2 <= 1'b1;
+            end
+
+            // Pipeline stage 2: SRAM data now valid on sram_rdata
+            if (axi_rd_pend2) begin
+                axi_rvalid   <= 1'b1;
+                axi_rdata    <= sram_rdata;
+                axi_rd_pend2 <= 1'b0;
             end
             if (axi_rvalid && axi_rready)
                 axi_rvalid <= 1'b0;
 
-            
-            if (cpu_rd_pend) begin
-                cpu_rvalid  <= 1'b1;
-                cpu_rdata   <= sram_rdata;   
-                cpu_rd_pend <= 1'b0;
+            if (cpu_rd_pend2) begin
+                cpu_rvalid   <= 1'b1;
+                cpu_rdata    <= sram_rdata;
+                cpu_rd_pend2 <= 1'b0;
             end
             if (cpu_rvalid && cpu_rready)
                 cpu_rvalid <= 1'b0;

@@ -14,18 +14,66 @@ MEMORY MAP
   Address Range              Size    Module            Slave   Notes
   ─────────────────────────────────────────────────────────────────────────
   0x0000_0000–0x0000_7FFF   32 KB   Boot ROM          s0      Read-only, returns NOP
-  0x2000_0000–0x2001_FFFF   128 KB  SRAM              s1      Dual-port; imem+dmem
+  0x0200_0000–0x0200_0FFF   4 KB    CLINT             s8      timer_irq, soft_irq to CPU
+  0x0C00_0000–0x0C00_0FFF   4 KB    PLIC              s9      ext_irq to CPU, 8 sources
+  0x2000_0000–0x2007_FFFF   512 KB  SRAM              s1      Single-port; imem+dmem
   0x3000_0000–0x3000_0FFF   4 KB    AES-CA Accel      s2      Firewall protected
   0x3000_1000–0x3000_1FFF   4 KB    MS-TRNG           s3      Firewall protected
   0x3000_2000–0x3000_2FFF   4 KB    India PDF Engine  s4      Firewall protected
   0x4000_0000–0x4000_0FFF   4 KB    Secure UART       s5      Firewall protected
   0x4000_1000–0x4000_1FFF   4 KB    Secure I2C        s6      Firewall protected
   0x4000_2000–0x4000_2FFF   4 KB    Secure SPI        s7      Firewall protected
+  0x4000_3000–0x4000_3FFF   4 KB    GPIO              s10     32-pin, interrupt-on-change
 
 AXI MASTERS
 ───────────
   m0  CPU data-bus (dmem)       — trusted,       priority HIGH
   m1  India PDF Engine DMA      — semi-trusted,  priority LOW
+
+CLINT REGISTERS  (base 0x0200_0000)
+────────────────
+  Offset  Name           Access  Description
+  0x000   msip           RW      Machine software interrupt pending (bit 0 = soft_irq)
+  0x008   mtimecmp_lo    RW      Lower 32 bits of 64-bit mtimecmp compare value
+  0x00C   mtimecmp_hi    RW      Upper 32 bits of 64-bit mtimecmp compare value
+  0x010   mtime_lo       RW      Lower 32 bits of free-running 64-bit mtime counter
+  0x014   mtime_hi       RW      Upper 32 bits of free-running 64-bit mtime counter
+  Note: timer_irq asserted when mtime >= mtimecmp && mtimecmp != 0
+
+PLIC REGISTERS  (base 0x0C00_0000, N_SRC=8)
+──────────────
+  Offset  Name           Access  Description
+  0x000   priority[0]    RW      Priority for source 0 (uart_irq),  3-bit [2:0]
+  0x004   priority[1]    RW      Priority for source 1 (i2c_irq)
+  0x008   priority[2]    RW      Priority for source 2 (spi_irq)
+  0x00C   priority[3]    RW      Priority for source 3 (pdf_irq)
+  0x010   priority[4]    RW      Priority for source 4 (gpio_irq)
+  0x014   priority[5]    RW      Priority for source 5 (trng_fail)
+  0x018   priority[6]    RW      Priority for source 6 (reserved)
+  0x01C   priority[7]    RW      Priority for source 7 (reserved)
+  0x100   pending        RO      Bit n = irq_src[n] & enable[n]
+  0x200   enable         RW      Bit n enables source n
+  0x300   threshold      RW      IRQ only if max_priority > threshold (3-bit)
+  0x304   claim_complete RW      Read: highest-priority pending source ID; Write: complete
+
+PLIC INTERRUPT SOURCES
+  Src 0: uart_irq   (Secure UART TX/RX)
+  Src 1: i2c_irq    (Secure I2C)
+  Src 2: spi_irq    (Secure SPI)
+  Src 3: pdf_irq    (India PDF Engine done/error)
+  Src 4: gpio_irq   (GPIO edge detect)
+  Src 5: trng_fail  (TRNG RCT or APT health test failure)
+  Src 6: reserved
+  Src 7: reserved
+
+GPIO REGISTERS  (base 0x4000_3000)
+──────────────
+  Offset  Name  Access  Description
+  0x000   DATA  RW      Read: synchronized gpio_in; Write: drives gpio_out
+  0x004   DIR   RW      Direction: 1=output, 0=input (reset=0, all inputs)
+  0x008   IE    RW      Interrupt enable per pin (1=enable)
+  0x00C   IS    RW1C    Interrupt status: set on any edge; write 1 to clear
+  0x010   IEV   RW      Interrupt event select (reserved; any edge always detected)
 
 FIREWALL PERMISSION TABLE (default after reset)
 ──────────────────────────────────────────────
@@ -115,7 +163,7 @@ AXI FIREWALL (one instance per protected slave, config via f_* port)
 
 CPU CUSTOM CSRs (RV32IM core)
   0xBC0  pc_min_guard   Minimum valid PC (default 0x0000_0000)
-  0xBC1  pc_max_guard   Maximum valid PC (default 0x2001_FFFF)
+  0xBC1  pc_max_guard   Maximum valid PC (default 0x2007_FFFF)
   0xBC2  wdt_reload     Watchdog reload value (24-bit, default 0xFFFFFF)
 
 ATTACK PROTECTION SUMMARY
