@@ -1,0 +1,586 @@
+`timescale 1ns/1ps
+`default_nettype none
+
+// india_crypto_soc: hardware module definition
+module india_crypto_soc #(
+    parameter [31:0] RESET_ADDR = 32'h0000_0000
+) (
+
+    input  logic        clk,
+    input  logic        rst_n,
+
+    input  logic        rosc_ext,
+
+    input  logic        uart_rx,
+    output logic        uart_tx,
+
+    inout  wire         i2c_sda,
+    inout  wire         i2c_scl,
+
+    output logic        spi_mosi,
+    input  logic        spi_miso,
+    output logic        spi_sck,
+    output logic        spi_cs_n,
+
+    input  logic [31:0] gpio_in,
+    output logic [31:0] gpio_out,
+    output logic [31:0] gpio_dir,
+
+    output logic        seceng_irq
+);
+
+localparam SRAM_WORDS   = 16384;
+localparam ROM_WORDS    = 8192;
+localparam SRAM_AW      = 14;
+localparam ROM_AW       = 13;
+
+`define AXIL_SLAVE_WIRES(N) \
+logic [31:0] xb_s``N``_awaddr, xb_s``N``_wdata, xb_s``N``_araddr, xb_s``N``_rdata; \
+logic [3:0]  xb_s``N``_wstrb; \
+logic        xb_s``N``_awvalid, xb_s``N``_awready; \
+logic        xb_s``N``_wvalid,  xb_s``N``_wready; \
+logic [1:0]  xb_s``N``_bresp; \
+logic        xb_s``N``_bvalid,  xb_s``N``_bready; \
+logic        xb_s``N``_arvalid, xb_s``N``_arready; \
+logic [1:0]  xb_s``N``_rresp; \
+logic        xb_s``N``_rvalid,  xb_s``N``_rready
+
+`AXIL_SLAVE_WIRES(0);
+`AXIL_SLAVE_WIRES(1);
+`AXIL_SLAVE_WIRES(2);
+`AXIL_SLAVE_WIRES(3);
+`AXIL_SLAVE_WIRES(4);
+`AXIL_SLAVE_WIRES(5);
+`AXIL_SLAVE_WIRES(6);
+`AXIL_SLAVE_WIRES(7);
+`AXIL_SLAVE_WIRES(8);
+`AXIL_SLAVE_WIRES(9);
+`AXIL_SLAVE_WIRES(10);
+
+logic [31:0] cpu_imem_araddr;
+logic        cpu_imem_arvalid, cpu_imem_arready;
+logic [31:0] cpu_imem_rdata;
+logic [1:0]  cpu_imem_rresp;
+logic        cpu_imem_rvalid, cpu_imem_rready;
+
+logic [31:0] cpu_dmem_awaddr, cpu_dmem_wdata;
+logic [3:0]  cpu_dmem_wstrb;
+logic        cpu_dmem_awvalid, cpu_dmem_awready;
+logic        cpu_dmem_wvalid,  cpu_dmem_wready;
+logic [1:0]  cpu_dmem_bresp;
+logic        cpu_dmem_bvalid,  cpu_dmem_bready;
+logic [31:0] cpu_dmem_araddr;
+logic        cpu_dmem_arvalid, cpu_dmem_arready;
+logic [31:0] cpu_dmem_rdata;
+logic [1:0]  cpu_dmem_rresp;
+logic        cpu_dmem_rvalid,  cpu_dmem_rready;
+
+logic        cpu_custom_valid, cpu_custom_rd_valid;
+logic [31:0] cpu_custom_instr, cpu_custom_rs1, cpu_custom_rs2, cpu_custom_rd;
+
+logic [31:0] dma_awaddr, dma_wdata, dma_araddr, dma_rdata;
+logic [3:0]  dma_wstrb;
+logic        dma_awvalid, dma_awready;
+logic        dma_wvalid,  dma_wready;
+logic [1:0]  dma_bresp;
+logic        dma_bvalid,  dma_bready;
+logic        dma_arvalid, dma_arready;
+logic [1:0]  dma_rresp;
+logic        dma_rvalid,  dma_rready;
+
+logic [255:0] aes_key;
+logic [127:0] aes_din;
+logic [127:0] aes_dout;
+logic         aes_start;
+logic         aes_decrypt;
+logic         aes_done;
+
+logic [31:0]  trng_data;
+logic         trng_valid;
+logic         trng_rct_fail;
+logic         trng_apt_fail;
+
+logic         uart_irq;
+logic         i2c_irq;
+logic         spi_irq;
+logic         pdf_irq;
+logic         gpio_irq;
+
+logic         clint_timer_irq;
+logic         clint_soft_irq;
+logic         plic_ext_irq;
+
+assign seceng_irq = pdf_irq | trng_rct_fail | trng_apt_fail;
+
+rv32im_core #(
+    .RESET_ADDR    (RESET_ADDR)
+) u_cpu (
+    .clk             (clk),
+    .rst_n           (rst_n),
+
+    .timer_irq       (clint_timer_irq),
+    .soft_irq        (clint_soft_irq),
+    .ext_irq         (plic_ext_irq),
+
+    .imem_araddr     (cpu_imem_araddr),
+    .imem_arvalid    (cpu_imem_arvalid),
+    .imem_arready    (cpu_imem_arready),
+    .imem_rdata      (cpu_imem_rdata),
+    .imem_rresp      (cpu_imem_rresp),
+    .imem_rvalid     (cpu_imem_rvalid),
+    .imem_rready     (cpu_imem_rready),
+
+    .dmem_awaddr     (cpu_dmem_awaddr),
+    .dmem_awvalid    (cpu_dmem_awvalid),
+    .dmem_awready    (cpu_dmem_awready),
+    .dmem_wdata      (cpu_dmem_wdata),
+    .dmem_wstrb      (cpu_dmem_wstrb),
+    .dmem_wvalid     (cpu_dmem_wvalid),
+    .dmem_wready     (cpu_dmem_wready),
+    .dmem_bresp      (cpu_dmem_bresp),
+    .dmem_bvalid     (cpu_dmem_bvalid),
+    .dmem_bready     (cpu_dmem_bready),
+    .dmem_araddr     (cpu_dmem_araddr),
+    .dmem_arvalid    (cpu_dmem_arvalid),
+    .dmem_arready    (cpu_dmem_arready),
+    .dmem_rdata      (cpu_dmem_rdata),
+    .dmem_rresp      (cpu_dmem_rresp),
+    .dmem_rvalid     (cpu_dmem_rvalid),
+    .dmem_rready     (cpu_dmem_rready),
+
+    .custom_valid    (cpu_custom_valid),
+    .custom_instr    (cpu_custom_instr),
+    .custom_rs1      (cpu_custom_rs1),
+    .custom_rs2      (cpu_custom_rs2),
+    .custom_rd       (cpu_custom_rd),
+    .custom_rd_valid (cpu_custom_rd_valid)
+);
+
+aes_isa_ext u_aes_isa (
+    .custom_valid    (cpu_custom_valid),
+    .custom_instr    (cpu_custom_instr),
+    .custom_rs1      (cpu_custom_rs1),
+    .custom_rs2      (cpu_custom_rs2),
+    .custom_rd       (cpu_custom_rd),
+    .custom_rd_valid (cpu_custom_rd_valid)
+);
+
+rosc_trng u_trng (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    .rosc_ext        (rosc_ext),
+    .trng_data       (trng_data),
+    .trng_valid      (trng_valid),
+    .rct_fail        (trng_rct_fail),
+    .apt_fail        (trng_apt_fail),
+    .s_axil_awaddr   (xb_s3_awaddr[11:0]),
+    .s_axil_awvalid  (xb_s3_awvalid),
+    .s_axil_awready  (xb_s3_awready),
+    .s_axil_wdata    (xb_s3_wdata),
+    .s_axil_wstrb    (xb_s3_wstrb),
+    .s_axil_wvalid   (xb_s3_wvalid),
+    .s_axil_wready   (xb_s3_wready),
+    .s_axil_bresp    (xb_s3_bresp),
+    .s_axil_bvalid   (xb_s3_bvalid),
+    .s_axil_bready   (xb_s3_bready),
+    .s_axil_araddr   (xb_s3_araddr[11:0]),
+    .s_axil_arvalid  (xb_s3_arvalid),
+    .s_axil_arready  (xb_s3_arready),
+    .s_axil_rdata    (xb_s3_rdata),
+    .s_axil_rresp    (xb_s3_rresp),
+    .s_axil_rvalid   (xb_s3_rvalid),
+    .s_axil_rready   (xb_s3_rready)
+);
+
+aes_ca_accel u_aes_ca (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    .direct_key      (aes_key),
+    .direct_din      (aes_din),
+    .direct_start    (aes_start),
+    .direct_decrypt  (aes_decrypt),
+    .direct_dout     (aes_dout),
+    .direct_done     (aes_done),
+    .s_axil_awaddr   (xb_s2_awaddr[11:0]),
+    .s_axil_awvalid  (xb_s2_awvalid),
+    .s_axil_awready  (xb_s2_awready),
+    .s_axil_wdata    (xb_s2_wdata),
+    .s_axil_wstrb    (xb_s2_wstrb),
+    .s_axil_wvalid   (xb_s2_wvalid),
+    .s_axil_wready   (xb_s2_wready),
+    .s_axil_bresp    (xb_s2_bresp),
+    .s_axil_bvalid   (xb_s2_bvalid),
+    .s_axil_bready   (xb_s2_bready),
+    .s_axil_araddr   (xb_s2_araddr[11:0]),
+    .s_axil_arvalid  (xb_s2_arvalid),
+    .s_axil_arready  (xb_s2_arready),
+    .s_axil_rdata    (xb_s2_rdata),
+    .s_axil_rresp    (xb_s2_rresp),
+    .s_axil_rvalid   (xb_s2_rvalid),
+    .s_axil_rready   (xb_s2_rready)
+);
+
+india_pdf_engine u_pdf (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    .s_awaddr        (xb_s4_awaddr[11:0]),
+    .s_awvalid       (xb_s4_awvalid),
+    .s_awready       (xb_s4_awready),
+    .s_wdata         (xb_s4_wdata),
+    .s_wstrb         (xb_s4_wstrb),
+    .s_wvalid        (xb_s4_wvalid),
+    .s_wready        (xb_s4_wready),
+    .s_bresp         (xb_s4_bresp),
+    .s_bvalid        (xb_s4_bvalid),
+    .s_bready        (xb_s4_bready),
+    .s_araddr        (xb_s4_araddr[11:0]),
+    .s_arvalid       (xb_s4_arvalid),
+    .s_arready       (xb_s4_arready),
+    .s_rdata         (xb_s4_rdata),
+    .s_rresp         (xb_s4_rresp),
+    .s_rvalid        (xb_s4_rvalid),
+    .s_rready        (xb_s4_rready),
+    .m_awaddr        (dma_awaddr),
+    .m_awvalid       (dma_awvalid),
+    .m_awready       (dma_awready),
+    .m_wdata         (dma_wdata),
+    .m_wstrb         (dma_wstrb),
+    .m_wvalid        (dma_wvalid),
+    .m_wready        (dma_wready),
+    .m_bresp         (dma_bresp),
+    .m_bvalid        (dma_bvalid),
+    .m_bready        (dma_bready),
+    .m_araddr        (dma_araddr),
+    .m_arvalid       (dma_arvalid),
+    .m_arready       (dma_arready),
+    .m_rdata         (dma_rdata),
+    .m_rresp         (dma_rresp),
+    .m_rvalid        (dma_rvalid),
+    .m_rready        (dma_rready),
+    .cipher_key      (aes_key),
+    .cipher_din      (aes_din),
+    .cipher_start    (aes_start),
+    .cipher_decrypt  (aes_decrypt),
+    .cipher_dout     (aes_dout),
+    .cipher_done     (aes_done),
+    .trng_data       (trng_data),
+    .trng_valid      (trng_valid),
+    .irq             (pdf_irq)
+);
+
+pulp_uart_wrap u_uart (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    .uart_rx         (uart_rx),
+    .uart_tx         (uart_tx),
+    .irq             (uart_irq),
+    .s_awaddr        (xb_s5_awaddr[11:0]),
+    .s_awvalid       (xb_s5_awvalid),
+    .s_awready       (xb_s5_awready),
+    .s_wdata         (xb_s5_wdata),
+    .s_wstrb         (xb_s5_wstrb),
+    .s_wvalid        (xb_s5_wvalid),
+    .s_wready        (xb_s5_wready),
+    .s_bresp         (xb_s5_bresp),
+    .s_bvalid        (xb_s5_bvalid),
+    .s_bready        (xb_s5_bready),
+    .s_araddr        (xb_s5_araddr[11:0]),
+    .s_arvalid       (xb_s5_arvalid),
+    .s_arready       (xb_s5_arready),
+    .s_rdata         (xb_s5_rdata),
+    .s_rresp         (xb_s5_rresp),
+    .s_rvalid        (xb_s5_rvalid),
+    .s_rready        (xb_s5_rready)
+);
+
+pulp_i2c_wrap u_i2c (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    .i2c_sda         (i2c_sda),
+    .i2c_scl         (i2c_scl),
+    .irq             (i2c_irq),
+    .s_awaddr        (xb_s6_awaddr[11:0]),
+    .s_awvalid       (xb_s6_awvalid),
+    .s_awready       (xb_s6_awready),
+    .s_wdata         (xb_s6_wdata),
+    .s_wstrb         (xb_s6_wstrb),
+    .s_wvalid        (xb_s6_wvalid),
+    .s_wready        (xb_s6_wready),
+    .s_bresp         (xb_s6_bresp),
+    .s_bvalid        (xb_s6_bvalid),
+    .s_bready        (xb_s6_bready),
+    .s_araddr        (xb_s6_araddr[11:0]),
+    .s_arvalid       (xb_s6_arvalid),
+    .s_arready       (xb_s6_arready),
+    .s_rdata         (xb_s6_rdata),
+    .s_rresp         (xb_s6_rresp),
+    .s_rvalid        (xb_s6_rvalid),
+    .s_rready        (xb_s6_rready)
+);
+
+pulp_spi_wrap u_spi (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    .spi_sck         (spi_sck),
+    .spi_mosi        (spi_mosi),
+    .spi_miso        (spi_miso),
+    .spi_cs_n        (spi_cs_n),
+    .irq             (spi_irq),
+    .s_awaddr        (xb_s7_awaddr[11:0]),
+    .s_awvalid       (xb_s7_awvalid),
+    .s_awready       (xb_s7_awready),
+    .s_wdata         (xb_s7_wdata),
+    .s_wstrb         (xb_s7_wstrb),
+    .s_wvalid        (xb_s7_wvalid),
+    .s_wready        (xb_s7_wready),
+    .s_bresp         (xb_s7_bresp),
+    .s_bvalid        (xb_s7_bvalid),
+    .s_bready        (xb_s7_bready),
+    .s_araddr        (xb_s7_araddr[11:0]),
+    .s_arvalid       (xb_s7_arvalid),
+    .s_arready       (xb_s7_arready),
+    .s_rdata         (xb_s7_rdata),
+    .s_rresp         (xb_s7_rresp),
+    .s_rvalid        (xb_s7_rvalid),
+    .s_rready        (xb_s7_rready)
+);
+
+clint u_clint (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    .timer_irq       (clint_timer_irq),
+    .soft_irq        (clint_soft_irq),
+    .s_axil_awaddr   (xb_s8_awaddr[11:0]),
+    .s_axil_awvalid  (xb_s8_awvalid),
+    .s_axil_awready  (xb_s8_awready),
+    .s_axil_wdata    (xb_s8_wdata),
+    .s_axil_wstrb    (xb_s8_wstrb),
+    .s_axil_wvalid   (xb_s8_wvalid),
+    .s_axil_wready   (xb_s8_wready),
+    .s_axil_bresp    (xb_s8_bresp),
+    .s_axil_bvalid   (xb_s8_bvalid),
+    .s_axil_bready   (xb_s8_bready),
+    .s_axil_araddr   (xb_s8_araddr[11:0]),
+    .s_axil_arvalid  (xb_s8_arvalid),
+    .s_axil_arready  (xb_s8_arready),
+    .s_axil_rdata    (xb_s8_rdata),
+    .s_axil_rresp    (xb_s8_rresp),
+    .s_axil_rvalid   (xb_s8_rvalid),
+    .s_axil_rready   (xb_s8_rready)
+);
+
+plic #(.N_SRC(8)) u_plic (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    .irq_src         ({2'b00, trng_rct_fail | trng_apt_fail, gpio_irq, pdf_irq, spi_irq, i2c_irq, uart_irq}),
+    .irq_out         (plic_ext_irq),
+    .s_axil_awaddr   (xb_s9_awaddr[11:0]),
+    .s_axil_awvalid  (xb_s9_awvalid),
+    .s_axil_awready  (xb_s9_awready),
+    .s_axil_wdata    (xb_s9_wdata),
+    .s_axil_wstrb    (xb_s9_wstrb),
+    .s_axil_wvalid   (xb_s9_wvalid),
+    .s_axil_wready   (xb_s9_wready),
+    .s_axil_bresp    (xb_s9_bresp),
+    .s_axil_bvalid   (xb_s9_bvalid),
+    .s_axil_bready   (xb_s9_bready),
+    .s_axil_araddr   (xb_s9_araddr[11:0]),
+    .s_axil_arvalid  (xb_s9_arvalid),
+    .s_axil_arready  (xb_s9_arready),
+    .s_axil_rdata    (xb_s9_rdata),
+    .s_axil_rresp    (xb_s9_rresp),
+    .s_axil_rvalid   (xb_s9_rvalid),
+    .s_axil_rready   (xb_s9_rready)
+);
+
+gpio u_gpio (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    .gpio_in         (gpio_in),
+    .gpio_out        (gpio_out),
+    .gpio_dir        (gpio_dir),
+    .irq             (gpio_irq),
+    .s_axil_awaddr   (xb_s10_awaddr[11:0]),
+    .s_axil_awvalid  (xb_s10_awvalid),
+    .s_axil_awready  (xb_s10_awready),
+    .s_axil_wdata    (xb_s10_wdata),
+    .s_axil_wstrb    (xb_s10_wstrb),
+    .s_axil_wvalid   (xb_s10_wvalid),
+    .s_axil_wready   (xb_s10_wready),
+    .s_axil_bresp    (xb_s10_bresp),
+    .s_axil_bvalid   (xb_s10_bvalid),
+    .s_axil_bready   (xb_s10_bready),
+    .s_axil_araddr   (xb_s10_araddr[11:0]),
+    .s_axil_arvalid  (xb_s10_arvalid),
+    .s_axil_arready  (xb_s10_arready),
+    .s_axil_rdata    (xb_s10_rdata),
+    .s_axil_rresp    (xb_s10_rresp),
+    .s_axil_rvalid   (xb_s10_rvalid),
+    .s_axil_rready   (xb_s10_rready)
+);
+
+axi_lite_xbar #(
+    .BASE8  (32'h0200_0000), .MASK8  (32'hFFFF_F000),
+    .BASE9  (32'h0C00_0000), .MASK9  (32'hFFFF_F000),
+    .BASE10 (32'h4000_3000), .MASK10 (32'hFFFF_F000)
+) u_xbar (
+    .clk        (clk),
+    .rst_n      (rst_n),
+
+    .m0_awaddr  (cpu_dmem_awaddr),  .m0_awvalid (cpu_dmem_awvalid),
+    .m0_awready (cpu_dmem_awready),
+    .m0_wdata   (cpu_dmem_wdata),   .m0_wstrb   (cpu_dmem_wstrb),
+    .m0_wvalid  (cpu_dmem_wvalid),  .m0_wready  (cpu_dmem_wready),
+    .m0_bresp   (cpu_dmem_bresp),   .m0_bvalid  (cpu_dmem_bvalid),
+    .m0_bready  (cpu_dmem_bready),
+    .m0_araddr  (cpu_dmem_araddr),  .m0_arvalid (cpu_dmem_arvalid),
+    .m0_arready (cpu_dmem_arready),
+    .m0_rdata   (cpu_dmem_rdata),   .m0_rresp   (cpu_dmem_rresp),
+    .m0_rvalid  (cpu_dmem_rvalid),  .m0_rready  (cpu_dmem_rready),
+
+    .m1_awaddr  (dma_awaddr),  .m1_awvalid (dma_awvalid),
+    .m1_awready (dma_awready),
+    .m1_wdata   (dma_wdata),   .m1_wstrb   (dma_wstrb),
+    .m1_wvalid  (dma_wvalid),  .m1_wready  (dma_wready),
+    .m1_bresp   (dma_bresp),   .m1_bvalid  (dma_bvalid),
+    .m1_bready  (dma_bready),
+    .m1_araddr  (dma_araddr),  .m1_arvalid (dma_arvalid),
+    .m1_arready (dma_arready),
+    .m1_rdata   (dma_rdata),   .m1_rresp   (dma_rresp),
+    .m1_rvalid  (dma_rvalid),  .m1_rready  (dma_rready),
+
+    .s0_awaddr(xb_s0_awaddr),.s0_awvalid(xb_s0_awvalid),.s0_awready(xb_s0_awready),
+    .s0_wdata(xb_s0_wdata),  .s0_wstrb(xb_s0_wstrb),    .s0_wvalid(xb_s0_wvalid),
+    .s0_wready(xb_s0_wready),.s0_bresp(xb_s0_bresp),    .s0_bvalid(xb_s0_bvalid),
+    .s0_bready(xb_s0_bready),.s0_araddr(xb_s0_araddr),  .s0_arvalid(xb_s0_arvalid),
+    .s0_arready(xb_s0_arready),.s0_rdata(xb_s0_rdata),  .s0_rresp(xb_s0_rresp),
+    .s0_rvalid(xb_s0_rvalid),.s0_rready(xb_s0_rready),
+
+    .s1_awaddr(xb_s1_awaddr),.s1_awvalid(xb_s1_awvalid),.s1_awready(xb_s1_awready),
+    .s1_wdata(xb_s1_wdata),  .s1_wstrb(xb_s1_wstrb),    .s1_wvalid(xb_s1_wvalid),
+    .s1_wready(xb_s1_wready),.s1_bresp(xb_s1_bresp),    .s1_bvalid(xb_s1_bvalid),
+    .s1_bready(xb_s1_bready),.s1_araddr(xb_s1_araddr),  .s1_arvalid(xb_s1_arvalid),
+    .s1_arready(xb_s1_arready),.s1_rdata(xb_s1_rdata),  .s1_rresp(xb_s1_rresp),
+    .s1_rvalid(xb_s1_rvalid),.s1_rready(xb_s1_rready),
+
+    .s2_awaddr(xb_s2_awaddr),.s2_awvalid(xb_s2_awvalid),.s2_awready(xb_s2_awready),
+    .s2_wdata(xb_s2_wdata),  .s2_wstrb(xb_s2_wstrb),    .s2_wvalid(xb_s2_wvalid),
+    .s2_wready(xb_s2_wready),.s2_bresp(xb_s2_bresp),    .s2_bvalid(xb_s2_bvalid),
+    .s2_bready(xb_s2_bready),.s2_araddr(xb_s2_araddr),  .s2_arvalid(xb_s2_arvalid),
+    .s2_arready(xb_s2_arready),.s2_rdata(xb_s2_rdata),  .s2_rresp(xb_s2_rresp),
+    .s2_rvalid(xb_s2_rvalid),.s2_rready(xb_s2_rready),
+
+    .s3_awaddr(xb_s3_awaddr),.s3_awvalid(xb_s3_awvalid),.s3_awready(xb_s3_awready),
+    .s3_wdata(xb_s3_wdata),  .s3_wstrb(xb_s3_wstrb),    .s3_wvalid(xb_s3_wvalid),
+    .s3_wready(xb_s3_wready),.s3_bresp(xb_s3_bresp),    .s3_bvalid(xb_s3_bvalid),
+    .s3_bready(xb_s3_bready),.s3_araddr(xb_s3_araddr),  .s3_arvalid(xb_s3_arvalid),
+    .s3_arready(xb_s3_arready),.s3_rdata(xb_s3_rdata),  .s3_rresp(xb_s3_rresp),
+    .s3_rvalid(xb_s3_rvalid),.s3_rready(xb_s3_rready),
+
+    .s4_awaddr(xb_s4_awaddr),.s4_awvalid(xb_s4_awvalid),.s4_awready(xb_s4_awready),
+    .s4_wdata(xb_s4_wdata),  .s4_wstrb(xb_s4_wstrb),    .s4_wvalid(xb_s4_wvalid),
+    .s4_wready(xb_s4_wready),.s4_bresp(xb_s4_bresp),    .s4_bvalid(xb_s4_bvalid),
+    .s4_bready(xb_s4_bready),.s4_araddr(xb_s4_araddr),  .s4_arvalid(xb_s4_arvalid),
+    .s4_arready(xb_s4_arready),.s4_rdata(xb_s4_rdata),  .s4_rresp(xb_s4_rresp),
+    .s4_rvalid(xb_s4_rvalid),.s4_rready(xb_s4_rready),
+
+    .s5_awaddr(xb_s5_awaddr),.s5_awvalid(xb_s5_awvalid),.s5_awready(xb_s5_awready),
+    .s5_wdata(xb_s5_wdata),  .s5_wstrb(xb_s5_wstrb),    .s5_wvalid(xb_s5_wvalid),
+    .s5_wready(xb_s5_wready),.s5_bresp(xb_s5_bresp),    .s5_bvalid(xb_s5_bvalid),
+    .s5_bready(xb_s5_bready),.s5_araddr(xb_s5_araddr),  .s5_arvalid(xb_s5_arvalid),
+    .s5_arready(xb_s5_arready),.s5_rdata(xb_s5_rdata),  .s5_rresp(xb_s5_rresp),
+    .s5_rvalid(xb_s5_rvalid),.s5_rready(xb_s5_rready),
+
+    .s6_awaddr(xb_s6_awaddr),.s6_awvalid(xb_s6_awvalid),.s6_awready(xb_s6_awready),
+    .s6_wdata(xb_s6_wdata),  .s6_wstrb(xb_s6_wstrb),    .s6_wvalid(xb_s6_wvalid),
+    .s6_wready(xb_s6_wready),.s6_bresp(xb_s6_bresp),    .s6_bvalid(xb_s6_bvalid),
+    .s6_bready(xb_s6_bready),.s6_araddr(xb_s6_araddr),  .s6_arvalid(xb_s6_arvalid),
+    .s6_arready(xb_s6_arready),.s6_rdata(xb_s6_rdata),  .s6_rresp(xb_s6_rresp),
+    .s6_rvalid(xb_s6_rvalid),.s6_rready(xb_s6_rready),
+
+    .s7_awaddr(xb_s7_awaddr),.s7_awvalid(xb_s7_awvalid),.s7_awready(xb_s7_awready),
+    .s7_wdata(xb_s7_wdata),  .s7_wstrb(xb_s7_wstrb),    .s7_wvalid(xb_s7_wvalid),
+    .s7_wready(xb_s7_wready),.s7_bresp(xb_s7_bresp),    .s7_bvalid(xb_s7_bvalid),
+    .s7_bready(xb_s7_bready),.s7_araddr(xb_s7_araddr),  .s7_arvalid(xb_s7_arvalid),
+    .s7_arready(xb_s7_arready),.s7_rdata(xb_s7_rdata),  .s7_rresp(xb_s7_rresp),
+    .s7_rvalid(xb_s7_rvalid),.s7_rready(xb_s7_rready),
+
+    .s8_awaddr(xb_s8_awaddr),.s8_awvalid(xb_s8_awvalid),.s8_awready(xb_s8_awready),
+    .s8_wdata(xb_s8_wdata),  .s8_wstrb(xb_s8_wstrb),    .s8_wvalid(xb_s8_wvalid),
+    .s8_wready(xb_s8_wready),.s8_bresp(xb_s8_bresp),    .s8_bvalid(xb_s8_bvalid),
+    .s8_bready(xb_s8_bready),.s8_araddr(xb_s8_araddr),  .s8_arvalid(xb_s8_arvalid),
+    .s8_arready(xb_s8_arready),.s8_rdata(xb_s8_rdata),  .s8_rresp(xb_s8_rresp),
+    .s8_rvalid(xb_s8_rvalid),.s8_rready(xb_s8_rready),
+
+    .s9_awaddr(xb_s9_awaddr),.s9_awvalid(xb_s9_awvalid),.s9_awready(xb_s9_awready),
+    .s9_wdata(xb_s9_wdata),  .s9_wstrb(xb_s9_wstrb),    .s9_wvalid(xb_s9_wvalid),
+    .s9_wready(xb_s9_wready),.s9_bresp(xb_s9_bresp),    .s9_bvalid(xb_s9_bvalid),
+    .s9_bready(xb_s9_bready),.s9_araddr(xb_s9_araddr),  .s9_arvalid(xb_s9_arvalid),
+    .s9_arready(xb_s9_arready),.s9_rdata(xb_s9_rdata),  .s9_rresp(xb_s9_rresp),
+    .s9_rvalid(xb_s9_rvalid),.s9_rready(xb_s9_rready),
+
+    .s10_awaddr(xb_s10_awaddr),.s10_awvalid(xb_s10_awvalid),.s10_awready(xb_s10_awready),
+    .s10_wdata(xb_s10_wdata),  .s10_wstrb(xb_s10_wstrb),    .s10_wvalid(xb_s10_wvalid),
+    .s10_wready(xb_s10_wready),.s10_bresp(xb_s10_bresp),    .s10_bvalid(xb_s10_bvalid),
+    .s10_bready(xb_s10_bready),.s10_araddr(xb_s10_araddr),  .s10_arvalid(xb_s10_arvalid),
+    .s10_arready(xb_s10_arready),.s10_rdata(xb_s10_rdata),  .s10_rresp(xb_s10_rresp),
+    .s10_rvalid(xb_s10_rvalid),.s10_rready(xb_s10_rready)
+);
+
+boot_rom u_boot_rom (
+    .clk            (clk),
+    .rst_n          (rst_n),
+    .s_axil_araddr  (xb_s0_araddr),
+    .s_axil_arvalid (xb_s0_arvalid),
+    .s_axil_arready (xb_s0_arready),
+    .s_axil_rdata   (xb_s0_rdata),
+    .s_axil_rresp   (xb_s0_rresp),
+    .s_axil_rvalid  (xb_s0_rvalid),
+    .s_axil_rready  (xb_s0_rready),
+    .s_axil_awaddr  (xb_s0_awaddr),
+    .s_axil_awvalid (xb_s0_awvalid),
+    .s_axil_awready (xb_s0_awready),
+    .s_axil_wdata   (xb_s0_wdata),
+    .s_axil_wstrb   (xb_s0_wstrb),
+    .s_axil_wvalid  (xb_s0_wvalid),
+    .s_axil_wready  (xb_s0_wready),
+    .s_axil_bresp   (xb_s0_bresp),
+    .s_axil_bvalid  (xb_s0_bvalid),
+    .s_axil_bready  (xb_s0_bready)
+);
+
+sram_ctrl u_sram_ctrl (
+    .clk          (clk),
+    .rst_n        (rst_n),
+    .cpu_arvalid  (cpu_imem_arvalid),
+    .cpu_araddr   (cpu_imem_araddr),
+    .cpu_arready  (cpu_imem_arready),
+    .cpu_rvalid   (cpu_imem_rvalid),
+    .cpu_rdata    (cpu_imem_rdata),
+    .cpu_rresp    (cpu_imem_rresp),
+    .cpu_rready   (cpu_imem_rready),
+    .axi_awvalid  (xb_s1_awvalid),
+    .axi_awaddr   (xb_s1_awaddr),
+    .axi_awready  (xb_s1_awready),
+    .axi_wvalid   (xb_s1_wvalid),
+    .axi_wdata    (xb_s1_wdata),
+    .axi_wstrb    (xb_s1_wstrb),
+    .axi_wready   (xb_s1_wready),
+    .axi_bvalid   (xb_s1_bvalid),
+    .axi_bresp    (xb_s1_bresp),
+    .axi_bready   (xb_s1_bready),
+    .axi_arvalid  (xb_s1_arvalid),
+    .axi_araddr   (xb_s1_araddr),
+    .axi_arready  (xb_s1_arready),
+    .axi_rvalid   (xb_s1_rvalid),
+    .axi_rdata    (xb_s1_rdata),
+    .axi_rresp    (xb_s1_rresp),
+    .axi_rready   (xb_s1_rready)
+);
+
+// Simulation initialisation or stimulus block
+initial begin
+    $display("[INDIA_CRYPTO_SOC] PLIC/CLINT/GPIO integrated. 11-slave AXI crossbar active.");
+end
+
+endmodule
