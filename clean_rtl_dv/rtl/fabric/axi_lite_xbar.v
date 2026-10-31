@@ -1,7 +1,7 @@
 `default_nettype none
 `timescale 1ns/1ps
 
-// axi_lite_xbar: hardware module definition
+// AXI-Lite 2-master 11-slave crossbar with latched AR-select for stable R-channel routing
 module axi_lite_xbar #(
     parameter N_MASTERS = 2,
     parameter N_SLAVES  = 11,
@@ -175,10 +175,12 @@ assign BASE[10] = BASE10; assign MASK[10] = MASK10;
 wire [10:0] m0_aw_sel, m0_ar_sel;
 wire [10:0] m1_aw_sel, m1_ar_sel;
 wire        m0_aw_err, m0_ar_err, m1_aw_err, m1_ar_err;
+
 reg [10:0] m0_ar_sel_lat;
 reg [10:0] m1_ar_sel_lat;
 
 genvar i;
+// Generate per-slave address decode for both masters AW and AR channels
 generate
     for (i = 0; i < 11; i = i + 1) begin : DECODE
         assign m0_aw_sel[i] = ((m0_awaddr & MASK[i]) == BASE[i]);
@@ -272,6 +274,7 @@ assign sx_bresp[10]=s10_bresp;     assign sx_bvalid[10]=s10_bvalid;
 assign sx_arready[10]=s10_arready; assign sx_rdata[10]=s10_rdata;
 assign sx_rresp[10]=s10_rresp;     assign sx_rvalid[10]=s10_rvalid;
 
+// Generate per-slave AW/W/B/AR/R mux selecting between master 0 and master 1
 generate
     for (i = 0; i < 11; i = i + 1) begin : SMUX
         assign sx_awaddr[i]  = m0_aw_sel[i] ? m0_awaddr  : m1_awaddr;
@@ -349,7 +352,7 @@ reg        m0_bvalid_r;
 reg        m0_awready_r;
 reg        m0_wready_r;
 
-// AXI-Lite crossbar write-address channel arbitration and routing
+// Combinational M0 write response mux: routes AW/W/B channels from selected slave to M0
 always @(*) begin : M0_WR_RESP
     integer j;
     m0_bresp_r   = 2'b10;
@@ -383,7 +386,7 @@ reg [1:0]  m0_rresp_r;
 reg        m0_rvalid_r;
 reg        m0_arready_r;
 
-// AXI-Lite crossbar write-data channel forwarding
+// Combinational M0 read response mux: AR from combinational decode, R from latched decode
 always @(*) begin : M0_RD_RESP
     integer j;
     m0_rdata_r   = 32'hDEAD_BEEF;
@@ -414,7 +417,8 @@ assign m0_arready = m0_arready_r;
 assign m0_rvalid  = m0_rvalid_r;
 assign m0_rresp   = m0_rresp_r;
 assign m0_rdata   = m0_rdata_r;
-// AXI-Lite crossbar write-response channel return routing
+
+// Clocked AR-select latch registers capturing at AR handshake and clearing at R handshake
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         m0_ar_sel_lat <= 11'h000;
@@ -436,7 +440,7 @@ reg        m1_bvalid_r;
 reg        m1_awready_r;
 reg        m1_wready_r;
 
-// AXI-Lite crossbar read-address channel arbitration and routing
+// Combinational M1 write response mux with stall logic when M0 conflicts on same slave
 always @(*) begin : M1_WR_RESP
     integer j;
     m1_bresp_r   = 2'b10;
@@ -473,7 +477,7 @@ reg [1:0]  m1_rresp_r;
 reg        m1_rvalid_r;
 reg        m1_arready_r;
 
-// AXI-Lite crossbar read-data channel return routing
+// Combinational M1 read response mux with stall and latched-decode R-channel routing
 always @(*) begin : M1_RD_RESP
     integer j;
     m1_rdata_r   = 32'hDEAD_BEEF;
