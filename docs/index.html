@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRIYA DV Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── Reset & Base ───────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep:       #FFFFFF;
+      --bg-card:       #FAFAFA;
+      --bg-card2:      #F4F4F5;
+      --bg-table-row:  #FAFAFA;
+      --bg-table-alt:  #F4F4F5;
+      --cyan:          #000000;
+      --cyan-dim:      #333333;
+      --cyan-glow:     rgba(0,0,0,0.06);
+      --amber:         #333333;
+      --amber-dim:     #555555;
+      --amber-glow:    rgba(0,0,0,0.05);
+      --green:         #1A1A1A;
+      --green-glow:    rgba(0,0,0,0.06);
+      --red:           #991B1B;
+      --red-glow:      rgba(153,27,27,0.08);
+      --orange:        #4B5563;
+      --gray:          #6B7280;
+      --text-primary:  #0F172A;
+      --text-secondary:#374151;
+      --text-muted:    #6B7280;
+      --border:        #E5E7EB;
+      --border-bright: #9CA3AF;
+      --shadow-card:   0 1px 6px rgba(0,0,0,0.07), 0 2px 16px rgba(0,0,0,0.04);
+      --shadow-glow:   0 2px 12px rgba(0,0,0,0.10);
+      --radius:        10px;
+      --radius-sm:     6px;
+      --font-mono:     'SF Mono', 'Fira Code', 'Consolas', monospace;
+    }
+
+    html { font-size: 14px; }
+
+    body {
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ── Scrollbar ──────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background: #9CA3AF; border-radius: 3px; }
+
+    /* ── Header ─────────────────────────────────────────────────────── */
+    header {
+      background: #000000;
+      border-bottom: 1px solid var(--border-bright);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .header-logo-group {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .logo-badge {
+      width: 48px;
+      height: 48px;
+      background: #FFFFFF;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 900;
+      color: #000000;
+      letter-spacing: -1px;
+      flex-shrink: 0;
+      box-shadow: none;
+    }
+
+    .header-titles h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+
+    .header-titles .subtitle {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .header-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .last-updated {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.55);
+      font-family: var(--font-mono);
+    }
+
+    .last-updated span {
+      color: #FFFFFF;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-refresh {
+      background: #FFFFFF;
+      color: #000000;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 8px 18px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: none;
+    }
+
+    .btn-refresh:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn-refresh:active { transform: translateY(0); }
+
+    .btn-refresh.loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .refresh-icon {
+      display: inline-block;
+      font-size: 14px;
+      transition: transform 0.6s ease;
+    }
+
+    .btn-refresh.loading .refresh-icon {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .countdown-badge {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      background: rgba(255,255,255,0.12);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 8px;
+      white-space: nowrap;
+    }
+
+    .countdown-badge span { color: var(--amber); font-weight: 700; }
+
+    /* ── Main Layout ────────────────────────────────────────────────── */
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px 28px 60px;
+    }
+
+    /* ── Summary Cards ──────────────────────────────────────────────── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .stat-card.total::before   { background: #000000; }
+    .stat-card.pass::before    { background: #1A1A1A; }
+    .stat-card.fail::before    { background: #991B1B; }
+    .stat-card.rate::before    { background: #333333; }
+
+    .stat-card:hover {
+      border-color: var(--border-bright);
+      box-shadow: var(--shadow-card), var(--shadow-glow);
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .stat-card.total .stat-value { color: #000000; }
+    .stat-card.pass  .stat-value { color: #1A1A1A; }
+    .stat-card.fail  .stat-value { color: #991B1B; }
+    .stat-card.rate  .stat-value { color: #333333; }
+
+    .stat-sub {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .stat-icon {
+      position: absolute;
+      top: 18px; right: 20px;
+      font-size: 28px;
+      opacity: 0.12;
+    }
+
+    /* ── Charts Row ─────────────────────────────────────────────────── */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1.8fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .chart-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chart-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 14px;
+      background: #000000;
+      border-radius: 2px;
+    }
+
+    .chart-container {
+      position: relative;
+    }
+
+    .chart-container.donut {
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chart-container.bar {
+      height: 200px;
+    }
+
+    /* ── Section ────────────────────────────────────────────────────── */
+    .section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.2s;
+    }
+
+    .section:hover { border-color: var(--border-bright); }
+
+    .section-header {
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      background: var(--bg-card2);
+      transition: background 0.15s;
+      gap: 12px;
+    }
+
+    .section-header:hover { background: rgba(0,0,0,0.03); }
+
+    .section-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-led {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 6px currentColor;
+    }
+
+    .status-led.green  { background: #1A1A1A; color: #1A1A1A; }
+    .status-led.red    { background: #991B1B; color: #991B1B; animation: pulse-red 2s infinite; }
+    .status-led.gray   { background: var(--gray); color: var(--gray); }
+    .status-led.amber  { background: #555555; color: #555555; }
+
+    @keyframes pulse-red {
+      0%, 100% { opacity: 1;   box-shadow: 0 0 6px var(--red); }
+      50%       { opacity: 0.5; box-shadow: 0 0 12px var(--red); }
+    }
+
+    .section-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .section-badge-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .mini-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+
+    .mini-badge.pass-badge  { background: rgba(0,0,0,0.06);   color: #1A1A1A;  border: 1px solid rgba(0,0,0,0.20); }
+    .mini-badge.fail-badge  { background: rgba(153,27,27,0.10); color: #991B1B; border: 1px solid rgba(153,27,27,0.30); }
+    .mini-badge.total-badge { background: rgba(0,0,0,0.05);   color: #000000;  border: 1px solid rgba(0,0,0,0.15); }
+
+    .chevron {
+      color: var(--text-muted);
+      font-size: 18px;
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .section.collapsed .chevron { transform: rotate(-90deg); }
+
+    .section-body {
+      overflow: hidden;
+      max-height: 2000px;
+      transition: max-height 0.35s ease, opacity 0.25s ease;
+      opacity: 1;
+    }
+
+    .section.collapsed .section-body {
+      max-height: 0;
+      opacity: 0;
+    }
+
+    /* ── Table ──────────────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    thead tr {
+      background: #F3F4F6;
+      border-bottom: 1px solid var(--border-bright);
+    }
+
+    thead th {
+      padding: 10px 18px;
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #F3F4F6;
+      transition: background 0.15s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:nth-child(even) { background: #F9FAFB; }
+    tbody tr:hover { background: #F3F4F6; }
+
+    tbody tr.row-fail {
+      animation: pulse-row 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse-row {
+      0%, 100% { background: rgba(153,27,27,0.04); }
+      50%       { background: rgba(153,27,27,0.09); }
+    }
+
+    td {
+      padding: 11px 18px;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .test-name {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .test-category {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background: #F3F4F6;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: var(--font-mono);
+    }
+
+    .duration {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .uvm-count {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    .uvm-count.has-errors  { color: #991B1B; font-weight: 700; }
+    .uvm-count.no-errors   { color: #1A1A1A; }
+    .uvm-count.has-warns   { color: #555555; }
+    .uvm-count.no-warns    { color: var(--gray); }
+
+    /* ── Status Badges ──────────────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px 3px 7px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    .badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .badge.PASS {
+      background: rgba(0,0,0,0.06);
+      color: #1A1A1A;
+      border: 1px solid rgba(0,0,0,0.20);
+    }
+    .badge.PASS::before { background: #1A1A1A; box-shadow: none; }
+
+    .badge.FAIL {
+      background: rgba(153,27,27,0.10);
+      color: #991B1B;
+      border: 1px solid rgba(153,27,27,0.30);
+    }
+    .badge.FAIL::before { background: #991B1B; box-shadow: 0 0 4px rgba(153,27,27,0.5); animation: pulse-dot 1.5s infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    .badge.TIMEOUT {
+      background: rgba(75,85,99,0.10);
+      color: #4B5563;
+      border: 1px solid rgba(75,85,99,0.25);
+    }
+    .badge.TIMEOUT::before { background: #4B5563; }
+
+    .badge.UNKNOWN,
+    .badge.MISSING {
+      background: rgba(100,116,139,0.15);
+      color: var(--gray);
+      border: 1px solid rgba(100,116,139,0.3);
+    }
+    .badge.UNKNOWN::before,
+    .badge.MISSING::before { background: var(--gray); }
+
+    /* ── Empty / Error State ─────────────────────────────────────────── */
+    .empty-state {
+      padding: 60px 24px;
+      text-align: center;
+    }
+
+    .empty-state .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+
+    .empty-state h2 {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state code {
+      background: #F3F4F6;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #000000;
+    }
+
+    /* ── No-data row ────────────────────────────────────────────────── */
+    .no-data-row td {
+      text-align: center;
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 24px;
+    }
+
+    /* ── Footer ─────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+      padding-top: 28px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .footer-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+
+    .footer-card-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .footer-card-value {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #000000;
+      font-family: var(--font-mono);
+    }
+
+    .footer-copy {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      padding-bottom: 8px;
+    }
+
+    .footer-copy strong { color: var(--text-secondary); }
+
+    /* ── Loading overlay ────────────────────────────────────────────── */
+    #loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    #loading-overlay.active { display: flex; }
+
+    .spinner {
+      width: 42px; height: 42px;
+      border: 3px solid var(--border);
+      border-top-color: #000000;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    #loading-overlay p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Progress bar ───────────────────────────────────────────────── */
+    .pass-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .pass-bar-bg {
+      flex: 1;
+      height: 5px;
+      background: #E5E7EB;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .pass-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: #000000;
+      transition: width 0.8s ease;
+    }
+
+    .pass-bar-pct {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    /* ── Divider ────────────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    /* ── Target info bar ────────────────────────────────────────────── */
+    .target-bar {
+      background: #F9FAFB;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 18px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+    }
+
+    .target-bar-label {
+      color: #000000;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      letter-spacing: 0.04em;
+    }
+
+    .target-sep {
+      color: var(--border-bright);
+    }
+
+    /* ── Section label for charts ───────────────────────────────────── */
+    .section-group-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 12px;
+      padding-left: 2px;
+    }
+
+    /* ── Responsive ─────────────────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .summary-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-row   { grid-template-columns: 1fr; }
+      .footer-grid  { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+      .summary-grid         { grid-template-columns: repeat(2, 1fr); }
+      .header-inner         { flex-wrap: wrap; }
+      .header-meta          { align-items: flex-start; }
+      .footer-grid          { grid-template-columns: repeat(2, 1fr); }
+      .stat-value           { font-size: 2rem; }
+      main                  { padding: 16px 14px 40px; }
+    }
+
+    /* ── Tooltip for chart ──────────────────────────────────────────── */
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Loading overlay ──────────────────────────────────────────────── -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <p>Refreshing results...</p>
+</div>
+
+<!-- ── Header ───────────────────────────────────────────────────────── -->
+<header>
+  <div class="header-inner">
+    <div class="header-logo-group">
+      <div class="logo-badge">DV</div>
+      <div class="header-titles">
+        <h1>CRIYA Verification Dashboard</h1>
+        <div class="subtitle">Cryptographic RISC-V Indian Yield-optimized Architecture &nbsp;·&nbsp; Tapeout Target Dec 2026</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="last-updated">Updated: <span id="last-updated-ts">—</span></div>
+      <div class="header-actions">
+        <a href="rtl_dashboard.html" style="background:rgba(255,255,255,0.10);color:#FFFFFF;border:1px solid rgba(255,255,255,0.35);border-radius:6px;padding:7px 16px;font-size:0.78rem;font-weight:700;cursor:pointer;letter-spacing:0.02em;text-decoration:none;display:flex;align-items:center;gap:6px;transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.20)'" onmouseout="this.style.background='rgba(255,255,255,0.10)'">&#128202; RTL Dashboard &#8594;</a>
+        <a href="syn_dashboard.html" style="background:rgba(255,255,255,0.10);color:#FFFFFF;border:1px solid rgba(255,255,255,0.35);border-radius:6px;padding:7px 16px;font-size:0.78rem;font-weight:700;cursor:pointer;letter-spacing:0.02em;text-decoration:none;display:flex;align-items:center;gap:6px;transition:all 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.20)'" onmouseout="this.style.background='rgba(255,255,255,0.10)'">&#9879; Synthesis &#8594;</a>
+        <div class="countdown-badge">Auto-refresh in <span id="countdown">30</span>s</div>
+        <button class="btn-refresh" id="btn-refresh" onclick="doRefresh()">
+          <span class="refresh-icon">↻</span> Refresh Now
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Main ─────────────────────────────────────────────────────────── -->
+<main id="main-content">
+
+  <!-- Target info bar -->
+  <div class="target-bar">
+    <span class="target-bar-label">TARGET</span>
+    <span class="target-sep">|</span>
+    <span id="target-str">TSMC 28nm HPC+ | 300 MHz | 36,110 µm² | 6.13 mW | Dec 2026</span>
+  </div>
+
+  <!-- No-data placeholder (hidden when data loads) -->
+  <div id="no-data-state" class="empty-state" style="display:none;">
+    <div class="empty-icon">🔬</div>
+    <h2>No results yet</h2>
+    <p>Run <code>make soc_regress</code> or <code>python3 dashboard/collect_results.py</code> to populate the dashboard.</p>
+  </div>
+
+  <!-- Dashboard content (hidden until data loads) -->
+  <div id="dashboard-content" style="display:none;">
+
+    <!-- Summary cards -->
+    <div class="summary-grid" id="summary-grid">
+      <div class="stat-card total">
+        <span class="stat-icon">⬡</span>
+        <div class="stat-label">Total Tests</div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-sub" id="stat-breakdown">—</div>
+      </div>
+      <div class="stat-card pass">
+        <span class="stat-icon">✓</span>
+        <div class="stat-label">Passed</div>
+        <div class="stat-value" id="stat-pass">—</div>
+        <div class="stat-sub" id="stat-pass-sub">tests completed successfully</div>
+      </div>
+      <div class="stat-card fail">
+        <span class="stat-icon">✗</span>
+        <div class="stat-label">Failed</div>
+        <div class="stat-value" id="stat-fail">—</div>
+        <div class="stat-sub" id="stat-fail-sub">require investigation</div>
+      </div>
+      <div class="stat-card rate">
+        <span class="stat-icon">◎</span>
+        <div class="stat-label">Pass Rate</div>
+        <div class="stat-value" id="stat-rate">—</div>
+        <div class="pass-bar-wrap">
+          <div class="pass-bar-bg"><div class="pass-bar-fill" id="pass-bar" style="width:0%"></div></div>
+          <div class="pass-bar-pct" id="pass-bar-pct">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Result Breakdown</div>
+        <div class="chart-container donut">
+          <canvas id="donutChart"></canvas>
+        </div>
+        <div class="chart-legend" id="donut-legend"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Pass Rate by Category</div>
+        <div class="chart-container bar">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Directed SW Tests ─────────────────────────────────────────── -->
+    <div class="section-group-label">Verification Tiers</div>
+
+    <div class="section" id="sec-directed">
+      <div class="section-header" onclick="toggleSection('sec-directed')">
+        <div class="section-title-group">
+          <div class="status-led" id="led-directed"></div>
+          <span class="section-name">Directed SW Tests</span>
+          <div class="section-badge-row" id="badges-directed"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:0.72rem;color:var(--text-muted);">Bare-metal firmware tests targeting AES, TRNG, UART, GPIO peripherals</span>
+          <span class="chevron">▾</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Test Name</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-directed"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── UVM Tests ──────────────────────────────────────────────────── -->
+    <div class="section" id="sec-uvm">
+      <div class="section-header" onclick="toggleSection('sec-uvm')">
+        <div class="section-title-group">
+          <div class="status-led" id="led-uvm"></div>
+          <span class="section-name">UVM Tests</span>
+          <div class="section-badge-row" id="badges-uvm"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:0.72rem;color:var(--text-muted);">Constrained-random UVM environments for AES engine and GPIO controller</span>
+          <span class="chevron">▾</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Test Name</th>
+                <th style="text-align:center;">UVM Errors</th>
+                <th style="text-align:center;">UVM Warnings</th>
+                <th>Status</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-uvm"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── riscv-dv Tests ─────────────────────────────────────────────── -->
+    <div class="section" id="sec-riscvdv">
+      <div class="section-header" onclick="toggleSection('sec-riscvdv')">
+        <div class="section-title-group">
+          <div class="status-led" id="led-riscvdv"></div>
+          <span class="section-name">riscv-dv Random Tests</span>
+          <div class="section-badge-row" id="badges-riscvdv"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:0.72rem;color:var(--text-muted);">Random RISC-V instruction sequences with co-simulation against Spike ISS</span>
+          <span class="chevron">▾</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Test Name</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-riscvdv"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Formal Verification ───────────────────────────────────────── -->
+    <div class="section" id="sec-formal">
+      <div class="section-header" onclick="toggleSection('sec-formal')">
+        <div class="section-title-group">
+          <div class="status-led" id="led-formal"></div>
+          <span class="section-name">Formal Verification</span>
+          <div class="section-badge-row" id="badges-formal"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:0.72rem;color:var(--text-muted);">Bounded model checks and property proofs — AXI-Lite protocol, reset domains, crypto correctness</span>
+          <span class="chevron">▾</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Proof Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-formal"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="divider"></div>
+    <footer>
+      <div class="section-group-label" style="margin-bottom:16px;">Synthesis Targets &amp; Constraints</div>
+      <div class="footer-grid">
+        <div class="footer-card">
+          <div class="footer-card-label">Technology</div>
+          <div class="footer-card-value">TSMC 28nm HPC+</div>
+        </div>
+        <div class="footer-card">
+          <div class="footer-card-label">Target Fmax</div>
+          <div class="footer-card-value">300 MHz</div>
+        </div>
+        <div class="footer-card">
+          <div class="footer-card-label">Core Area</div>
+          <div class="footer-card-value">36,110 µm²</div>
+        </div>
+        <div class="footer-card">
+          <div class="footer-card-label">Power (Typ)</div>
+          <div class="footer-card-value">6.13 mW</div>
+        </div>
+        <div class="footer-card">
+          <div class="footer-card-label">Tapeout Target</div>
+          <div class="footer-card-value">Dec 2026</div>
+        </div>
+      </div>
+      <div class="footer-grid" style="grid-template-columns: repeat(4, 1fr); margin-top: 0;">
+        <div class="footer-card">
+          <div class="footer-card-label">ISA</div>
+          <div class="footer-card-value">RV32IMC</div>
+        </div>
+        <div class="footer-card">
+          <div class="footer-card-label">Crypto Engine</div>
+          <div class="footer-card-value">AES-256 + TRNG</div>
+        </div>
+        <div class="footer-card">
+          <div class="footer-card-label">Bus Interface</div>
+          <div class="footer-card-value">AXI-Lite / APB</div>
+        </div>
+        <div class="footer-card">
+          <div class="footer-card-label">Corner</div>
+          <div class="footer-card-value">TT / 0.9V / 25°C</div>
+        </div>
+      </div>
+      <div class="footer-copy" style="margin-top:20px;">
+        <strong>CRIYA SoC</strong> — Cryptographic RISC-V Indian Yield-optimized Architecture &nbsp;·&nbsp; Verification Dashboard &nbsp;·&nbsp; Auto-generated
+      </div>
+    </footer>
+
+  </div><!-- /#dashboard-content -->
+</main>
+
+<script>
+  // ── State ────────────────────────────────────────────────────────────
+  let donutChart = null;
+  let barChart   = null;
+  let countdown  = 30;
+  let timerInterval = null;
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+  function badge(status) {
+    const label = status || 'UNKNOWN';
+    return `<span class="badge ${label}">${label}</span>`;
+  }
+
+  function sectionLedClass(tests) {
+    if (!tests || tests.length === 0) return 'gray';
+    const hasFail = tests.some(t => t.status === 'FAIL');
+    const hasUnknown = tests.every(t => t.status === 'UNKNOWN' || t.status === 'MISSING');
+    if (hasFail) return 'red';
+    if (hasUnknown) return 'gray';
+    return 'green';
+  }
+
+  function sectionBadges(tests) {
+    if (!tests || tests.length === 0) return '<span class="mini-badge total-badge">0 tests</span>';
+    const pass    = tests.filter(t => t.status === 'PASS').length;
+    const fail    = tests.filter(t => t.status === 'FAIL').length;
+    const unknown = tests.filter(t => t.status !== 'PASS' && t.status !== 'FAIL').length;
+    let html = `<span class="mini-badge total-badge">${tests.length}</span>`;
+    if (pass > 0)    html += `<span class="mini-badge pass-badge">✓ ${pass}</span>`;
+    if (fail > 0)    html += `<span class="mini-badge fail-badge">✗ ${fail}</span>`;
+    if (unknown > 0) html += `<span class="mini-badge" style="background:rgba(107,114,128,0.10);color:#6B7280;border:1px solid rgba(107,114,128,0.25);font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:20px;">? ${unknown}</span>`;
+    return html;
+  }
+
+  function formalProofType(name) {
+    const map = {
+      'axil_protocol': 'Protocol Check',
+      'reset_domain':  'Reset Analysis',
+      'crypto':        'Correctness Proof',
+      'trng':          'Entropy Bound'
+    };
+    return map[name] || 'Property Proof';
+  }
+
+  function formalNotes(status, name) {
+    if (status === 'UNKNOWN' || status === 'MISSING') return '<span style="color:var(--gray);font-style:italic;font-size:0.78rem;">Not run yet</span>';
+    if (status === 'PASS')    return '<span style="color:#1A1A1A;font-size:0.78rem;">All properties hold</span>';
+    if (status === 'FAIL')    return '<span style="color:var(--red);font-size:0.78rem;">Counter-example found</span>';
+    if (status === 'TIMEOUT') return '<span style="color:#4B5563;font-size:0.78rem;">Bound exhausted</span>';
+    return '—';
+  }
+
+  // ── Section toggle ───────────────────────────────────────────────────
+  function toggleSection(id) {
+    const sec = document.getElementById(id);
+    if (sec) sec.classList.toggle('collapsed');
+  }
+
+  // ── Render tables ────────────────────────────────────────────────────
+  function renderDirected(tests) {
+    const tbody = document.getElementById('tbody-directed');
+    if (!tests || tests.length === 0) {
+      tbody.innerHTML = '<tr class="no-data-row"><td colspan="4">No directed SW tests found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = tests.map(t => `
+      <tr class="${t.status === 'FAIL' ? 'row-fail' : ''}">
+        <td><span class="test-name">${escHtml(t.name)}</span></td>
+        <td><span class="test-category">${escHtml(t.category || 'SW Test')}</span></td>
+        <td>${badge(t.status)}</td>
+        <td><span class="duration">${escHtml(t.duration || '—')}</span></td>
+      </tr>`).join('');
+  }
+
+  function renderUvm(tests) {
+    const tbody = document.getElementById('tbody-uvm');
+    if (!tests || tests.length === 0) {
+      tbody.innerHTML = '<tr class="no-data-row"><td colspan="5">No UVM tests found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = tests.map(t => {
+      const errClass  = t.uvm_errors  > 0 ? 'has-errors' : 'no-errors';
+      const warnClass = t.uvm_warnings > 0 ? 'has-warns'  : 'no-warns';
+      return `
+      <tr class="${t.status === 'FAIL' ? 'row-fail' : ''}">
+        <td><span class="test-name">${escHtml(t.name)}</span></td>
+        <td><span class="uvm-count ${errClass}">${t.uvm_errors !== undefined ? t.uvm_errors : '—'}</span></td>
+        <td><span class="uvm-count ${warnClass}">${t.uvm_warnings !== undefined ? t.uvm_warnings : '—'}</span></td>
+        <td>${badge(t.status)}</td>
+        <td><span class="duration">${escHtml(t.duration || '—')}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderRiscvDv(tests) {
+    const tbody = document.getElementById('tbody-riscvdv');
+    if (!tests || tests.length === 0) {
+      tbody.innerHTML = '<tr class="no-data-row"><td colspan="4">No riscv-dv tests found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = tests.map(t => `
+      <tr class="${t.status === 'FAIL' ? 'row-fail' : ''}">
+        <td><span class="test-name">${escHtml(t.name)}</span></td>
+        <td><span class="test-category">${escHtml(t.category || 'riscv-dv')}</span></td>
+        <td>${badge(t.status)}</td>
+        <td><span class="duration">${escHtml(t.duration || '—')}</span></td>
+      </tr>`).join('');
+  }
+
+  function renderFormal(tests) {
+    const tbody = document.getElementById('tbody-formal');
+    if (!tests || tests.length === 0) {
+      tbody.innerHTML = '<tr class="no-data-row"><td colspan="4">No formal proofs found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = tests.map(t => `
+      <tr class="${t.status === 'FAIL' ? 'row-fail' : ''}">
+        <td><span class="test-name">${escHtml(t.name)}</span></td>
+        <td><span class="test-category">${formalProofType(t.name)}</span></td>
+        <td>${badge(t.status)}</td>
+        <td>${formalNotes(t.status, t.name)}</td>
+      </tr>`).join('');
+  }
+
+  function escHtml(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  // ── Category pass rate helper ─────────────────────────────────────────
+  function categoryPassRate(tests) {
+    if (!tests || tests.length === 0) return 0;
+    const pass = tests.filter(t => t.status === 'PASS').length;
+    return Math.round((pass / tests.length) * 100);
+  }
+
+  // ── Chart rendering ──────────────────────────────────────────────────
+  function renderDonut(pass, fail, unknown) {
+    const ctx = document.getElementById('donutChart').getContext('2d');
+    const data = {
+      labels: ['Pass', 'Fail', 'Unknown/Missing'],
+      datasets: [{
+        data: [pass, fail, unknown],
+        backgroundColor: [
+          'rgba(26,26,26,0.85)',
+          'rgba(153,27,27,0.85)',
+          'rgba(156,163,175,0.65)'
+        ],
+        borderColor: [
+          'rgba(26,26,26,1)',
+          'rgba(153,27,27,1)',
+          'rgba(156,163,175,1)'
+        ],
+        borderWidth: 2,
+        hoverOffset: 6
+      }]
+    };
+
+    if (donutChart) donutChart.destroy();
+    donutChart = new Chart(ctx, {
+      type: 'doughnut',
+      data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '62%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.label}: ${ctx.raw} tests`
+            },
+            backgroundColor: '#FFFFFF',
+            borderColor: '#000000',
+            borderWidth: 1,
+            titleColor: '#0F172A',
+            bodyColor: '#374151',
+            padding: 10
+          }
+        }
+      }
+    });
+
+    // Custom legend
+    const total = pass + fail + unknown;
+    const legendEl = document.getElementById('donut-legend');
+    legendEl.innerHTML = [
+      { color: '#1A1A1A', label: 'Pass',    val: pass    },
+      { color: '#991B1B', label: 'Fail',    val: fail    },
+      { color: '#9CA3AF', label: 'Unknown', val: unknown }
+    ].map(item => `
+      <div class="legend-item">
+        <div class="legend-dot" style="background:${item.color}"></div>
+        <span>${item.label}: <strong style="color:#0F172A">${item.val}</strong></span>
+      </div>`).join('');
+  }
+
+  function renderBar(directed, uvm, riscvdv, formal) {
+    const ctx = document.getElementById('barChart').getContext('2d');
+    const labels = ['Directed SW', 'UVM', 'riscv-dv', 'Formal'];
+    const rates  = [
+      categoryPassRate(directed),
+      categoryPassRate(uvm),
+      categoryPassRate(riscvdv),
+      categoryPassRate(formal)
+    ];
+    const colors = rates.map(r =>
+      r === 100 ? 'rgba(26,26,26,0.80)'    :
+      r >= 75   ? 'rgba(68,68,68,0.80)'    :
+      r >= 50   ? 'rgba(107,114,128,0.80)' :
+                  'rgba(153,27,27,0.80)'
+    );
+    const borderColors = rates.map(r =>
+      r === 100 ? 'rgba(26,26,26,1)'    :
+      r >= 75   ? 'rgba(68,68,68,1)'    :
+      r >= 50   ? 'rgba(107,114,128,1)' :
+                  'rgba(153,27,27,1)'
+    );
+
+    if (barChart) barChart.destroy();
+    barChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Pass Rate (%)',
+          data: rates,
+          backgroundColor: colors,
+          borderColor: borderColors,
+          borderWidth: 2,
+          borderRadius: 5,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { color: 'rgba(0,0,0,0.07)' },
+            ticks: { color: '#374151', font: { size: 11, weight: '600' } },
+            border: { color: 'rgba(0,0,0,0.05)' }
+          },
+          y: {
+            min: 0, max: 100,
+            grid: { color: 'rgba(0,0,0,0.07)' },
+            ticks: {
+              color: '#374151',
+              font: { size: 11 },
+              callback: v => v + '%'
+            },
+            border: { color: 'rgba(0,0,0,0.05)' }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.raw}% pass rate`
+            },
+            backgroundColor: '#FFFFFF',
+            borderColor: '#000000',
+            borderWidth: 1,
+            titleColor: '#0F172A',
+            bodyColor: '#374151',
+            padding: 10
+          }
+        }
+      }
+    });
+  }
+
+  // ── Section LED + badge updates ───────────────────────────────────────
+  function updateSectionMeta(secId, ledId, badgeId, tests) {
+    const led = document.getElementById(ledId);
+    const bdg = document.getElementById(badgeId);
+    if (led) { led.className = 'status-led ' + sectionLedClass(tests); }
+    if (bdg) { bdg.innerHTML = sectionBadges(tests); }
+  }
+
+  // ── Main render ───────────────────────────────────────────────────────
+  function renderDashboard(data) {
+    document.getElementById('no-data-state').style.display     = 'none';
+    document.getElementById('dashboard-content').style.display = 'block';
+
+    // Timestamp
+    document.getElementById('last-updated-ts').textContent = data.generated_at || '—';
+
+    // Target string
+    if (data.target) {
+      document.getElementById('target-str').textContent = data.target;
+    }
+
+    // Summary
+    const s = data.summary || {};
+    document.getElementById('stat-total').textContent   = s.total   ?? '—';
+    document.getElementById('stat-pass').textContent    = s.pass    ?? '—';
+    document.getElementById('stat-fail').textContent    = s.fail    ?? '—';
+    document.getElementById('stat-rate').textContent    = (s.pass_rate != null) ? s.pass_rate + '%' : '—';
+    document.getElementById('stat-breakdown').textContent =
+      `${s.unknown ?? 0} unknown · ${s.fail ?? 0} failing`;
+    document.getElementById('stat-fail-sub').textContent =
+      s.fail > 0 ? `${s.fail} test${s.fail !== 1 ? 's' : ''} require investigation` : 'all tests passing';
+
+    const rate = s.pass_rate ?? 0;
+    document.getElementById('pass-bar').style.width = rate + '%';
+    document.getElementById('pass-bar-pct').textContent = rate + '%';
+
+    // Tables
+    renderDirected(data.directed);
+    renderUvm(data.uvm);
+    renderRiscvDv(data.riscv_dv);
+    renderFormal(data.formal);
+
+    // Section metadata
+    updateSectionMeta('sec-directed', 'led-directed', 'badges-directed', data.directed);
+    updateSectionMeta('sec-uvm',      'led-uvm',      'badges-uvm',      data.uvm);
+    updateSectionMeta('sec-riscvdv',  'led-riscvdv',  'badges-riscvdv',  data.riscv_dv);
+    updateSectionMeta('sec-formal',   'led-formal',   'badges-formal',   data.formal);
+
+    // Charts
+    renderDonut(s.pass ?? 0, s.fail ?? 0, s.unknown ?? 0);
+    renderBar(data.directed, data.uvm, data.riscv_dv, data.formal);
+  }
+
+  // ── Fetch data ────────────────────────────────────────────────────────
+  async function loadData(fromRefresh) {
+    const url = fromRefresh ? '/refresh' : '/results.json';
+    try {
+      const resp = await fetch(url + '?_=' + Date.now());
+      if (!resp.ok) {
+        // Try local file fallback
+        const local = await fetch('results.json?_=' + Date.now());
+        if (!local.ok) {
+          document.getElementById('no-data-state').style.display = 'block';
+          document.getElementById('dashboard-content').style.display = 'none';
+          return;
+        }
+        const data = await local.json();
+        renderDashboard(data);
+        return;
+      }
+      const data = await resp.json();
+      if (data.error) {
+        document.getElementById('no-data-state').style.display = 'block';
+        document.getElementById('dashboard-content').style.display = 'none';
+        return;
+      }
+      renderDashboard(data);
+    } catch (e) {
+      // Try direct file
+      try {
+        const local = await fetch('results.json?_=' + Date.now());
+        if (local.ok) {
+          const data = await local.json();
+          renderDashboard(data);
+          return;
+        }
+      } catch (_) {}
+      document.getElementById('no-data-state').style.display = 'block';
+      document.getElementById('dashboard-content').style.display = 'none';
+    }
+  }
+
+  // ── Refresh ───────────────────────────────────────────────────────────
+  async function doRefresh() {
+    const btn = document.getElementById('btn-refresh');
+    btn.classList.add('loading');
+    btn.disabled = true;
+    document.getElementById('loading-overlay').classList.add('active');
+
+    resetCountdown();
+    await loadData(true);
+
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    document.getElementById('loading-overlay').classList.remove('active');
+  }
+
+  // ── Countdown ─────────────────────────────────────────────────────────
+  function resetCountdown() {
+    countdown = 30;
+    document.getElementById('countdown').textContent = countdown;
+  }
+
+  function tickCountdown() {
+    countdown--;
+    if (countdown <= 0) {
+      resetCountdown();
+      loadData(false);
+    } else {
+      document.getElementById('countdown').textContent = countdown;
+    }
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    loadData(false);
+    timerInterval = setInterval(tickCountdown, 1000);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-10-28 22:20:51",
+  "project": "CRIYA \u2014 Cryptographic RISC-V Indian Yield-optimized Architecture",
+  "target": "TSMC 28nm HPC+ | 300 MHz | 36,110 \u00b5m\u00b2 | 6.13 mW | Dec 2026",
+  "summary": {
+    "total": 0,
+    "pass": 0,
+    "fail": 0,
+    "unknown": 0,
+    "pass_rate": 0
+  },
+  "directed": [],
+  "uvm": [],
+  "riscv_dv": [],
+  "formal": []
+}
