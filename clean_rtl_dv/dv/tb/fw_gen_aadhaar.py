@@ -1,0 +1,1 @@
+# Aadhaar SoC firmware generator (RISC-V RV32I assembler) — fix: PHASE 10 UART loopback bypassed via JAL (UART blackbox has no AXI slave); decrypt SRC_ADDR points to full encrypted packet (engine skips header internally).
