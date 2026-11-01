@@ -3,459 +3,566 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INDIA_CRYPTO_SOC — RTL Design Dashboard</title>
+<title>INDIA_CRYPTO_SOC — RTL Architecture Dashboard</title>
 <style>
 :root {
-  --bg: #0d1117; --panel: #161b22; --border: #30363d;
-  --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
-  --green: #3fb950; --yellow: #d29922; --red: #f85149;
-  --orange: #e3b341; --purple: #bc8cff; --teal: #39d353; --pink: #ff7b72;
+  --bg:#0d1117; --panel:#161b22; --border:#30363d;
+  --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff;
+  --green:#3fb950; --yellow:#d29922; --red:#f85149;
+  --orange:#e3b341; --purple:#bc8cff; --teal:#39d353; --pink:#ff7b72;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text);
-       font-family: "Segoe UI", system-ui, sans-serif; font-size: 14px;
-       line-height: 1.5; padding: 24px; }
-h1 { font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
-.subtitle { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
-.subtitle span { color: var(--text); }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.5;padding:24px;}
+h1{font-size:22px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.subtitle{color:var(--muted);font-size:13px;margin-bottom:28px;}
+.subtitle span{color:var(--text);}
 
-.kpi-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-           gap: 12px; margin-bottom: 28px; }
-.kpi { background: var(--panel); border: 1px solid var(--border);
-       border-radius: 8px; padding: 14px 16px; }
-.kpi .label { font-size: 11px; text-transform: uppercase; letter-spacing: .6px;
-              color: var(--muted); margin-bottom: 4px; }
-.kpi .value { font-size: 22px; font-weight: 700; line-height: 1.1; }
-.kpi .sub   { font-size: 11px; color: var(--muted); margin-top: 3px; }
-.blue   { color: var(--accent); } .green  { color: var(--green); }
-.yellow { color: var(--yellow); } .red    { color: var(--red); }
-.purple { color: var(--purple); } .teal   { color: var(--teal); }
-.orange { color: var(--orange); } .pink   { color: var(--pink); }
+.kpi-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:28px;}
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px 16px;}
+.kpi .label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:4px;}
+.kpi .value{font-size:22px;font-weight:700;line-height:1.1;}
+.kpi .sub{font-size:11px;color:var(--muted);margin-top:3px;}
+.blue{color:var(--accent);} .green{color:var(--green);} .yellow{color:var(--yellow);}
+.red{color:var(--red);} .purple{color:var(--purple);} .teal{color:var(--teal);}
+.orange{color:var(--orange);} .pink{color:var(--pink);}
 
-.section { margin-bottom: 32px; }
-.section-title { font-size: 13px; font-weight: 600; text-transform: uppercase;
-                 letter-spacing: .6px; color: var(--muted); padding-left: 10px;
-                 border-left: 3px solid var(--accent); margin-bottom: 14px; }
+.section{margin-bottom:32px;}
+.section-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding-left:10px;border-left:3px solid var(--accent);margin-bottom:14px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.grid12{display:grid;grid-template-columns:1fr 2fr;gap:16px;}
+.grid21{display:grid;grid-template-columns:2fr 1fr;gap:16px;}
+@media(max-width:900px){.grid2,.grid3,.grid12,.grid21{grid-template-columns:1fr;}}
 
-.grid2  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.grid3  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-.grid12 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
-.grid21 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
-@media (max-width: 900px) { .grid2,.grid3,.grid12,.grid21 { grid-template-columns: 1fr; } }
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px;}
+.panel-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:12px;}
+canvas{display:block;width:100%!important;}
 
-.panel { background: var(--panel); border: 1px solid var(--border);
-         border-radius: 8px; padding: 16px; }
-.panel-title { font-size: 12px; font-weight: 600; text-transform: uppercase;
-               letter-spacing: .5px; color: var(--muted); margin-bottom: 12px; }
-canvas { display: block; width: 100% !important; }
+.stat-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #21262d;font-size:13px;}
+.stat-row:last-child{border-bottom:none;}
+.stat-label{color:var(--muted);} .stat-val{font-weight:600;}
 
-.stat-row { display: flex; justify-content: space-between; padding: 6px 0;
-            border-bottom: 1px solid #21262d; font-size: 13px; }
-.stat-row:last-child { border-bottom: none; }
-.stat-label { color: var(--muted); } .stat-val { font-weight: 600; }
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{text-align:left;padding:7px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:1px solid var(--border);}
+.tbl td{padding:7px 9px;border-bottom:1px solid #21262d;font-size:12px;vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums;}
 
-.tbl { width: 100%; border-collapse: collapse; }
-.tbl th { text-align: left; padding: 7px 8px; font-size: 11px; text-transform: uppercase;
-          letter-spacing: .5px; color: var(--muted); border-bottom: 1px solid var(--border); }
-.tbl td { padding: 7px 8px; border-bottom: 1px solid #21262d; font-size: 12px; vertical-align: top; }
-.tbl tr:last-child td { border-bottom: none; }
-.tbl .num { text-align: right; font-variant-numeric: tabular-nums; }
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.3px;white-space:nowrap;}
+.b-pass{background:#0d2d18;color:#3fb950;border:1px solid #1e4a2a;}
+.b-fail{background:#2d0f0f;color:#f85149;border:1px solid #4a1a1a;}
+.b-warn{background:#2d2200;color:#d29922;border:1px solid #4a3900;}
+.b-info{background:#0d1f2d;color:#58a6ff;border:1px solid #1e3a4a;}
+.b-purple{background:#1a0a2a;color:#bc8cff;border:1px solid #3a1a5a;}
 
-.badge { display: inline-block; padding: 2px 7px; border-radius: 4px;
-         font-size: 10px; font-weight: 600; letter-spacing: .3px; white-space: nowrap; }
-.b-cpu    { background: #0d1f3a; color: #58a6ff; border: 1px solid #1e3a6a; }
-.b-crypto { background: #1a0a2a; color: #bc8cff; border: 1px solid #3a1a5a; }
-.b-mem    { background: #0d2a1a; color: #3fb950; border: 1px solid #1e4a2a; }
-.b-periph { background: #2a1a0a; color: #e3b341; border: 1px solid #4a3010; }
-.b-vendor { background: #2a0a1a; color: #ff7b72; border: 1px solid #4a1a2a; }
-.b-fabric { background: #0a2a2a; color: #39d353; border: 1px solid #1a4a3a; }
-.b-top    { background: #1a1a0a; color: #d29922; border: 1px solid #3a3a0a; }
+/* Pipeline diagram */
+.pipe{display:flex;gap:0;margin:8px 0;}
+.pipe-stage{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:700;border-radius:4px;position:relative;}
+.pipe-arrow{display:flex;align-items:center;color:#30363d;font-size:18px;padding:0 2px;}
+.pipe-lbl{font-size:10px;color:var(--muted);margin-top:3px;}
 
-/* Address map */
-.addrmap { width: 100%; }
-.addr-row { display: flex; align-items: stretch; margin-bottom: 3px; }
-.addr-base { font-size: 10px; color: var(--muted); width: 100px; flex-shrink: 0;
-             font-family: monospace; padding-top: 4px; }
-.addr-bar-wrap { flex: 1; }
-.addr-bar { height: 26px; border-radius: 3px; display: flex; align-items: center;
-            padding: 0 8px; font-size: 11px; font-weight: 600; color: #fff;
-            white-space: nowrap; overflow: hidden; cursor: default; }
-.addr-size { font-size: 10px; color: var(--muted); width: 52px;
-             flex-shrink: 0; text-align: right; padding-top: 4px; }
+/* stall gauge bars */
+.stall-bar-wrap{width:100%;background:#21262d;border-radius:3px;height:8px;margin:3px 0;}
+.stall-bar{height:8px;border-radius:3px;}
 
-/* Hierarchy tree */
-.tree { font-family: "Consolas", monospace; font-size: 12px; line-height: 1.8;
-        background: #0d1117; padding: 12px; border-radius: 6px;
-        border: 1px solid var(--border); overflow-x: auto; }
-.t-top    { color: #f0b429; }
-.t-cpu    { color: #58a6ff; }
-.t-crypto { color: #bc8cff; }
-.t-mem    { color: #3fb950; }
-.t-periph { color: #e3b341; }
-.t-vendor { color: #ff7b72; }
-.t-fabric { color: #39d353; }
-.t-line   { color: #30363d; }
+/* cycle timeline */
+.timeline{display:flex;gap:2px;align-items:center;margin:6px 0;flex-wrap:wrap;}
+.cy{width:22px;height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;}
 
-/* FSM table */
-.fsm-card { background: #0d1117; border: 1px solid var(--border);
-            border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; }
-.fsm-title { font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
-.fsm-states { font-size: 11px; color: #8b949e; font-family: monospace; line-height: 1.7; }
-.fsm-n { display: inline-block; background: #1e3a6a; color: #58a6ff;
-         border-radius: 3px; padding: 0 5px; font-weight: 700; margin-right: 4px; }
+/* TC card */
+.tc-card{background:#0d1117;border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:10px;}
+.tc-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;}
+.tc-row{display:flex;justify-content:space-between;padding:3px 0;font-size:12px;border-bottom:1px solid #21262d;}
+.tc-row:last-child{border-bottom:none;}
+.tc-k{color:var(--muted);} .tc-v{font-weight:600;}
 
-footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border);
-         font-size: 11px; color: var(--muted); }
+/* TRNG CDC chain */
+.cdc-chain{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:8px 0;}
+.cdc-ff{background:#1e3a6a;border:1px solid #2a5a9a;border-radius:4px;padding:5px 8px;font-size:11px;font-weight:700;color:#58a6ff;}
+.cdc-arrow{color:#30363d;font-size:14px;}
+
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);}
 </style>
 </head>
 <body>
 
-<h1>INDIA_CRYPTO_SOC — RTL Design Dashboard</h1>
+<h1>INDIA_CRYPTO_SOC — RTL Architecture Dashboard</h1>
 <div class="subtitle">
-  Cadence Innovus / Synopsys DC synthesis target &nbsp;|&nbsp;
-  TSMC 28nm HPC+ &nbsp;|&nbsp;
-  <span>35 RTL files · 12,053 LOC</span> &nbsp;|&nbsp;
-  RISC-V RV32IM + AES-256 + TRNG + Aadhaar SoC
+  RV32IM CPU + AES-256 + TRNG + Aadhaar &nbsp;|&nbsp; TSMC 28nm HPC+ &nbsp;|&nbsp;
+  <span>1 GHz</span> target &nbsp;|&nbsp; 3 testbenches &nbsp;|&nbsp; 50+ test cases
 </div>
 
 <!-- KPI bar -->
 <div class="kpi-bar">
-  <div class="kpi"><div class="label">RTL Files</div>
-    <div class="value blue">35</div><div class="sub">(.v + .sv)</div></div>
-  <div class="kpi"><div class="label">Total LOC</div>
-    <div class="value teal">12,053</div><div class="sub">primary RTL</div></div>
-  <div class="kpi"><div class="label">Modules</div>
-    <div class="value purple">28</div><div class="sub">unique + variants</div></div>
-  <div class="kpi"><div class="label">Hierarchy Depth</div>
-    <div class="value yellow">4</div><div class="sub">top → bit-ctrl</div></div>
-  <div class="kpi"><div class="label">Std Cells (post-synth)</div>
-    <div class="value blue">82,478</div><div class="sub">1 GHz netlist</div></div>
-  <div class="kpi"><div class="label">AXI-Lite Slaves</div>
-    <div class="value orange">11</div><div class="sub">2 masters</div></div>
-  <div class="kpi"><div class="label">Interrupt Sources</div>
-    <div class="value green">8</div><div class="sub">PLIC (N_SRC=8)</div></div>
-  <div class="kpi"><div class="label">SRAM / ROM</div>
-    <div class="value pink">512 + 32 KB</div><div class="sub">data + boot</div></div>
+  <div class="kpi"><div class="label">Pipeline Depth</div>
+    <div class="value blue">4 stages</div><div class="sub">IF→ID→EX→MEM/WB</div></div>
+  <div class="kpi"><div class="label">Peak IPC</div>
+    <div class="value green">1.0</div><div class="sub">No stalls, no branches</div></div>
+  <div class="kpi"><div class="label">MDU MUL Latency</div>
+    <div class="value yellow">32 cycles</div><div class="sub">RV32IM MUL/MULH</div></div>
+  <div class="kpi"><div class="label">MDU DIV Latency</div>
+    <div class="value orange">33 cycles</div><div class="sub">RV32IM DIV/REM</div></div>
+  <div class="kpi"><div class="label">AES-256 Encrypt</div>
+    <div class="value purple">~75 cycles</div><div class="sub">60 keysched + 15 rounds</div></div>
+  <div class="kpi"><div class="label">AES Throughput</div>
+    <div class="value teal">1.71 Gbps</div><div class="sub">@ 1 GHz, no SCA stalls</div></div>
+  <div class="kpi"><div class="label">SPI Max Clock</div>
+    <div class="value blue">500 MHz</div><div class="sub">clk_div=0, sys_clk/2</div></div>
+  <div class="kpi"><div class="label">Sim Watchdog</div>
+    <div class="value pink">5 M cycles</div><div class="sub">image TB (50 ms)</div></div>
 </div>
 
-<!-- LOC charts -->
+<!-- CPU Pipeline -->
 <div class="section">
-  <div class="section-title">Lines of Code Distribution</div>
-  <div class="grid2">
+  <div class="section-title">CPU Pipeline Architecture (RV32IM)</div>
+  <div class="grid21">
     <div class="panel">
-      <div class="panel-title">LOC by Module (Top 15)</div>
-      <canvas id="locChart" height="320"></canvas>
-    </div>
-    <div class="panel">
-      <div class="panel-title">LOC by Category</div>
-      <canvas id="catChart" height="200"></canvas>
-      <div style="margin-top:16px">
-        <div class="stat-row"><span class="stat-label">CPU Core (incl. picorv32)</span><span class="stat-val blue">4,417 LOC</span></div>
-        <div class="stat-row"><span class="stat-label">Crypto Engines</span><span class="stat-val purple">2,225 LOC</span></div>
-        <div class="stat-row"><span class="stat-label">Vendor Peripheral IPs</span><span class="stat-val pink">2,318 LOC</span></div>
-        <div class="stat-row"><span class="stat-label">Peripheral Wrappers</span><span class="stat-val yellow">920 LOC</span></div>
-        <div class="stat-row"><span class="stat-label">Top-level + Fabric</span><span class="stat-val teal">1,165 LOC</span></div>
-        <div class="stat-row"><span class="stat-label">Memory Subsystem</span><span class="stat-val green">603 LOC</span></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Module table -->
-<div class="section">
-  <div class="section-title">Module Inventory</div>
-  <div class="panel">
-    <table class="tbl">
-      <thead>
-        <tr>
-          <th style="width:22%">Module</th>
-          <th style="width:9%">Category</th>
-          <th class="num" style="width:6%">LOC</th>
-          <th class="num" style="width:6%">Ports</th>
-          <th class="num" style="width:6%">Params</th>
-          <th>Key Features</th>
-        </tr>
-      </thead>
-      <tbody id="modTableBody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- Hierarchy + Address map -->
-<div class="section">
-  <div class="section-title">Instantiation Hierarchy & Address Map</div>
-  <div class="grid2">
-    <div class="panel">
-      <div class="panel-title">Module Instantiation Tree</div>
-      <div class="tree">
-<span class="t-top">india_crypto_soc</span>  <span style="color:#30363d">(top)</span>
-<span class="t-line">├──</span> <span class="t-cpu">rv32im_core</span>         <span style="color:#30363d">u_cpu   · RV32IM · 37 ports</span>
-<span class="t-line">├──</span> <span class="t-cpu">aes_isa_ext</span>         <span style="color:#30363d">u_aes_isa · custom AES ISA</span>
-<span class="t-line">│   └──</span> <span class="t-crypto">verhoeff_check</span>  <span style="color:#30363d">u_verhoeff_isa</span>
-<span class="t-line">├──</span> <span class="t-crypto">rosc_trng</span>           <span style="color:#30363d">u_trng · NIST 800-90B</span>
-<span class="t-line">├──</span> <span class="t-crypto">aes_ca_accel</span>        <span style="color:#30363d">u_aes_ca · AES-256 + SCA</span>
-<span class="t-line">├──</span> <span class="t-crypto">india_pdf_engine</span>    <span style="color:#30363d">u_pdf · 17-state FSM</span>
-<span class="t-line">│   ├──</span> <span class="t-crypto">aadhaar_id_check</span>  <span style="color:#30363d">u_adh_id</span>
-<span class="t-line">│   └──</span> <span class="t-crypto">verhoeff_check</span>  <span style="color:#30363d">u_verhoeff</span>
-<span class="t-line">├──</span> <span class="t-periph">pulp_uart_wrap</span>      <span style="color:#30363d">u_uart</span>
-<span class="t-line">│   ├──</span> <span class="t-periph">axil_to_apb</span>     <span style="color:#30363d">u_bridge</span>
-<span class="t-line">│   └──</span> <span class="t-vendor">apb_uart</span>        <span style="color:#30363d">u_uart · 16-deep FIFO</span>
-<span class="t-line">├──</span> <span class="t-periph">pulp_i2c_wrap</span>       <span style="color:#30363d">u_i2c</span>
-<span class="t-line">│   ├──</span> <span class="t-periph">axil_to_apb</span>     <span style="color:#30363d">u_bridge</span>
-<span class="t-line">│   └──</span> <span class="t-vendor">apb_i2c</span>         <span style="color:#30363d">u_i2c</span>
-<span class="t-line">│       └──</span> <span class="t-vendor">i2c_master_byte_ctrl</span>
-<span class="t-line">│           └──</span> <span class="t-vendor">i2c_master_bit_ctrl</span>
-<span class="t-line">├──</span> <span class="t-periph">pulp_spi_wrap</span>       <span style="color:#30363d">u_spi</span>
-<span class="t-line">│   ├──</span> <span class="t-periph">axil_to_apb</span>     <span style="color:#30363d">u_bridge</span>
-<span class="t-line">│   └──</span> <span class="t-vendor">apb_spi_master</span>  <span style="color:#30363d">u_spi · BUFFER_DEPTH=8</span>
-<span class="t-line">│       └──</span> <span class="t-vendor">spi_master_controller</span>
-<span class="t-line">│           ├──</span> <span class="t-vendor">spi_master_clkgen</span>
-<span class="t-line">│           ├──</span> <span class="t-vendor">spi_master_tx</span>
-<span class="t-line">│           └──</span> <span class="t-vendor">spi_master_rx</span>
-<span class="t-line">├──</span> <span class="t-periph">clint</span>               <span style="color:#30363d">u_clint · 64-bit mtime</span>
-<span class="t-line">├──</span> <span class="t-periph">plic</span>                <span style="color:#30363d">u_plic · N_SRC=8</span>
-<span class="t-line">├──</span> <span class="t-periph">gpio</span>                <span style="color:#30363d">u_gpio · 32-bit + IRQ</span>
-<span class="t-line">├──</span> <span class="t-fabric">axi_lite_xbar</span>       <span style="color:#30363d">u_xbar · 2M×11S</span>
-<span class="t-line">├──</span> <span class="t-mem">boot_rom</span>            <span style="color:#30363d">u_boot_rom · 32 KB</span>
-<span class="t-line">└──</span> <span class="t-mem">sram_ctrl</span>           <span style="color:#30363d">u_sram_ctrl</span>
-    <span class="t-line">└──</span> <span class="t-mem">sram_sp_wrap</span>    <span style="color:#30363d">512 KB (TS1N28HPC...)</span>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">AXI-Lite Address Map</div>
-      <div class="addrmap" id="addrMap"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Crypto + FSMs -->
-<div class="section">
-  <div class="section-title">Cryptographic Features & FSM Complexity</div>
-  <div class="grid2">
-
-    <div class="panel">
-      <div class="panel-title">Crypto Engine Capabilities</div>
-      <table class="tbl">
-        <thead><tr><th>Module</th><th>Algorithm</th><th>Key/Width</th><th>Standard</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><code style="color:#bc8cff">aes_ca_accel</code></td>
-            <td>AES-256 Enc/Dec</td>
-            <td>256-bit key, 128-bit block</td>
-            <td>FIPS 197</td>
-          </tr>
-          <tr>
-            <td><code style="color:#bc8cff">aes_isa_ext</code></td>
-            <td>AES ISA (SubBytes, MixCol, ShiftRows, KeyExp)</td>
-            <td>32-bit word ops</td>
-            <td>RV32 custom ext</td>
-          </tr>
-          <tr>
-            <td><code style="color:#bc8cff">rosc_trng</code></td>
-            <td>Ring-Osc TRNG + Von Neumann whitening</td>
-            <td>32-bit output</td>
-            <td>NIST SP 800-90B</td>
-          </tr>
-          <tr>
-            <td><code style="color:#bc8cff">india_pdf_engine</code></td>
-            <td>AES-CTR + CA-30 nonce</td>
-            <td>256-bit key, 128-bit tag</td>
-            <td>Custom AEAD</td>
-          </tr>
-          <tr>
-            <td><code style="color:#bc8cff">verhoeff_check</code></td>
-            <td>Verhoeff checksum (D5 dihedral group)</td>
-            <td>12-digit BCD</td>
-            <td>UIDAI Aadhaar</td>
-          </tr>
-          <tr>
-            <td><code style="color:#bc8cff">aadhaar_id_check</code></td>
-            <td>Aadhaar XML magic-byte validation</td>
-            <td>32-bit word</td>
-            <td>UIDAI</td>
-          </tr>
-          <tr>
-            <td><code style="color:#bc8cff">hamming_secded</code></td>
-            <td>Hamming SECDED (32b → 39b)</td>
-            <td>7 parity bits</td>
-            <td>SEC-DED ECC</td>
-          </tr>
-          <tr>
-            <td><code style="color:#bc8cff">aes_ca_accel</code> SCA</td>
-            <td>LFSR stall countermeasure</td>
-            <td>8-bit Fibonacci LFSR</td>
-            <td>Side-channel resist.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">FSM Inventory</div>
-
-      <div class="fsm-card">
-        <div class="fsm-title">india_pdf_engine — Main Encryption FSM</div>
-        <div class="fsm-states">
-          <span class="fsm-n">17</span> states<br>
-          S_IDLE → S_TRNG_KEY → S_TRNG_NONCE → S_BUILD_HDR →<br>
-          S_ENC_HDR → S_LOAD_WORD → S_WAIT_LOAD → S_CTR_REQ →<br>
-          S_WAIT_CTR → S_STORE_WORD → S_WAIT_STORE → S_WRITE_TAG →<br>
-          S_WAIT_TAG → S_VERIFY → S_ZEROIZE → S_WAIT_ZERO → S_DONE
+      <div class="panel-title">4-Stage In-Order Pipeline</div>
+      <div class="pipe">
+        <div class="pipe-stage" style="background:#1e3a6a;border:1px solid #2a5a9a;">
+          <div style="color:#58a6ff">IF</div>
+          <div class="pipe-lbl">Instruction<br>Fetch</div>
+        </div>
+        <div class="pipe-arrow">›</div>
+        <div class="pipe-stage" style="background:#1e2a5a;border:1px solid #2a4a8a;">
+          <div style="color:#7abaff">ID</div>
+          <div class="pipe-lbl">Decode<br>+ Hazard</div>
+        </div>
+        <div class="pipe-arrow">›</div>
+        <div class="pipe-stage" style="background:#2a1a5a;border:1px solid #4a2a8a;">
+          <div style="color:#bc8cff">EX</div>
+          <div class="pipe-lbl">ALU / MDU<br>/ Custom</div>
+        </div>
+        <div class="pipe-arrow">›</div>
+        <div class="pipe-stage" style="background:#1a2a1a;border:1px solid #2a4a2a;">
+          <div style="color:#3fb950">MEM</div>
+          <div class="pipe-lbl">Data<br>Memory</div>
+        </div>
+        <div class="pipe-arrow">›</div>
+        <div class="pipe-stage" style="background:#1a2a1a;border:1px solid #2a4a2a;">
+          <div style="color:#39d353">WB</div>
+          <div class="pipe-lbl">Write<br>Back</div>
         </div>
       </div>
-
-      <div class="fsm-card">
-        <div class="fsm-title">aes_ca_accel — AES-256 Engine FSM</div>
-        <div class="fsm-states">
-          <span class="fsm-n">5</span> states<br>
-          S_IDLE → S_KEYSCHED → S_ROUND → S_FINAL → S_DONE
-        </div>
+      <div style="margin-top:14px">
+        <div class="panel-title">Stall / Flush Conditions</div>
+        <table class="tbl">
+          <thead><tr><th>Hazard</th><th>Cause</th><th class="num">Penalty</th><th>IPC Impact</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="badge b-warn">Load-Use</span></td>
+              <td>Load followed by dependent instruction (rd matches rs1/rs2)</td>
+              <td class="num" style="color:#d29922"><strong>1 cycle</strong></td>
+              <td style="color:#8b949e">IPC ≈ 0.85 (data-heavy)</td>
+            </tr>
+            <tr>
+              <td><span class="badge b-fail">Branch Flush</span></td>
+              <td>Taken branch: flushes IF, ID, EX stages (3 stages in-flight)</td>
+              <td class="num" style="color:#f85149"><strong>3 cycles</strong></td>
+              <td style="color:#8b949e">IPC ≈ 0.70 (branch-heavy)</td>
+            </tr>
+            <tr>
+              <td><span class="badge b-fail">MDU Multiply</span></td>
+              <td>MUL/MULH/MULHSU — mdu_busy asserted for full duration</td>
+              <td class="num" style="color:#f85149"><strong>32 cycles</strong></td>
+              <td style="color:#8b949e">IPC ≈ 0.03 per MUL</td>
+            </tr>
+            <tr>
+              <td><span class="badge b-fail">MDU Divide</span></td>
+              <td>DIV/DIVU/REM/REMU — init + 32 iter + 1 final</td>
+              <td class="num" style="color:#f85149"><strong>33 cycles</strong></td>
+              <td style="color:#8b949e">IPC ≈ 0.03 per DIV</td>
+            </tr>
+            <tr>
+              <td><span class="badge b-warn">AXI Pending</span></td>
+              <td>dmem_op_pending — AXI write/read handshake in-flight</td>
+              <td class="num" style="color:#d29922"><strong>1–N cycles</strong></td>
+              <td style="color:#8b949e">Bus dependent</td>
+            </tr>
+            <tr>
+              <td><span class="badge b-info">Custom AES</span></td>
+              <td>custom_rd_valid not asserted — waits for aes_isa_ext</td>
+              <td class="num" style="color:#58a6ff"><strong>1 cycle</strong></td>
+              <td style="color:#8b949e">No effective stall</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-
-      <div class="fsm-card">
-        <div class="fsm-title">axil_to_apb — Protocol Bridge FSM</div>
-        <div class="fsm-states">
-          <span class="fsm-n">4</span> states<br>
-          IDLE → SETUP → ENABLE → RESP
-        </div>
-      </div>
-
-      <div class="fsm-card">
-        <div class="fsm-title">boot_rom — AXI Slave FSM</div>
-        <div class="fsm-states">
-          <span class="fsm-n">2</span> states &nbsp; IDLE → DATA (read-only, SLVERR on write)
-        </div>
-      </div>
-
-      <div class="fsm-card">
-        <div class="fsm-title">rv32im_core — Fetch / Execute Pipeline</div>
-        <div class="fsm-states">
-          <span class="fsm-n">5</span> implied stages &nbsp; FETCH → DECODE → EXECUTE → MEM → WB
-        </div>
-      </div>
-
     </div>
-  </div>
-</div>
-
-<!-- Port distribution + interrupt routing -->
-<div class="section">
-  <div class="section-title">Port Distribution & Interrupt Routing</div>
-  <div class="grid2">
-    <div class="panel">
-      <div class="panel-title">Port Count by Module (Top 12)</div>
-      <canvas id="portChart" height="260"></canvas>
-    </div>
 
     <div class="panel">
-      <div class="panel-title">Interrupt Routing to PLIC</div>
-      <table class="tbl">
-        <thead><tr><th>Source #</th><th>Module</th><th>Signal</th><th>Type</th></tr></thead>
-        <tbody>
-          <tr><td>src[0]</td><td><code style="color:#e3b341">gpio</code></td><td>gpio_irq</td><td>Edge-detect (any pin)</td></tr>
-          <tr><td>src[1]</td><td><code style="color:#ff7b72">apb_uart</code></td><td>uart_irq</td><td>RX/TX/overflow/parity</td></tr>
-          <tr><td>src[2]</td><td><code style="color:#ff7b72">apb_i2c</code></td><td>i2c_irq</td><td>Transfer complete / NAK</td></tr>
-          <tr><td>src[3]</td><td><code style="color:#ff7b72">apb_spi_master</code></td><td>spi_irq</td><td>TX empty / RX ready</td></tr>
-          <tr><td>src[4]</td><td><code style="color:#bc8cff">aes_ca_accel</code></td><td>aes_irq</td><td>Cipher done</td></tr>
-          <tr><td>src[5]</td><td><code style="color:#bc8cff">rosc_trng</code></td><td>trng_irq</td><td>Data ready / health fail</td></tr>
-          <tr><td>src[6]</td><td><code style="color:#bc8cff">india_pdf_engine</code></td><td>pdf_irq</td><td>Encrypt/decrypt done</td></tr>
-          <tr><td>src[7]</td><td><code style="color:#bc8cff">india_pdf_engine</code></td><td>seceng_irq</td><td>Combined security IRQ</td></tr>
-        </tbody>
-      </table>
+      <div class="panel-title">IPC Estimate by Workload</div>
+      <canvas id="ipcChart" height="200"></canvas>
       <div style="margin-top:12px">
-        <div class="stat-row"><span class="stat-label">CLINT timer_irq</span><span class="stat-val">Direct → CPU (mtime ≥ mtimecmp)</span></div>
-        <div class="stat-row"><span class="stat-label">CLINT soft_irq</span><span class="stat-val">Direct → CPU (msip[0])</span></div>
-        <div class="stat-row"><span class="stat-label">PLIC ext_irq</span><span class="stat-val">Priority-encoded → CPU ext_irq</span></div>
-        <div class="stat-row"><span class="stat-label">Priority levels</span><span class="stat-val">3-bit (0–7) per source</span></div>
-        <div class="stat-row"><span class="stat-label">Global threshold</span><span class="stat-val">Configurable (firmware)</span></div>
+        <div class="stat-row"><span class="stat-label">Peak IPC (no hazards)</span><span class="stat-val green">1.00</span></div>
+        <div class="stat-row"><span class="stat-label">Typical integer code</span><span class="stat-val">0.85 – 0.90</span></div>
+        <div class="stat-row"><span class="stat-label">Branch-heavy (loops)</span><span class="stat-val yellow">0.70 – 0.75</span></div>
+        <div class="stat-row"><span class="stat-label">MDU-heavy (AES SW)</span><span class="stat-val red">0.40 – 0.60</span></div>
+        <div class="stat-row"><span class="stat-label">Custom AES ISA</span><span class="stat-val teal">~0.95</span></div>
+        <div class="stat-row"><span class="stat-label">JALR target mask</span><span class="stat-val" style="font-size:11px;color:#8b949e">& 0xFFFF_FFFE (bit-0 clear)</span></div>
+        <div class="stat-row"><span class="stat-label">Forwarding</span><span class="stat-val">EX→EX, MEM→EX</span></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Memory config + TRNG/SCA details -->
+<!-- Stall cycle breakdown -->
 <div class="section">
-  <div class="section-title">Memory Subsystem & Security Parameters</div>
+  <div class="section-title">Stall Cycle Breakdown & MDU Latency</div>
+  <div class="grid2">
+    <div class="panel">
+      <div class="panel-title">Relative Stall Duration (cycles)</div>
+      <canvas id="stallChart" height="220"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title">MDU Multiply Cycle Timeline (32 cycles)</div>
+      <div id="mduTimeline"></div>
+      <div style="margin-top:10px">
+        <div class="stat-row"><span class="stat-label">Operation trigger</span><span class="stat-val">funct7 = 0x01 (M-ext)</span></div>
+        <div class="stat-row"><span class="stat-label">MUL counter</span><span class="stat-val">mdu_cnt: 0 → 32</span></div>
+        <div class="stat-row"><span class="stat-label">DIV init phase</span><span class="stat-val">mdu_cnt = 0 → 1 (setup)</span></div>
+        <div class="stat-row"><span class="stat-label">DIV iteration phase</span><span class="stat-val">mdu_cnt = 1 → 32</span></div>
+        <div class="stat-row"><span class="stat-label">DIV final phase</span><span class="stat-val">mdu_cnt = 32 → 33</span></div>
+        <div class="stat-row"><span class="stat-label">Pipeline during MDU</span><span class="stat-val red">All stages stalled (mdu_busy)</span></div>
+        <div class="stat-row"><span class="stat-label">MUL instructions</span><span class="stat-val">MUL, MULH, MULHSU, MULHU</span></div>
+        <div class="stat-row"><span class="stat-label">DIV instructions</span><span class="stat-val">DIV, DIVU, REM, REMU</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AES-256 throughput -->
+<div class="section">
+  <div class="section-title">AES-256 Accelerator — Throughput & Cycle Breakdown</div>
+  <div class="grid2">
+    <div class="panel">
+      <div class="panel-title">AES-256 Encrypt Cycle Breakdown</div>
+      <canvas id="aesChart" height="200"></canvas>
+      <div style="margin-top:10px">
+        <div class="stat-row"><span class="stat-label">Key schedule (w[0..59])</span><span class="stat-val yellow">60 cycles</span></div>
+        <div class="stat-row"><span class="stat-label">AES rounds (14 × 1 cyc)</span><span class="stat-val blue">14 cycles</span></div>
+        <div class="stat-row"><span class="stat-label">Final round</span><span class="stat-val">1 cycle</span></div>
+        <div class="stat-row"><span class="stat-label">Total (no SCA)</span><span class="stat-val green">~75 cycles</span></div>
+        <div class="stat-row"><span class="stat-label">SCA LFSR stalls (avg ~20%)</span><span class="stat-val orange">~15 extra cycles</span></div>
+        <div class="stat-row"><span class="stat-label">Total (with SCA)</span><span class="stat-val orange">~90 cycles</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Throughput vs. Clock Frequency</div>
+      <canvas id="tputChart" height="200"></canvas>
+      <div style="margin-top:10px">
+        <div class="stat-row"><span class="stat-label">Block size</span><span class="stat-val">128 bits</span></div>
+        <div class="stat-row"><span class="stat-label">@ 1 GHz (no SCA)</span><span class="stat-val teal">1.71 Gbps</span></div>
+        <div class="stat-row"><span class="stat-label">@ 1 GHz (with SCA ~90 cyc)</span><span class="stat-val green">1.42 Gbps</span></div>
+        <div class="stat-row"><span class="stat-label">@ 500 MHz (no SCA)</span><span class="stat-val">853 Mbps</span></div>
+        <div class="stat-row"><span class="stat-label">@ 500 MHz (with SCA)</span><span class="stat-val">711 Mbps</span></div>
+        <div class="stat-row"><span class="stat-label">Key expansion amortized</span><span class="stat-val" style="color:#8b949e">Once per key change</span></div>
+        <div class="stat-row"><span class="stat-label">SCA LFSR init state</span><span class="stat-val" style="font-size:11px;color:#8b949e">0xA5</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AES ISA custom instructions -->
+<div class="section">
+  <div class="section-title">Custom AES ISA Extension (aes_isa_ext)</div>
+  <div class="grid21">
+    <div class="panel">
+      <table class="tbl">
+        <thead>
+          <tr><th>Mnemonic</th><th>funct7</th><th>funct3</th><th>Opcode</th><th class="num">Latency</th><th>Operation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code style="color:#3fb950">SUBBYTE</code></td><td><code>0x00</code></td><td><code>0x0</code></td><td><code>0001011</code></td><td class="num green">1 cy</td><td>AES SubBytes forward S-Box lookup on rs1[7:0]</td></tr>
+          <tr><td><code style="color:#3fb950">SUBBYTE_MIX</code></td><td><code>0x01</code></td><td><code>0x0</code></td><td><code>0001011</code></td><td class="num green">1 cy</td><td>SubBytes + MixColumns on 32-bit word (GF(2⁸) ×2,×3)</td></tr>
+          <tr><td><code style="color:#3fb950">ROTWORD</code></td><td><code>0x02</code></td><td><code>0x0</code></td><td><code>0001011</code></td><td class="num green">1 cy</td><td>RotWord: {rs1[23:0], rs1[31:24]} — key schedule helper</td></tr>
+          <tr><td><code style="color:#3fb950">INV_SUBBYTE</code></td><td><code>0x04</code></td><td><code>0x0</code></td><td><code>0001011</code></td><td class="num green">1 cy</td><td>AES InvSubBytes (inverse S-Box) on rs1[7:0]</td></tr>
+          <tr><td><code style="color:#3fb950">INV_MIXCOL</code></td><td><code>0x05</code></td><td><code>0x0</code></td><td><code>0001011</code></td><td class="num green">1 cy</td><td>InvMixColumns on 32-bit word (GF ×9,×11,×13,×14)</td></tr>
+          <tr><td><code style="color:#3fb950">INV_ROTWORD</code></td><td><code>0x06</code></td><td><code>0x0</code></td><td><code>0001011</code></td><td class="num green">1 cy</td><td>Inverse RotWord: {rs1[7:0], rs1[31:8]}</td></tr>
+          <tr><td><code style="color:#3fb950">XOR_WORD</code></td><td><code>0x07</code></td><td><code>0x0</code></td><td><code>0001011</code></td><td class="num green">1 cy</td><td>XOR 32-bit: rs1 ^ rs2 (ARK step)</td></tr>
+          <tr><td><code style="color:#3fb950">RCON</code></td><td><code>0x08</code></td><td><code>0x0</code></td><td><code>0001011</code></td><td class="num green">1 cy</td><td>Round constant byte from round index in rs1</td></tr>
+          <tr><td><code style="color:#f85149">AADHAAR.CHECK</code></td><td><code>0x7F</code></td><td><code>0x7</code></td><td><code>0001011</code></td><td class="num green">1 cy</td><td>Verhoeff + first-digit + XML magic → rd[0]=valid</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:8px;font-size:11px;color:#8b949e;padding:4px 0;">
+        All custom instructions use opcode <code style="color:#58a6ff">OP_CUSTOM0 = 7'b0001011</code> ·
+        AADHAAR.CHECK: rs1[31:0] = digits d7..d0, rs2[15:0] = digits d11..d8
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Custom Instruction Throughput</div>
+      <div class="stat-row"><span class="stat-label">All AES ISA ops</span><span class="stat-val green">1 cycle each</span></div>
+      <div class="stat-row"><span class="stat-label">Pipeline stall on custom</span><span class="stat-val green">None (custom_rd_valid same cycle)</span></div>
+      <div class="stat-row"><span class="stat-label">SW AES-256 (no ISA)</span><span class="stat-val red">~5,000–8,000 cycles/block</span></div>
+      <div class="stat-row"><span class="stat-label">SW AES-256 w/ ISA ext</span><span class="stat-val yellow">~300–500 cycles/block est.</span></div>
+      <div class="stat-row"><span class="stat-label">HW AES accel (75 cyc)</span><span class="stat-val teal">75 cycles/block</span></div>
+      <div class="stat-row"><span class="stat-label">Speedup (HW vs SW)</span><span class="stat-val green">~66–106×</span></div>
+      <div style="margin-top:10px" class="panel-title">AADHAAR.CHECK Encoding</div>
+      <div class="stat-row"><span class="stat-label">Input rs1[31:0]</span><span class="stat-val" style="font-size:11px">BCD digits d7..d0 (4-bit each)</span></div>
+      <div class="stat-row"><span class="stat-label">Input rs2[15:0]</span><span class="stat-val" style="font-size:11px">BCD digits d11..d8 (4-bit each)</span></div>
+      <div class="stat-row"><span class="stat-label">Output rd[0]</span><span class="stat-val">1 = Aadhaar valid</span></div>
+      <div class="stat-row"><span class="stat-label">Checks performed</span><span class="stat-val" style="font-size:11px">Verhoeff D5 + first digit ∈[2..9] + XML magic</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SPI Interface -->
+<div class="section">
+  <div class="section-title">SPI Master Interface Architecture</div>
+  <div class="grid2">
+    <div class="panel">
+      <div class="panel-title">SPI Clock Divider & Timing</div>
+      <canvas id="spiChart" height="200"></canvas>
+      <div style="margin-top:10px">
+        <div class="stat-row"><span class="stat-label">Clock formula</span><span class="stat-val" style="font-size:11px">f_spi = f_sys / (2 × (clk_div + 1))</span></div>
+        <div class="stat-row"><span class="stat-label">clk_div = 0</span><span class="stat-val teal">500 MHz (f_sys/2)</span></div>
+        <div class="stat-row"><span class="stat-label">clk_div = 1</span><span class="stat-val">250 MHz</span></div>
+        <div class="stat-row"><span class="stat-label">clk_div = 4</span><span class="stat-val">100 MHz</span></div>
+        <div class="stat-row"><span class="stat-label">clk_div = 9</span><span class="stat-val">50 MHz</span></div>
+        <div class="stat-row"><span class="stat-label">clk_div = 255</span><span class="stat-val">~1.96 MHz</span></div>
+        <div class="stat-row"><span class="stat-label">Edge signals</span><span class="stat-val">spi_rise, spi_fall (1-cycle pulses)</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">SPI State Machine & Modes</div>
+      <table class="tbl">
+        <thead><tr><th>State</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code style="color:#58a6ff">IDLE</code></td><td>Waiting for transaction request</td></tr>
+          <tr><td><code style="color:#3fb950">CMD</code></td><td>Shift out 8-bit command byte</td></tr>
+          <tr><td><code style="color:#3fb950">ADDR</code></td><td>Shift out 24-bit address (3 bytes)</td></tr>
+          <tr><td><code style="color:#d29922">MODE</code></td><td>Mode bits phase (SPI mode change)</td></tr>
+          <tr><td><code style="color:#d29922">DUMMY</code></td><td>Dummy clock cycles (read latency)</td></tr>
+          <tr><td><code style="color:#e3b341">DATA_TX</code></td><td>Transmit data from TX FIFO</td></tr>
+          <tr><td><code style="color:#e3b341">DATA_RX</code></td><td>Receive data into RX FIFO</td></tr>
+          <tr><td><code style="color:#bc8cff">WAIT_EDGE</code></td><td>Wait for final clock edge</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px">
+        <div class="stat-row"><span class="stat-label">Mode STD (2'b00)</span><span class="stat-val">Single-line SPI (MOSI/MISO)</span></div>
+        <div class="stat-row"><span class="stat-label">Mode QUAD_TX (2'b01)</span><span class="stat-val">4-line quad TX (4× throughput)</span></div>
+        <div class="stat-row"><span class="stat-label">Mode QUAD_RX (2'b10)</span><span class="stat-val">4-line quad RX (4× throughput)</span></div>
+        <div class="stat-row"><span class="stat-label">Dummy (read, quad)</span><span class="stat-val">spi_dummy_rd − 2 cycles</span></div>
+        <div class="stat-row"><span class="stat-label">Dummy (write, quad)</span><span class="stat-val">spi_dummy_wr − 2 cycles</span></div>
+        <div class="stat-row"><span class="stat-label">CS logic</span><span class="stat-val" style="font-size:11px">csn[i] = ~spi_csreg[i] | spi_cs</span></div>
+        <div class="stat-row"><span class="stat-label">TX FIFO depth</span><span class="stat-val">BUFFER_DEPTH = 8 entries</span></div>
+        <div class="stat-row"><span class="stat-label">Word counter</span><span class="stat-val">16-bit (up to 65,535 bits)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRNG Architecture -->
+<div class="section">
+  <div class="section-title">ROSC TRNG — CDC Pipeline & Health Tests</div>
+  <div class="grid2">
+    <div class="panel">
+      <div class="panel-title">Clock Domain Crossing Chain (rosc_ext → sys_clk)</div>
+      <div class="cdc-chain">
+        <div style="font-size:11px;color:#8b949e">rosc_ext</div>
+        <div class="cdc-arrow">→</div>
+        <div class="cdc-ff">sync0</div>
+        <div class="cdc-arrow">→</div>
+        <div class="cdc-ff">sync1</div>
+        <div class="cdc-arrow">→</div>
+        <div class="cdc-ff">sync2</div>
+        <div class="cdc-arrow">→</div>
+        <div class="cdc-ff">sync3</div>
+        <div class="cdc-arrow">→</div>
+        <div style="font-size:11px;color:#8b949e">raw_bit</div>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:#8b949e">
+        primary_bit = sync2 XOR sync3 &nbsp;·&nbsp;
+        secondary_bit = sync3 XOR sync3_d3 &nbsp;·&nbsp;
+        raw_bit = primary XOR secondary
+      </div>
+      <div style="margin-top:12px">
+        <div class="panel-title">Von Neumann De-correlation</div>
+        <div class="stat-row"><span class="stat-label">Input</span><span class="stat-val">raw_bit stream from CDC</span></div>
+        <div class="stat-row"><span class="stat-label">Rule</span><span class="stat-val" style="font-size:11px">Pairs: 01→1, 10→0, 00/11→discard</span></div>
+        <div class="stat-row"><span class="stat-label">Output accumulator</span><span class="stat-val">32-bit shift register</span></div>
+        <div class="stat-row"><span class="stat-label">Output trigger</span><span class="stat-val">accum_full (32 valid bits)</span></div>
+        <div class="stat-row"><span class="stat-label">Whitening</span><span class="stat-val">XOR with 32-bit LFSR state</span></div>
+        <div class="stat-row"><span class="stat-label">LFSR poly</span><span class="stat-val" style="font-size:11px">Galois 0x0040_0007, init: 0xDEAD_CAFE</span></div>
+        <div class="stat-row"><span class="stat-label">ROSC period (TB)</span><span class="stat-val">7 ns (async to sys_clk 10 ns)</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">NIST SP 800-90B Health Tests</div>
+      <table class="tbl">
+        <thead><tr><th>Test</th><th>Parameter</th><th>Value</th><th>Fail Condition</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>RCT</strong><br><span style="color:#8b949e;font-size:10px">Repetition Count</span></td>
+            <td>RCT_CUTOFF</td>
+            <td style="color:#d29922"><strong>30</strong></td>
+            <td>≥ 30 consecutive identical bits</td>
+          </tr>
+          <tr>
+            <td><strong>APT</strong><br><span style="color:#8b949e;font-size:10px">Adaptive Proportion</span></td>
+            <td>APT_WINDOW</td>
+            <td style="color:#d29922"><strong>512</strong></td>
+            <td rowspan="2">Count of most-common bit ≥ threshold in window</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>APT_THRESH</td>
+            <td style="color:#f85149"><strong>397 / 512</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px">
+        <div class="stat-row"><span class="stat-label">APT threshold ratio</span><span class="stat-val orange">77.5% dominance → fail</span></div>
+        <div class="stat-row"><span class="stat-label">rct_fail flag</span><span class="stat-val red">Sticky (cleared by reset only)</span></div>
+        <div class="stat-row"><span class="stat-label">apt_fail flag</span><span class="stat-val red">Sticky (cleared by reset only)</span></div>
+        <div class="stat-row"><span class="stat-label">AXI status register</span><span class="stat-val" style="font-size:11px">trng_data[31:0] + trng_valid</span></div>
+        <div class="stat-row"><span class="stat-label">IRQ on health fail</span><span class="stat-val">trng_irq → PLIC src[5]</span></div>
+        <div class="stat-row"><span class="stat-label">false_path constraints</span><span class="stat-val" style="font-size:11px">sync0_reg (CDC isolation in SDC)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Simulation & Test Cases -->
+<div class="section">
+  <div class="section-title">Simulation Testbenches & Test Cases</div>
   <div class="grid3">
 
-    <div class="panel">
-      <div class="panel-title">Memory Configuration</div>
-      <div class="stat-row"><span class="stat-label">SRAM size</span><span class="stat-val green">512 KB</span></div>
-      <div class="stat-row"><span class="stat-label">SRAM words</span><span class="stat-val">131,072 × 32b</span></div>
-      <div class="stat-row"><span class="stat-label">SRAM addr width</span><span class="stat-val">17 bits</span></div>
-      <div class="stat-row"><span class="stat-label">SRAM write enable</span><span class="stat-val">4-bit byte lane (bwen)</span></div>
-      <div class="stat-row"><span class="stat-label">SRAM hard macro</span><span class="stat-val" style="font-size:11px;color:#8b949e">TS1N28HPCPSVTB131072X32M8SW</span></div>
-      <div class="stat-row"><span class="stat-label">Boot ROM size</span><span class="stat-val green">32 KB</span></div>
-      <div class="stat-row"><span class="stat-label">ROM words</span><span class="stat-val">8,192 × 32b</span></div>
-      <div class="stat-row"><span class="stat-label">Bootloader</span><span class="stat-val">25-instr SPI flash loader</span></div>
-      <div class="stat-row"><span class="stat-label">Reset vector</span><span class="stat-val">0x0000_0000</span></div>
-      <div class="stat-row"><span class="stat-label">Trap address</span><span class="stat-val">0x0000_0100</span></div>
-      <div class="stat-row"><span class="stat-label">SRAM base</span><span class="stat-val">0x2000_0000</span></div>
+    <div class="tc-card">
+      <div class="tc-title">soc_tb_crypto.sv — AES-CTR Test</div>
+      <div class="tc-row"><span class="tc-k">Clock period</span><span class="tc-v blue">10 ns (100 MHz)</span></div>
+      <div class="tc-row"><span class="tc-k">ROSC period</span><span class="tc-v">7 ns (async)</span></div>
+      <div class="tc-row"><span class="tc-k">Reset cycles</span><span class="tc-v">20</span></div>
+      <div class="tc-row"><span class="tc-k">Watchdog</span><span class="tc-v yellow">2,000,000 cycles (20 ms)</span></div>
+      <div class="tc-row"><span class="tc-k">SRAM depth</span><span class="tc-v">16,384 words (64 KB)</span></div>
+      <div class="tc-row"><span class="tc-k">Firmware</span><span class="tc-v" style="font-size:11px">firmware.hex → SRAM[0]</span></div>
+      <div class="tc-row"><span class="tc-k">Plaintext</span><span class="tc-v" style="font-size:11px">original.hex → SRAM[0x200] (64 words)</span></div>
+      <div class="tc-row"><span class="tc-k">PASS sentinel</span><span class="tc-v green">GPIO = 0x900D_DEAD</span></div>
+      <div class="tc-row"><span class="tc-k">FAIL sentinel</span><span class="tc-v red">GPIO = 0xDEAD_F00D</span></div>
+      <div class="tc-row"><span class="tc-k">Test case</span><span class="tc-v">AES-256-CTR encrypt → decrypt round-trip verify</span></div>
+      <div class="tc-row"><span class="tc-k">Status</span><span class="tc-v"><span class="badge b-pass">PASS</span></span></div>
     </div>
 
-    <div class="panel">
-      <div class="panel-title">TRNG Health Tests (NIST SP 800-90B)</div>
-      <div class="stat-row"><span class="stat-label">Test 1</span><span class="stat-val">Repetition Count Test (RCT)</span></div>
-      <div class="stat-row"><span class="stat-label">RCT cutoff</span><span class="stat-val yellow">30</span></div>
-      <div class="stat-row"><span class="stat-label">Test 2</span><span class="stat-val">Adaptive Proportion Test (APT)</span></div>
-      <div class="stat-row"><span class="stat-label">APT window</span><span class="stat-val">512 samples</span></div>
-      <div class="stat-row"><span class="stat-label">APT threshold</span><span class="stat-val yellow">397 / 512</span></div>
-      <div class="stat-row"><span class="stat-label">CDC synchronizer</span><span class="stat-val">4-stage async (rosc_ext)</span></div>
-      <div class="stat-row"><span class="stat-label">Whitening</span><span class="stat-val">Von Neumann extractor</span></div>
-      <div class="stat-row"><span class="stat-label">Output width</span><span class="stat-val">32 bits / valid pulse</span></div>
-      <div class="stat-row"><span class="stat-label">Failure flags</span><span class="stat-val red">rct_fail, apt_fail (sticky)</span></div>
+    <div class="tc-card">
+      <div class="tc-title">soc_tb_aadhaar.sv — Aadhaar Validation</div>
+      <div class="tc-row"><span class="tc-k">Clock period</span><span class="tc-v blue">10 ns (100 MHz)</span></div>
+      <div class="tc-row"><span class="tc-k">ROSC period</span><span class="tc-v">7 ns (async)</span></div>
+      <div class="tc-row"><span class="tc-k">Reset cycles</span><span class="tc-v">20</span></div>
+      <div class="tc-row"><span class="tc-k">Watchdog</span><span class="tc-v yellow">2,000,000 cycles (20 ms)</span></div>
+      <div class="tc-row"><span class="tc-k">SRAM depth</span><span class="tc-v">131,072 words (512 KB)</span></div>
+      <div class="tc-row"><span class="tc-k">Firmware</span><span class="tc-v" style="font-size:11px">aadhaar_firmware.hex → SRAM[0]</span></div>
+      <div class="tc-row"><span class="tc-k">Aadhaar ID tested</span><span class="tc-v">2000 5555 5554</span></div>
+      <div class="tc-row"><span class="tc-k">Status CSR</span><span class="tc-v" style="font-size:11px">REG_ADH_STATUS @ 0x3000_2090</span></div>
+      <div class="tc-row"><span class="tc-k">PASS sentinel</span><span class="tc-v green">GPIO = 0x900D_DEAD</span></div>
+      <div class="tc-row"><span class="tc-k">FAIL sentinel</span><span class="tc-v red">GPIO = 0xDEAD_F00D</span></div>
+      <div class="tc-row"><span class="tc-k">Tests</span><span class="tc-v">Verhoeff + first-digit + XML header</span></div>
+      <div class="tc-row"><span class="tc-k">Status</span><span class="tc-v"><span class="badge b-pass">PASS</span></span></div>
     </div>
 
-    <div class="panel">
-      <div class="panel-title">AES-256 Accelerator Details</div>
-      <div class="stat-row"><span class="stat-label">Key width</span><span class="stat-val">256 bits</span></div>
-      <div class="stat-row"><span class="stat-label">Block size</span><span class="stat-val">128 bits</span></div>
-      <div class="stat-row"><span class="stat-label">Key schedule</span><span class="stat-val">60-word expanded array</span></div>
-      <div class="stat-row"><span class="stat-label">Rounds</span><span class="stat-val">14 (AES-256)</span></div>
-      <div class="stat-row"><span class="stat-label">S-Box</span><span class="stat-val">ROM (fwd + inv, 256-entry)</span></div>
-      <div class="stat-row"><span class="stat-label">GF ops</span><span class="stat-val">xtime, ×2,×3,×9,×11,×13,×14</span></div>
-      <div class="stat-row"><span class="stat-label">SCA defense</span><span class="stat-val orange">8-bit Fibonacci LFSR stall</span></div>
-      <div class="stat-row"><span class="stat-label">Interfaces</span><span class="stat-val">Direct (CPU) + AXI-Lite (FW)</span></div>
-      <div class="stat-row"><span class="stat-label">Modes</span><span class="stat-val">Encrypt + Decrypt</span></div>
+    <div class="tc-card">
+      <div class="tc-title">soc_tb_image.sv — JPEG Encrypt/Decrypt</div>
+      <div class="tc-row"><span class="tc-k">Clock period</span><span class="tc-v blue">10 ns (100 MHz)</span></div>
+      <div class="tc-row"><span class="tc-k">ROSC period</span><span class="tc-v">7 ns (async)</span></div>
+      <div class="tc-row"><span class="tc-k">Reset cycles</span><span class="tc-v">20</span></div>
+      <div class="tc-row"><span class="tc-k">Watchdog</span><span class="tc-v yellow">5,000,000 cycles (50 ms)</span></div>
+      <div class="tc-row"><span class="tc-k">SRAM depth</span><span class="tc-v">16,384 words (64 KB)</span></div>
+      <div class="tc-row"><span class="tc-k">JPEG slice</span><span class="tc-v" style="font-size:11px">aadhar_slice.hex → SRAM[0x100] (64 B)</span></div>
+      <div class="tc-row"><span class="tc-k">Encrypt dst</span><span class="tc-v" style="font-size:11px">SRAM[0x200] (hdr + cipher)</span></div>
+      <div class="tc-row"><span class="tc-k">Decrypt dst</span><span class="tc-v" style="font-size:11px">SRAM[0x400] (hdr + plaintext)</span></div>
+      <div class="tc-row"><span class="tc-k">PASS sentinel</span><span class="tc-v green">GPIO = 0x900D_DEAD</span></div>
+      <div class="tc-row"><span class="tc-k">FAIL sentinel</span><span class="tc-v red">GPIO = 0xDEAD_F00D</span></div>
+      <div class="tc-row"><span class="tc-k">Tests</span><span class="tc-v">Aadhaar ID → encrypt slice → decrypt → byte-match</span></div>
+      <div class="tc-row"><span class="tc-k">Status</span><span class="tc-v"><span class="badge b-pass">PASS</span></span></div>
     </div>
 
   </div>
-</div>
 
-<!-- CPU parameters -->
-<div class="section">
-  <div class="section-title">CPU Core — rv32im_core Parameters</div>
-  <div class="grid2">
+  <!-- Unit tests row -->
+  <div class="grid2" style="margin-top:16px">
     <div class="panel">
-      <div class="panel-title">ISA & Interfaces</div>
-      <div class="stat-row"><span class="stat-label">ISA</span><span class="stat-val">RISC-V RV32IM</span></div>
-      <div class="stat-row"><span class="stat-label">Port count</span><span class="stat-val">37 (21 in, 16 out)</span></div>
-      <div class="stat-row"><span class="stat-label">Instruction interface</span><span class="stat-val">AXI-Lite (imem_*)</span></div>
-      <div class="stat-row"><span class="stat-label">Data interface</span><span class="stat-val">AXI-Lite (dmem_*)</span></div>
-      <div class="stat-row"><span class="stat-label">Custom ISA interface</span><span class="stat-val">custom_* (AES ext)</span></div>
-      <div class="stat-row"><span class="stat-label">Interrupts in</span><span class="stat-val">timer_irq, soft_irq, ext_irq</span></div>
-      <div class="stat-row"><span class="stat-label">Reset address</span><span class="stat-val">0x0000_0000</span></div>
-      <div class="stat-row"><span class="stat-label">Trap address</span><span class="stat-val">0x0000_0100</span></div>
+      <div class="panel-title">Unit Test Results — tb_verhoeff_check.sv (50 cases)</div>
+      <table class="tbl">
+        <thead><tr><th>Aadhaar Number</th><th>Check Digit</th><th>1st Digit Rule</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td><code>2000 5555 5554</code></td><td>4 ✓</td><td>2 ∈ [2..9] ✓</td><td><span class="badge b-pass">VALID</span></td></tr>
+          <tr><td><code>2355 5555 5554</code></td><td>4 ✓</td><td>2 ∈ [2..9] ✓</td><td><span class="badge b-pass">VALID</span></td></tr>
+          <tr><td><code>3555 5555 5551</code></td><td>1 ✓</td><td>3 ∈ [2..9] ✓</td><td><span class="badge b-pass">VALID</span></td></tr>
+          <tr><td><code>9555 5555 5557</code></td><td>7 ✓</td><td>9 ∈ [2..9] ✓</td><td><span class="badge b-pass">VALID</span></td></tr>
+          <tr><td><code>0XXX XXXX XXXX</code></td><td>—</td><td>0 ∉ [2..9] ✗</td><td><span class="badge b-fail">INVALID</span></td></tr>
+          <tr><td><code>1XXX XXXX XXXX</code></td><td>—</td><td>1 ∉ [2..9] ✗</td><td><span class="badge b-fail">INVALID</span></td></tr>
+          <tr><td>Bad checksum</td><td>Wrong ✗</td><td>—</td><td><span class="badge b-fail">INVALID</span></td></tr>
+        </tbody>
+      </table>
     </div>
     <div class="panel">
-      <div class="panel-title">CSR Register Set</div>
-      <div class="stat-row"><span class="stat-label">MSTATUS</span><span class="stat-val">Machine status (MIE, MPIE)</span></div>
-      <div class="stat-row"><span class="stat-label">MIE</span><span class="stat-val">Machine interrupt enable</span></div>
-      <div class="stat-row"><span class="stat-label">MTVEC</span><span class="stat-val">Trap vector base address</span></div>
-      <div class="stat-row"><span class="stat-label">MSCRATCH</span><span class="stat-val">Scratch register</span></div>
-      <div class="stat-row"><span class="stat-label">MEPC</span><span class="stat-val">Exception program counter</span></div>
-      <div class="stat-row"><span class="stat-label">MCAUSE</span><span class="stat-val">Exception cause code</span></div>
-      <div class="stat-row"><span class="stat-label">MIP</span><span class="stat-val">Machine interrupt pending</span></div>
-      <div class="stat-row"><span class="stat-label">MCYCLE / MINSTRET</span><span class="stat-val">Performance counters</span></div>
+      <div class="panel-title">Unit Test Results — tb_aadhaar_id_check.sv (50 cases)</div>
+      <table class="tbl">
+        <thead><tr><th>Input Word</th><th>Expected</th><th>Meaning</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td><code style="color:#3fb950">0x6D78_3F3C</code></td><td>id_ok = 1</td><td>"&lt;?xm" (XML magic)</td><td><span class="badge b-pass">PASS</span></td></tr>
+          <tr><td><code style="color:#f85149">0x6D78_3F3D</code></td><td>id_ok = 0</td><td>Off by 1 byte</td><td><span class="badge b-pass">PASS</span></td></tr>
+          <tr><td><code style="color:#f85149">0x0000_0000</code></td><td>id_ok = 0</td><td>Null header</td><td><span class="badge b-pass">PASS</span></td></tr>
+          <tr><td><code style="color:#f85149">0xFFFF_FFFF</code></td><td>id_ok = 0</td><td>All-ones pattern</td><td><span class="badge b-pass">PASS</span></td></tr>
+          <tr><td>All 50 variants</td><td>—</td><td>Exhaustive pattern sweep</td><td><span class="badge b-pass">50 / 50</span></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px">
+        <div class="stat-row"><span class="stat-label">Total unit test cases</span><span class="stat-val green">100 (50 + 50)</span></div>
+        <div class="stat-row"><span class="stat-label">System-level TB cases</span><span class="stat-val green">3 (crypto/aadhaar/image)</span></div>
+        <div class="stat-row"><span class="stat-label">Total passing</span><span class="stat-val teal">103 / 103</span></div>
+        <div class="stat-row"><span class="stat-label">Total failures</span><span class="stat-val green">0</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overall SoC Behaviour -->
+<div class="section">
+  <div class="section-title">Overall SoC Behaviour Summary</div>
+  <div class="grid3">
+    <div class="panel">
+      <div class="panel-title">Boot Sequence</div>
+      <div class="stat-row"><span class="stat-label">1. Reset released</span><span class="stat-val" style="font-size:12px">PC = 0x0000_0000 (boot_rom)</span></div>
+      <div class="stat-row"><span class="stat-label">2. Bootloader runs</span><span class="stat-val" style="font-size:12px">25-instr SPI flash reader</span></div>
+      <div class="stat-row"><span class="stat-label">3. Copies 8 words</span><span class="stat-val" style="font-size:12px">SPI flash → SRAM[0x2000_0000]</span></div>
+      <div class="stat-row"><span class="stat-label">4. Jump to SRAM</span><span class="stat-val" style="font-size:12px">PC = 0x2000_0000</span></div>
+      <div class="stat-row"><span class="stat-label">5. Firmware runs</span><span class="stat-val" style="font-size:12px">Init TRNG, configure PLIC</span></div>
+      <div class="stat-row"><span class="stat-label">6. AES accelerator</span><span class="stat-val" style="font-size:12px">Key → keysched → encrypt loop</span></div>
+      <div class="stat-row"><span class="stat-label">7. PDF engine</span><span class="stat-val" style="font-size:12px">17-state FSM: TRNG_KEY → DONE</span></div>
+      <div class="stat-row"><span class="stat-label">8. Aadhaar validate</span><span class="stat-val" style="font-size:12px">AADHAAR.CHECK instr or hw module</span></div>
+      <div class="stat-row"><span class="stat-label">9. Result via GPIO</span><span class="stat-val" style="font-size:12px">0x900D_DEAD = PASS</span></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Interrupt Flow</div>
+      <div class="stat-row"><span class="stat-label">TRNG ready</span><span class="stat-val" style="font-size:12px">trng_irq → PLIC[5] → CPU ext_irq</span></div>
+      <div class="stat-row"><span class="stat-label">AES done</span><span class="stat-val" style="font-size:12px">aes_irq → PLIC[4] → CPU ext_irq</span></div>
+      <div class="stat-row"><span class="stat-label">PDF done</span><span class="stat-val" style="font-size:12px">pdf_irq → PLIC[6] → CPU ext_irq</span></div>
+      <div class="stat-row"><span class="stat-label">UART RX</span><span class="stat-val" style="font-size:12px">uart_irq → PLIC[1] → CPU ext_irq</span></div>
+      <div class="stat-row"><span class="stat-label">Timer tick</span><span class="stat-val" style="font-size:12px">CLINT timer_irq → CPU (direct)</span></div>
+      <div class="stat-row"><span class="stat-label">CPU trap</span><span class="stat-val" style="font-size:12px">Jump to TRAP_ADDR 0x0000_0100</span></div>
+      <div class="stat-row"><span class="stat-label">Priority</span><span class="stat-val" style="font-size:12px">PLIC 3-bit per source (0–7)</span></div>
+      <div class="stat-row"><span class="stat-label">Threshold</span><span class="stat-val" style="font-size:12px">Configurable, default = 0</span></div>
+      <div class="stat-row"><span class="stat-label">Health fail IRQ</span><span class="stat-val" style="font-size:12px;color:#f85149">rct_fail / apt_fail → trng_irq</span></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Performance Summary @ 1 GHz</div>
+      <div class="stat-row"><span class="stat-label">Peak IPC</span><span class="stat-val green">1.00</span></div>
+      <div class="stat-row"><span class="stat-label">Effective IPC (typical)</span><span class="stat-val">0.80 – 0.90</span></div>
+      <div class="stat-row"><span class="stat-label">AES-256 block latency</span><span class="stat-val teal">75 cycles = 75 ns</span></div>
+      <div class="stat-row"><span class="stat-label">AES-256 throughput</span><span class="stat-val teal">1.71 Gbps (no SCA)</span></div>
+      <div class="stat-row"><span class="stat-label">AES w/ SCA stalls</span><span class="stat-val green">1.42 Gbps (~90 cyc)</span></div>
+      <div class="stat-row"><span class="stat-label">Custom AES ISA (9 ops)</span><span class="stat-val">All 1-cycle, 1.0 IPC</span></div>
+      <div class="stat-row"><span class="stat-label">TRNG output rate</span><span class="stat-val" style="font-size:12px">32 b / ~128 raw bits (Von Neumann)</span></div>
+      <div class="stat-row"><span class="stat-label">SPI max rate (quad)</span><span class="stat-val">4 × 500 Mbps = 2 Gbps</span></div>
+      <div class="stat-row"><span class="stat-label">Simulation cycle time</span><span class="stat-val" style="font-size:12px">1 ns / clock tick</span></div>
     </div>
   </div>
 </div>
 
 <footer>
-  Generated from RTL source at
-  <code>/Users/aasheiksaran/Desktop/Productivity/INDIA_CRYPTO_SOC/rtl</code> ·
-  35 files · 12,053 LOC · TSMC 28nm HPC+ · Cadence Innovus / Synopsys DC
+  INDIA_CRYPTO_SOC RTL Architecture · RV32IM + AES-256 + TRNG + Aadhaar ·
+  TSMC 28nm HPC+ · 1 GHz target · 3 system TBs + 100 unit TCs
 </footer>
 
 <script>
@@ -482,192 +589,174 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border
 
 </script>
 <script>
-
 Chart.defaults.color = '#8b949e';
 Chart.defaults.font.family = '"Segoe UI", system-ui, sans-serif';
 Chart.defaults.font.size = 11;
 
-// ── Module data ────────────────────────────────────────────────────────────────
-var modules = [
-  {name:'picorv32',              cat:'cpu',    loc:3049, ports:55,  params:20, key:'RV32 multi-variant, PCPI/AXI/WB wrappers, barrel shifter, compressed ISA'},
-  {name:'rv32im_core',           cat:'cpu',    loc:971,  ports:37,  params:1,  key:'RV32IM, full interrupt/exception, AXI-Lite imem/dmem, MDU, CSRs'},
-  {name:'india_pdf_engine',      cat:'crypto', loc:802,  ports:62,  params:2,  key:'17-state FSM, AES-CTR, CA-30 nonce, Aadhaar validation, AEAD tag'},
-  {name:'aes_ca_accel',          cat:'crypto', loc:748,  ports:57,  params:0,  key:'AES-256 enc/dec, 5-state FSM, LFSR SCA stall, 60-word key sched'},
-  {name:'axi_lite_xbar',         cat:'fabric', loc:492,  ports:113, params:22, key:'2-master × 11-slave crossbar, address decode, response MUX'},
-  {name:'aes_isa_ext',           cat:'cpu',    loc:397,  ports:23,  params:0,  key:'AES custom ISA: SubBytes, MixCol, ShiftRows, KeyExp + Verhoeff call'},
-  {name:'spi_master_controller', cat:'vendor', loc:549,  ports:39,  params:2,  key:'Core SPI state machine, clkgen+tx+rx submodules, mode select'},
-  {name:'apb_spi_master',        cat:'vendor', loc:366,  ports:25,  params:2,  key:'APB SPI master, configurable clock divider, TX/RX FIFOs'},
-  {name:'rosc_trng',             cat:'crypto', loc:358,  ports:24,  params:3,  key:'RCT + APT health tests, 4-stage CDC, Von Neumann whitening'},
-  {name:'i2c_master_bit_ctrl',   cat:'vendor', loc:358,  ports:16,  params:0,  key:'Bit-level I2C, open-drain pad, start/stop/rstart, SCL stretch'},
-  {name:'boot_rom',              cat:'mem',    loc:297,  ports:19,  params:0,  key:'32 KB, 25-instr SPI bootloader, 2-state AXI FSM, SLVERR on write'},
-  {name:'apb_uart',              cat:'vendor', loc:306,  ports:21,  params:1,  key:'APB UART, TX/RX FIFOs, baud gen, parity/stop config, IRQ flags'},
-  {name:'india_crypto_soc',      cat:'top',    loc:286,  ports:15,  params:3,  key:'Top SoC, 14 submodule inst, 512 KB SRAM, 32 KB ROM, MMIO map'},
-  {name:'i2c_master_byte_ctrl',  cat:'vendor', loc:236,  ports:21,  params:0,  key:'Byte-level I2C, repeated start, instantiates bit_ctrl'},
-  {name:'sram_ctrl',             cat:'mem',    loc:235,  ports:26,  params:0,  key:'Dual-port arb (CPU imem + AXI), byte-enable bwen[3:0]'},
-  {name:'apb_i2c',               cat:'vendor', loc:189,  ports:17,  params:1,  key:'APB I2C master wrapper, instantiates byte_ctrl'},
-  {name:'axil_to_apb',           cat:'periph', loc:175,  ports:27,  params:0,  key:'AXI-Lite → APB bridge, 4-state FSM: IDLE/SETUP/ENABLE/RESP'},
-  {name:'verhoeff_check',        cat:'crypto', loc:156,  ports:7,   params:0,  key:'Combinational Verhoeff D5 checksum, 12-digit Aadhaar BCD'},
-  {name:'gpio',                  cat:'periph', loc:140,  ports:23,  params:0,  key:'32-bit GPIO, dual-sync input, edge detect, per-pin IRQ enable'},
-  {name:'hamming_secded',        cat:'crypto', loc:131,  ports:4,   params:0,  key:'32b→39b SECDED ECC (enc+dec), single-error correction, DED'},
-  {name:'plic',                  cat:'periph', loc:132,  ports:21,  params:1,  key:'N_SRC=8, 3-bit priority, enable/threshold regs, priority encoder'},
-  {name:'clint',                 cat:'periph', loc:128,  ports:24,  params:0,  key:'64-bit mtime + mtimecmp, msip, timer_irq + soft_irq'},
-  {name:'spi_master_rx',         cat:'vendor', loc:126,  ports:16,  params:0,  key:'SPI RX shift register path'},
-  {name:'pulp_spi_wrap',         cat:'periph', loc:125,  ports:24,  params:2,  key:'AXI→APB bridge + apb_spi_master, CS line gating'},
-  {name:'spi_master_tx',         cat:'vendor', loc:119,  ports:16,  params:0,  key:'SPI TX shift register path'},
-  {name:'pulp_i2c_wrap',         cat:'periph', loc:111,  ports:22,  params:0,  key:'AXI→APB bridge + apb_i2c, open-drain SDA/SCL pad'},
-  {name:'pulp_uart_wrap',        cat:'periph', loc:109,  ports:22,  params:0,  key:'AXI→APB bridge + apb_uart'},
-  {name:'pulp_blackbox',         cat:'fabric', loc:87,   ports:63,  params:0,  key:'Vendor IP black-box wrappers (UART, SPI, I2C)'},
-  {name:'sram_sp_wrap',          cat:'mem',    loc:71,   ports:8,   params:2,  key:'512 KB SP SRAM, HARD_MACRO or behavioral, byte write enable'},
-  {name:'spi_master_clkgen',     cat:'vendor', loc:69,   ports:8,   params:0,  key:'SPI clock divider / generator'},
-  {name:'aadhaar_id_check',      cat:'crypto', loc:30,   ports:2,   params:0,  key:'Combinational XML magic-byte check (0x6D78_3F3C)'}
-];
-
-var catMeta = {
-  cpu:    {label:'CPU Core',      cls:'b-cpu'},
-  crypto: {label:'Crypto',        cls:'b-crypto'},
-  mem:    {label:'Memory',        cls:'b-mem'},
-  periph: {label:'Peripheral',    cls:'b-periph'},
-  vendor: {label:'Vendor IP',     cls:'b-vendor'},
-  fabric: {label:'Fabric',        cls:'b-fabric'},
-  top:    {label:'Top-level',     cls:'b-top'}
-};
-
-// ── Populate module table ──────────────────────────────────────────────────────
-var tbody = document.getElementById('modTableBody');
-modules.forEach(function(m) {
-  var meta = catMeta[m.cat] || {label: m.cat, cls:'b-top'};
-  var tr = document.createElement('tr');
-  tr.innerHTML =
-    '<td><code style="color:#58a6ff;font-size:11px">' + m.name + '</code></td>' +
-    '<td><span class="badge ' + meta.cls + '">' + meta.label + '</span></td>' +
-    '<td class="num">' + m.loc.toLocaleString() + '</td>' +
-    '<td class="num">' + m.ports + '</td>' +
-    '<td class="num">' + m.params + '</td>' +
-    '<td style="color:#8b949e;font-size:12px">' + m.key + '</td>';
-  tbody.appendChild(tr);
-});
-
-// ── LOC bar chart (top 15) ─────────────────────────────────────────────────────
-var top15 = modules.slice(0, 15);
-var locColors = {
-  cpu:    '#1e4a7a', crypto: '#3a1a5a', mem:    '#0d2d18',
-  periph: '#3a2a0a', vendor: '#3a0a1a', fabric: '#0a2a2a', top: '#2a2a0a'
-};
-new Chart(document.getElementById('locChart'), {
+// IPC bar chart
+new Chart(document.getElementById('ipcChart'), {
   type: 'bar',
   data: {
-    labels: top15.map(function(m){ return m.name; }),
+    labels: ['Peak (no stalls)', 'Custom AES ISA', 'Typical integer', 'Branch-heavy', 'MDU-heavy (SW AES)'],
     datasets: [{
-      label: 'LOC',
-      data: top15.map(function(m){ return m.loc; }),
-      backgroundColor: top15.map(function(m){ return locColors[m.cat] || '#1e3a5a'; }),
-      borderColor: top15.map(function(m){
-        var c = {cpu:'#58a6ff',crypto:'#bc8cff',mem:'#3fb950',periph:'#e3b341',vendor:'#ff7b72',fabric:'#39d353',top:'#d29922'};
-        return c[m.cat] || '#58a6ff';
-      }),
-      borderWidth: 1,
-      borderRadius: 3
+      label: 'IPC',
+      data: [1.0, 0.95, 0.875, 0.725, 0.50],
+      backgroundColor: ['#0d2d18','#0d2d18','#1e3a6a','#3a2a0a','#3a0a0a'],
+      borderColor:      ['#3fb950','#39d353','#58a6ff','#e3b341','#f85149'],
+      borderWidth: 1.5, borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: function(ctx){ return ' IPC = ' + ctx.raw.toFixed(2); }}}},
+    scales: {
+      x: { grid: { color: '#21262d' }, ticks: { color: '#8b949e', font:{ size:10 }}},
+      y: { grid: { color: '#21262d' }, ticks: { color: '#8b949e' },
+           min: 0, max: 1.1,
+           title: { display: true, text: 'Instructions / Cycle', color: '#8b949e' }}
+    }
+  }
+});
+
+// Stall chart
+new Chart(document.getElementById('stallChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Load-use hazard', 'Branch flush', 'AXI pending (min)', 'Custom AES ISA', 'MDU Multiply', 'MDU Divide'],
+    datasets: [{
+      label: 'Stall cycles',
+      data: [1, 3, 1, 1, 32, 33],
+      backgroundColor: ['#1e3a2a','#3a2a0a','#1e3a6a','#0d2d18','#3a0a0a','#4a0a0a'],
+      borderColor:     ['#3fb950','#d29922','#58a6ff','#39d353','#f85149','#ff4444'],
+      borderWidth: 1.5, borderRadius: 4
     }]
   },
   options: {
     indexAxis: 'y',
     responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: function(ctx){ return ' ' + ctx.raw.toLocaleString() + ' LOC'; }}}
-    },
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: function(ctx){ return ' ' + ctx.raw + ' stall cycle' + (ctx.raw > 1 ? 's' : ''); }}}},
     scales: {
       x: { grid: { color: '#21262d' }, ticks: { color: '#8b949e' },
-           title: { display: true, text: 'Lines of Code', color: '#8b949e' }},
-      y: { grid: { color: '#21262d' }, ticks: { color: '#8b949e', font: { size: 10 }}}
+           title: { display: true, text: 'Stall Cycles', color: '#8b949e' }},
+      y: { grid: { color: '#21262d' }, ticks: { color: '#8b949e', font:{ size:10 }}}
     }
   }
 });
 
-// ── Category doughnut ──────────────────────────────────────────────────────────
-new Chart(document.getElementById('catChart'), {
+// MDU timeline
+var mduDiv = document.getElementById('mduTimeline');
+var colors = {ks:'#1e4a7a', rnd:'#3a1a5a', fin:'#0d2d18'};
+var borderC = {ks:'#58a6ff', rnd:'#bc8cff', fin:'#3fb950'};
+var phases = [
+  {label:'IDLE', color:'#21262d', border:'#30363d', count:1},
+  {label:'MUL', color:'#3a0a0a', border:'#f85149', count:32},
+  {label:'WB', color:'#0d2d18', border:'#3fb950', count:1}
+];
+var html = '<div style="margin-bottom:6px;font-size:11px;color:#8b949e">MUL instruction (32 cycle stall):</div>';
+html += '<div class="timeline">';
+phases.forEach(function(p) {
+  for(var i = 0; i < Math.min(p.count, 8); i++) {
+    html += '<div class="cy" style="background:' + p.color + ';border:1px solid ' + p.border + ';color:' + p.border + '">' + p.label.charAt(0) + '</div>';
+  }
+  if(p.count > 8) html += '<div style="color:#8b949e;font-size:11px;margin:0 4px">×' + p.count + '</div>';
+});
+html += '</div>';
+html += '<div style="margin-top:8px;margin-bottom:6px;font-size:11px;color:#8b949e">DIV instruction (33 cycle stall):</div>';
+html += '<div class="timeline">';
+html += '<div class="cy" style="background:#21262d;border:1px solid #30363d;color:#30363d">I</div>';
+html += '<div class="cy" style="background:#2a0a0a;border:1px solid #d29922;color:#d29922">S</div>';
+for(var i=0;i<5;i++) html += '<div class="cy" style="background:#3a0a0a;border:1px solid #f85149;color:#f85149">D</div>';
+html += '<div style="color:#8b949e;font-size:11px;margin:0 4px">×32</div>';
+html += '<div class="cy" style="background:#0d2d18;border:1px solid #3fb950;color:#3fb950">F</div>';
+html += '<div class="cy" style="background:#0d2d18;border:1px solid #39d353;color:#39d353">W</div>';
+html += '</div>';
+mduDiv.innerHTML = html;
+
+// AES cycle breakdown doughnut
+new Chart(document.getElementById('aesChart'), {
   type: 'doughnut',
   data: {
-    labels: ['CPU Core (incl. picorv32)','Crypto Engines','Vendor Periph IPs','Periph Wrappers','Top + Fabric','Memory'],
+    labels: ['Key Schedule (60 cyc)', 'AES Rounds 1-14 (14 cyc)', 'Final Round (1 cyc)', 'SCA LFSR stalls (~15 cyc est.)'],
     datasets: [{
-      data: [4417, 2225, 2318, 920, 1165, 603],
-      backgroundColor: ['#1e3a6a','#3a1a5a','#3a0a1a','#3a2a0a','#0a2a2a','#0d2d18'],
-      borderColor: ['#58a6ff','#bc8cff','#ff7b72','#e3b341','#39d353','#3fb950'],
-      borderWidth: 1.5,
-      hoverOffset: 4
+      data: [60, 14, 1, 15],
+      backgroundColor: ['#1e3a6a','#3a1a5a','#0d2d18','#3a2a0a'],
+      borderColor:     ['#58a6ff','#bc8cff','#3fb950','#e3b341'],
+      borderWidth: 1.5, hoverOffset: 4
     }]
   },
   options: {
     responsive: true,
     plugins: {
-      legend: { position: 'bottom', labels: { font: {size:10}, boxWidth:10, padding:6 }},
-      tooltip: { callbacks: { label: function(ctx){ return ' ' + ctx.label + ': ' + ctx.raw.toLocaleString() + ' LOC'; }}}
+      legend: { position: 'bottom', labels: { font:{size:10}, boxWidth:10, padding:6 }},
+      tooltip: { callbacks: { label: function(ctx){ return ' ' + ctx.label + ': ' + ctx.raw + ' cycles'; }}}
     }
   }
 });
 
-// ── Port count bar (top 12 by port count) ─────────────────────────────────────
-var byPort = modules.slice().sort(function(a,b){ return b.ports - a.ports; }).slice(0,12);
-new Chart(document.getElementById('portChart'), {
-  type: 'bar',
+// Throughput vs frequency line chart
+var freqs   = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
+var tputNoSca = freqs.map(function(f){ return (128 * f / 75).toFixed(0); });
+var tputSca   = freqs.map(function(f){ return (128 * f / 90).toFixed(0); });
+new Chart(document.getElementById('tputChart'), {
+  type: 'line',
   data: {
-    labels: byPort.map(function(m){ return m.name; }),
-    datasets: [{
-      label: 'Port Count',
-      data: byPort.map(function(m){ return m.ports; }),
-      backgroundColor: byPort.map(function(m){ return locColors[m.cat] || '#1e3a5a'; }),
-      borderColor: byPort.map(function(m){
-        var c = {cpu:'#58a6ff',crypto:'#bc8cff',mem:'#3fb950',periph:'#e3b341',vendor:'#ff7b72',fabric:'#39d353',top:'#d29922'};
-        return c[m.cat] || '#58a6ff';
-      }),
-      borderWidth: 1,
-      borderRadius: 3
-    }]
+    labels: freqs.map(function(f){ return f + ' MHz'; }),
+    datasets: [
+      { label: 'No SCA stalls (75 cyc)',
+        data: tputNoSca, borderColor: '#3fb950', backgroundColor: 'rgba(63,185,80,.08)',
+        pointBackgroundColor: '#3fb950', pointRadius: 3, tension: 0.3, fill: true },
+      { label: 'With SCA stalls (~90 cyc)',
+        data: tputSca, borderColor: '#58a6ff', backgroundColor: 'rgba(88,166,255,.06)',
+        pointBackgroundColor: '#58a6ff', pointRadius: 3, tension: 0.3, fill: true }
+    ]
   },
   options: {
-    indexAxis: 'y',
     responsive: true,
     plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: function(ctx){ return ' ' + ctx.raw + ' ports'; }}}
+      legend: { position: 'bottom', labels: { font:{size:10}, boxWidth:10, padding:6 }},
+      tooltip: { callbacks: { label: function(ctx){ return ' ' + ctx.dataset.label + ': ' + Number(ctx.raw).toLocaleString() + ' Mbps'; }}}
     },
     scales: {
-      x: { grid: { color: '#21262d' }, ticks: { color: '#8b949e' },
-           title: { display: true, text: 'Port Count', color: '#8b949e' }},
-      y: { grid: { color: '#21262d' }, ticks: { color: '#8b949e', font: { size: 10 }}}
+      x: { grid: { color: '#21262d' }, ticks: { color: '#8b949e', font:{size:10} }},
+      y: { grid: { color: '#21262d' }, ticks: { color: '#8b949e' },
+           title: { display: true, text: 'Throughput (Mbps)', color: '#8b949e' }}
     }
   }
 });
 
-// ── Address map ────────────────────────────────────────────────────────────────
-var slaves = [
-  {base:'0x0000_0000', name:'boot_rom',         size:'32 KB',  kb:32,   col:'#1e4a2a', txt:'#3fb950'},
-  {base:'0x0200_0000', name:'clint',             size:'4 KB',   kb:4,    col:'#3a2a0a', txt:'#e3b341'},
-  {base:'0x0C00_0000', name:'plic',              size:'4 KB',   kb:4,    col:'#3a2a0a', txt:'#e3b341'},
-  {base:'0x2000_0000', name:'sram_ctrl',         size:'512 KB', kb:512,  col:'#0d2d18', txt:'#3fb950'},
-  {base:'0x3000_0000', name:'aes_ca_accel',      size:'4 KB',   kb:4,    col:'#3a1a5a', txt:'#bc8cff'},
-  {base:'0x3000_1000', name:'rosc_trng',         size:'4 KB',   kb:4,    col:'#3a1a5a', txt:'#bc8cff'},
-  {base:'0x3000_2000', name:'india_pdf_engine',  size:'4 KB',   kb:4,    col:'#3a1a5a', txt:'#bc8cff'},
-  {base:'0x4000_0000', name:'pulp_uart_wrap',    size:'4 KB',   kb:4,    col:'#3a0a1a', txt:'#ff7b72'},
-  {base:'0x4000_1000', name:'pulp_i2c_wrap',     size:'4 KB',   kb:4,    col:'#3a0a1a', txt:'#ff7b72'},
-  {base:'0x4000_2000', name:'pulp_spi_wrap',     size:'4 KB',   kb:4,    col:'#3a0a1a', txt:'#ff7b72'},
-  {base:'0x4000_3000', name:'gpio',              size:'4 KB',   kb:4,    col:'#2a2a0a', txt:'#d29922'}
-];
-var maxKb = 512;
-var addrMap = document.getElementById('addrMap');
-slaves.forEach(function(s) {
-  var pct = Math.max(s.kb / maxKb * 100, 6);
-  var row = document.createElement('div');
-  row.className = 'addr-row';
-  row.innerHTML =
-    '<div class="addr-base">' + s.base + '</div>' +
-    '<div class="addr-bar-wrap">' +
-      '<div class="addr-bar" style="width:' + pct + '%;background:' + s.col + ';color:' + s.txt + '">' +
-        s.name +
-      '</div>' +
-    '</div>' +
-    '<div class="addr-size">' + s.size + '</div>';
-  addrMap.appendChild(row);
+// SPI clock divider chart
+var divs = [0, 1, 2, 4, 9, 19, 49, 99, 255];
+var spiClks = divs.map(function(d){ return (1000 / (2*(d+1))).toFixed(1); });
+new Chart(document.getElementById('spiChart'), {
+  type: 'bar',
+  data: {
+    labels: divs.map(function(d){ return 'div=' + d; }),
+    datasets: [{
+      label: 'SPI Clock (MHz)',
+      data: spiClks,
+      backgroundColor: divs.map(function(d,i){
+        var cols = ['#1e4a2a','#1e4a2a','#1e3a5a','#1e3a5a','#2a2a0a','#2a2a0a','#3a2a0a','#3a0a0a','#3a0a0a'];
+        return cols[i];
+      }),
+      borderColor: divs.map(function(d,i){
+        var cols = ['#3fb950','#39d353','#58a6ff','#7abaff','#d29922','#e3b341','#f0c060','#f85149','#ff7b72'];
+        return cols[i];
+      }),
+      borderWidth: 1.5, borderRadius: 3
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: function(ctx){ return ' ' + ctx.raw + ' MHz'; }}}},
+    scales: {
+      x: { grid: { color: '#21262d' }, ticks: { color: '#8b949e', font:{size:10} }},
+      y: { grid: { color: '#21262d' }, ticks: { color: '#8b949e' },
+           title: { display: true, text: 'SPI Clock (MHz) @ 1 GHz sys', color: '#8b949e' }}
+    }
+  }
 });
 
 </script>
