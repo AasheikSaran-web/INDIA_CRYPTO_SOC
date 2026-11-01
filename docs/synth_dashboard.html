@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INDIA_CRYPTO_SOC — Synthesis Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:       #0d1117;
+    --surface:  #161b22;
+    --card:     #1e2530;
+    --border:   #30363d;
+    --text:     #e6edf3;
+    --muted:    #8b949e;
+    --accent1:  #3b82f6;   /* 500 MHz blue  */
+    --accent2:  #f59e0b;   /* 1 GHz amber   */
+    --green:    #22c55e;
+    --red:      #ef4444;
+    --cyan:     #06b6d4;
+    --purple:   #a855f7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; }
+
+  /* ── TOP BANNER ── */
+  .banner {
+    background: linear-gradient(135deg, #1a2744 0%, #0d2137 50%, #1a1a2e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .banner h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+  .banner h1 span { color: var(--accent1); }
+  .banner .meta { text-align: right; color: var(--muted); font-size: 12px; line-height: 1.8; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; margin-left: 6px; }
+  .badge-blue   { background: #1d4ed844; color: var(--accent1); border: 1px solid #3b82f655; }
+  .badge-amber  { background: #92400e44; color: var(--accent2); border: 1px solid #f59e0b55; }
+  .badge-green  { background: #14532d44; color: var(--green);   border: 1px solid #22c55e55; }
+  .badge-red    { background: #7f1d1d44; color: var(--red);     border: 1px solid #ef444455; }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 1440px; margin: 0 auto; padding: 24px 32px; }
+  .section-title { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 28px 0 14px; border-left: 3px solid var(--accent1); padding-left: 10px; }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .kpi-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 20px;
+  }
+  .kpi-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .kpi-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px; }
+  .kpi-val { font-size: 20px; font-weight: 700; }
+  .kpi-val.blue  { color: var(--accent1); }
+  .kpi-val.amber { color: var(--accent2); }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .kpi-delta { font-size: 11px; padding: 1px 6px; border-radius: 4px; }
+  .delta-up   { background: #14532d33; color: var(--green); }
+  .delta-down { background: #7f1d1d33; color: var(--red); }
+  .delta-flat { background: #1d2d2d33; color: var(--cyan); }
+
+  /* ── CHART GRID ── */
+  .chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .chart-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px;
+  }
+  .chart-box h3 { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 16px; }
+  .chart-box canvas { max-height: 280px; }
+  .chart-box.tall canvas { max-height: 340px; }
+
+  /* ── COMPARISON TABLE ── */
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .cmp-table th {
+    background: var(--surface); color: var(--muted); font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border);
+  }
+  .cmp-table th.c500 { color: var(--accent1); }
+  .cmp-table th.c1g  { color: var(--accent2); }
+  .cmp-table td { padding: 9px 14px; border-bottom: 1px solid #1e252f; }
+  .cmp-table tr:last-child td { border-bottom: none; }
+  .cmp-table tr:hover td { background: #ffffff08; }
+  .num { font-variant-numeric: tabular-nums; }
+  .highlight-row td { background: #1e2d2d33; }
+
+  /* ── PROGRESS BARS ── */
+  .pbar-wrap { background: var(--border); border-radius: 3px; height: 6px; overflow: hidden; }
+  .pbar { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+  /* ── HOLD VIOLATION PANEL ── */
+  .hold-panel { background: #2d1b1b; border: 1px solid #5a2020; border-radius: 10px; padding: 20px; }
+  .hold-panel h3 { font-size: 13px; color: #fca5a5; margin-bottom: 12px; }
+
+  /* ── LEGEND ── */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  @media (max-width: 900px) {
+    .chart-grid-2, .chart-grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════ BANNER -->
+<div class="banner">
+  <div>
+    <h1>INDIA_CRYPTO_<span>SOC</span> &nbsp;·&nbsp; Synthesis Dashboard</h1>
+    <div style="margin-top:6px; color:var(--muted); font-size:12px;">
+      Synopsys Design Compiler T-2022.03-SP5 &nbsp;·&nbsp; TSMC 28nm HPC+ (tcbn28hpcplusbwp30p140) &nbsp;·&nbsp; TT 0.9V 25°C
+      <span class="badge badge-blue">500 MHz</span>
+      <span class="badge badge-amber">1 GHz</span>
+    </div>
+  </div>
+  <div class="meta">
+    <div>Run date: Sun Nov 1, 2026</div>
+    <div>Host: lnx3-ecis.c2scat1meity.iisc.ac.in</div>
+    <div>Technology node: 28nm HPC+</div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════════════════════ KPI CARDS -->
+<div class="section-title">Key Metrics at a Glance</div>
+<div class="kpi-grid">
+
+  <!-- Frequency -->
+  <div class="kpi-card">
+    <div class="label">Target Frequency</div>
+    <div class="kpi-row">
+      <div><div class="kpi-val blue">500 MHz</div><div class="kpi-sub">Period: 2.00 ns</div></div>
+      <div><div class="kpi-val amber">1 GHz</div><div class="kpi-sub">Period: 1.00 ns</div></div>
+    </div>
+  </div>
+
+  <!-- Total Area -->
+  <div class="kpi-card">
+    <div class="label">Total Cell Area (μm²)</div>
+    <div class="kpi-row">
+      <div><div class="kpi-val blue">60,409</div><div class="kpi-sub">500 MHz</div></div>
+      <div><div class="kpi-val amber">60,519</div><div class="kpi-sub">1 GHz</div></div>
+    </div>
+    <div class="kpi-sub" style="margin-top:8px;">Δ +109 μm² (+0.18%) at 1 GHz</div>
+  </div>
+
+  <!-- Total Power -->
+  <div class="kpi-card">
+    <div class="label">Total Dynamic Power</div>
+    <div class="kpi-row">
+      <div><div class="kpi-val blue">1.88 mW</div><div class="kpi-sub">500 MHz</div></div>
+      <div><div class="kpi-val amber">3.80 mW</div><div class="kpi-sub">1 GHz</div></div>
+    </div>
+    <div class="kpi-sub" style="margin-top:8px;">Δ +1.92 mW (+102%) at 1 GHz</div>
+  </div>
+
+  <!-- Leaf Cells -->
+  <div class="kpi-card">
+    <div class="label">Leaf Cell Count</div>
+    <div class="kpi-row">
+      <div><div class="kpi-val blue">81,298</div><div class="kpi-sub">500 MHz</div></div>
+      <div><div class="kpi-val amber">82,484</div><div class="kpi-sub">1 GHz</div></div>
+    </div>
+    <div class="kpi-sub" style="margin-top:8px;">Buf/Inv: 10,019 → 11,526 (+15%)</div>
+  </div>
+
+  <!-- Setup Timing -->
+  <div class="kpi-card">
+    <div class="label">Setup Timing (WNS / Violations)</div>
+    <div class="kpi-row">
+      <div>
+        <div class="kpi-val" style="color:var(--green)">0.00 ns</div>
+        <div class="kpi-sub">0 violations &nbsp;<span class="badge badge-green">CLEAN</span></div>
+      </div>
+      <div>
+        <div class="kpi-val" style="color:var(--green)">0.00 ns</div>
+        <div class="kpi-sub">0 violations &nbsp;<span class="badge badge-green">CLEAN</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hold Timing -->
+  <div class="kpi-card">
+    <div class="label">Hold Timing (WNS / Violations)</div>
+    <div class="kpi-row">
+      <div>
+        <div class="kpi-val" style="color:var(--red)">−0.07 ns</div>
+        <div class="kpi-sub">1325 paths &nbsp;<span class="badge badge-red">HOLD</span></div>
+      </div>
+      <div>
+        <div class="kpi-val" style="color:var(--red)">−0.07 ns</div>
+        <div class="kpi-sub">1233 paths &nbsp;<span class="badge badge-red">HOLD</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logic Levels -->
+  <div class="kpi-card">
+    <div class="label">Critical Path Logic Levels</div>
+    <div class="kpi-row">
+      <div><div class="kpi-val blue">76</div><div class="kpi-sub">500 MHz</div></div>
+      <div><div class="kpi-val amber">45</div><div class="kpi-sub">1 GHz</div></div>
+    </div>
+    <div class="kpi-sub" style="margin-top:8px;">−31 levels (−41%) due to retiming at 1 GHz</div>
+  </div>
+
+  <!-- Clock Gating -->
+  <div class="kpi-card">
+    <div class="label">Clock Gating Coverage</div>
+    <div class="kpi-row">
+      <div><div class="kpi-val blue">95.7%</div><div class="kpi-sub">396 ICGs / 9737 regs</div></div>
+      <div><div class="kpi-val amber">95.7%</div><div class="kpi-sub">396 ICGs / 9740 regs</div></div>
+    </div>
+  </div>
+
+</div><!-- /kpi-grid -->
+
+
+<!-- ══════════════════════════════════════════════════════ TIMING CHARTS -->
+<div class="section-title">Timing Analysis</div>
+<div class="chart-grid-2">
+
+  <!-- Setup vs Hold Bar -->
+  <div class="chart-box">
+    <h3>Critical Path Length vs Clock Period</h3>
+    <canvas id="timingBar"></canvas>
+  </div>
+
+  <!-- Hold violations stacked -->
+  <div class="chart-box">
+    <h3>Hold Violation Distribution (Top Blocks)</h3>
+    <canvas id="holdBar"></canvas>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════ AREA CHARTS -->
+<div class="section-title">Area Breakdown</div>
+<div class="chart-grid-3">
+
+  <!-- Area Donut 500MHz -->
+  <div class="chart-box">
+    <h3>Area by Block — 500 MHz</h3>
+    <canvas id="areaDoughnut500"></canvas>
+  </div>
+
+  <!-- Area Donut 1GHz -->
+  <div class="chart-box">
+    <h3>Area by Block — 1 GHz</h3>
+    <canvas id="areaDoughnut1g"></canvas>
+  </div>
+
+  <!-- Area comparison bar -->
+  <div class="chart-box">
+    <h3>Area Δ per Block (500 MHz vs 1 GHz)</h3>
+    <canvas id="areaDeltaBar"></canvas>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════ POWER CHARTS -->
+<div class="section-title">Power Analysis</div>
+<div class="chart-grid-2">
+
+  <!-- Power by block grouped bar -->
+  <div class="chart-box tall">
+    <h3>Dynamic Power per Block (mW)</h3>
+    <canvas id="powerBar"></canvas>
+  </div>
+
+  <!-- Power stacked breakdown -->
+  <div class="chart-box tall">
+    <h3>Internal vs Switching Power (mW)</h3>
+    <canvas id="powerStack"></canvas>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════ COMPARISON TABLE -->
+<div class="section-title">Block-Level Comparison</div>
+<div style="background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden;">
+<table class="cmp-table">
+  <thead>
+    <tr>
+      <th>Block</th>
+      <th class="c500">Area 500MHz (μm²)</th>
+      <th class="c1g">Area 1GHz (μm²)</th>
+      <th class="c500">Power 500MHz (mW)</th>
+      <th class="c1g">Power 1GHz (mW)</th>
+      <th>Area % (500)</th>
+      <th>Power % (500)</th>
+      <th>Pwr Δ</th>
+    </tr>
+  </thead>
+  <tbody id="blockTableBody"></tbody>
+</table>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════ CELL COUNT TABLE -->
+<div class="section-title">Cell Count &amp; Design Rules</div>
+<div class="chart-grid-2">
+
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden;">
+  <table class="cmp-table">
+    <thead>
+      <tr><th>Metric</th><th class="c500">500 MHz</th><th class="c1g">1 GHz</th><th>Delta</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Hierarchical Cells</td><td class="num">424</td><td class="num">424</td><td>—</td></tr>
+      <tr><td>Leaf Cells</td><td class="num">81,298</td><td class="num">82,484</td><td class="delta-up">+1,186</td></tr>
+      <tr><td>Combinational Cells</td><td class="num">71,165</td><td class="num">72,348</td><td class="delta-up">+1,183</td></tr>
+      <tr><td>Sequential Cells</td><td class="num">10,133</td><td class="num">10,136</td><td class="delta-up">+3</td></tr>
+      <tr><td>Buf/Inv Cells</td><td class="num">10,019</td><td class="num">11,526</td><td class="delta-up">+1,507 (+15%)</td></tr>
+      <tr><td>Buffer Cells</td><td class="num">95</td><td class="num">167</td><td class="delta-up">+72 (+76%)</td></tr>
+      <tr><td>Inverter Cells</td><td class="num">9,924</td><td class="num">11,359</td><td class="delta-up">+1,435</td></tr>
+      <tr><td>Total Nets</td><td class="num">82,247</td><td class="num">83,347</td><td class="delta-up">+1,100</td></tr>
+      <tr class="highlight-row"><td>DRV Violations</td>
+        <td><span class="badge badge-green">0</span></td>
+        <td><span class="badge badge-green">0</span></td>
+        <td>✓ Clean</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden;">
+  <table class="cmp-table">
+    <thead>
+      <tr><th>Area Component</th><th class="c500">500 MHz (μm²)</th><th class="c1g">1 GHz (μm²)</th><th>Delta</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Combinational Area</td><td class="num">37,868.5</td><td class="num">38,022.0</td><td class="delta-up">+153.5</td></tr>
+      <tr><td>Noncombinational Area</td><td class="num">22,540.9</td><td class="num">22,496.7</td><td class="delta-down">−44.2</td></tr>
+      <tr><td>Buf/Inv Area</td><td class="num">2,536.8</td><td class="num">2,944.0</td><td class="delta-up">+407.2 (+16%)</td></tr>
+      <tr><td>Total Buffer Area</td><td class="num">35.9</td><td class="num">67.8</td><td class="delta-up">+31.9 (+89%)</td></tr>
+      <tr><td>Total Inverter Area</td><td class="num">2,500.9</td><td class="num">2,876.2</td><td class="delta-up">+375.3</td></tr>
+      <tr class="highlight-row"><td><strong>Total Cell Area</strong></td>
+        <td class="num"><strong>60,409.4</strong></td>
+        <td class="num"><strong>60,518.7</strong></td>
+        <td class="delta-up">+109.3 (+0.18%)</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════ COMPILE STATS -->
+<div class="section-title">Compile Statistics</div>
+<div class="chart-grid-2">
+  <div class="chart-box">
+    <h3>Compile Time Breakdown (seconds)</h3>
+    <canvas id="compileBar"></canvas>
+  </div>
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px;">
+    <div style="font-size:13px; font-weight:600; color:var(--muted); margin-bottom:16px;">Runtime Summary</div>
+    <table class="cmp-table">
+      <thead><tr><th>Phase</th><th class="c500">500 MHz (s)</th><th class="c1g">1 GHz (s)</th></tr></thead>
+      <tbody>
+        <tr><td>Resource Sharing</td><td>2.42</td><td>5.27</td></tr>
+        <tr><td>Logic Optimization</td><td>2.68</td><td>2.71</td></tr>
+        <tr><td>Mapping Optimization</td><td>41.89</td><td>36.69</td></tr>
+        <tr class="highlight-row"><td><strong>Overall CPU Time</strong></td><td><strong>120.30</strong></td><td><strong>111.90</strong></td></tr>
+        <tr><td>Wall Clock Time</td><td>121.32</td><td>112.79</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="height:40px;"></div>
+
+</div><!-- /page -->
+
+
+<script>
+// ─────────────────────────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────────────────────────
+const C500 = '#3b82f6';
+const C1G  = '#f59e0b';
+const CGREEN = '#22c55e';
+const CRED   = '#ef4444';
+
+const blocks = [
+  { name: 'u_aes_ca',   a500: 29595.1, a1g: 29219.3, p500: 0.218, p1g: 0.436, p500int: 0.0647, p500sw: 0.153, p1gint: 0.130, p1gsw: 0.306, pct500a: 49.0, pct500p: 15.7 },
+  { name: 'u_pdf',      a500: 12813.6, a1g: 12978.0, p500: 0.180, p1g: 0.361, p500int: 0.0483, p500sw: 0.132, p1gint: 0.0974,p1gsw: 0.264, pct500a: 21.2, pct500p: 11.0 },
+  { name: 'u_cpu',      a500:  8366.7, a1g:  8612.1, p500: 0.364, p1g: 0.747, p500int: 0.0509, p500sw: 0.313, p1gint: 0.103, p1gsw: 0.644, pct500a: 13.8, pct500p: 18.6 },
+  { name: 'u_spi',      a500:  2958.0, a1g:  2958.6, p500: 0.115, p1g: 0.228, p500int: 0.0205, p500sw: 0.0937,p1gint: 0.0410,p1gsw: 0.187, pct500a:  4.9, pct500p:  5.9 },
+  { name: 'u_uart',     a500:  1249.7, a1g:  1246.0, p500: 0.110, p1g: 0.219, p500int: 0.0035, p500sw: 0.106, p1gint: 0.0083,p1gsw: 0.211, pct500a:  2.1, pct500p:  5.4 },
+  { name: 'u_aes_isa',  a500:   902.7, a1g:   902.3, p500: 0.0003,p1g: 0.0007,p500int: 0.0000, p500sw: 0.0003,p1gint: 0.0000,p1gsw: 0.0007,pct500a:  1.5, pct500p:  0.2 },
+  { name: 'u_xbar',     a500:   890.3, a1g:   890.1, p500: 0.007, p1g: 0.013, p500int: 0.0007, p500sw: 0.0046,p1gint: 0.0013,p1gsw: 0.0092,pct500a:  1.5, pct500p:  0.3 },
+  { name: 'u_gpio',     a500:   874.4, a1g:   874.4, p500: 0.274, p1g: 0.547, p500int: 0.0096, p500sw: 0.264, p1gint: 0.0191,p1gsw: 0.528, pct500a:  1.4, pct500p: 13.1 },
+  { name: 'u_clint',    a500:   785.5, a1g:   785.5, p500: 0.164, p1g: 0.330, p500int: 0.0114, p500sw: 0.153, p1gint: 0.0231,p1gsw: 0.307, pct500a:  1.3, pct500p:  7.9 },
+  { name: 'u_trng',     a500:   600.0, a1g:   600.0, p500: 0.195, p1g: 0.394, p500int: 0.0097, p500sw: 0.185, p1gint: 0.0204,p1gsw: 0.374, pct500a:  1.0, pct500p:  9.3 },
+  { name: 'u_sram_ctrl',a500:   530.0, a1g:   530.0, p500: 0.071, p1g: 0.140, p500int: 0.0078, p500sw: 0.0629,p1gint: 0.0136,p1gsw: 0.127, pct500a:  0.9, pct500p:  3.4 },
+  { name: 'u_plic',     a500:   350.0, a1g:   350.0, p500: 0.012, p1g: 0.023, p500int: 0.0011, p500sw: 0.0101,p1gint: 0.0021,p1gsw: 0.0202,pct500a:  0.6, pct500p:  0.6 },
+];
+
+// ─────────────────────────────────────────────────────────────────────
+// CHART DEFAULTS
+// ─────────────────────────────────────────────────────────────────────
+Chart.defaults.color = '#8b949e';
+Chart.defaults.borderColor = '#30363d';
+const pluginsBase = {
+  legend: { labels: { color: '#8b949e', boxWidth: 12, font: { size: 11 } } },
+  tooltip: { backgroundColor: '#1e2530', borderColor: '#30363d', borderWidth: 1, titleColor: '#e6edf3', bodyColor: '#8b949e' }
+};
+
+// ─────────────────────────────────────────────────────────────────────
+// 1. TIMING BAR
+// ─────────────────────────────────────────────────────────────────────
+new Chart(document.getElementById('timingBar'), {
+  type: 'bar',
+  data: {
+    labels: ['Clock Period', 'Critical Path', 'Slack (Setup)', 'Hold WNS', 'Hold TNS'],
+    datasets: [
+      { label: '500 MHz', backgroundColor: C500 + 'cc',
+        data: [2.00, 1.87, 0.00, 0.07, 11.64] },
+      { label: '1 GHz',  backgroundColor: C1G  + 'cc',
+        data: [1.00, 0.87, 0.00, 0.07, 11.82] }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: pluginsBase,
+    scales: {
+      x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d44' } },
+      y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d44' },
+           title: { display: true, text: 'ns', color: '#8b949e' } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────
+// 2. HOLD VIOLATION BAR
+// ─────────────────────────────────────────────────────────────────────
+new Chart(document.getElementById('holdBar'), {
+  type: 'bar',
+  data: {
+    labels: ['u_trng', 'u_cpu\n(ifid_instr)', 'u_xbar', 'u_aes_isa', 'Others'],
+    datasets: [
+      { label: '500 MHz', backgroundColor: C500 + 'bb', data: [15, 35, 2, 1, 1272] },
+      { label: '1 GHz',  backgroundColor: C1G  + 'bb', data: [14, 32, 2, 1, 1184] }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: { ...pluginsBase,
+      tooltip: { ...pluginsBase.tooltip, callbacks: {
+        label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} paths`
+      }}
+    },
+    scales: {
+      x: { stacked: false, ticks: { color: '#8b949e' }, grid: { color: '#30363d44' } },
+      y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d44' },
+           title: { display: true, text: 'Paths', color: '#8b949e' } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────
+// 3. AREA DOUGHNUTS
+// ─────────────────────────────────────────────────────────────────────
+const areaColors = ['#3b82f6','#f59e0b','#22c55e','#a855f7','#06b6d4','#ef4444','#f97316','#84cc16','#ec4899','#14b8a6','#6366f1','#e879f9'];
+const donutCfg = (labels, data) => ({
+  type: 'doughnut',
+  data: { labels, datasets: [{ data, backgroundColor: areaColors, borderColor: '#1e2530', borderWidth: 2 }] },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: { ...pluginsBase,
+      tooltip: { ...pluginsBase.tooltip, callbacks: {
+        label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()} μm² (${ctx.parsed.toFixed(1)}%)`
+      }}
+    },
+    cutout: '62%'
+  }
+});
+
+new Chart(document.getElementById('areaDoughnut500'), donutCfg(
+  blocks.map(b => b.name),
+  blocks.map(b => b.a500)
+));
+new Chart(document.getElementById('areaDoughnut1g'), donutCfg(
+  blocks.map(b => b.name),
+  blocks.map(b => b.a1g)
+));
+
+// ─────────────────────────────────────────────────────────────────────
+// 4. AREA DELTA BAR
+// ─────────────────────────────────────────────────────────────────────
+const areaDelta = blocks.map(b => +(b.a1g - b.a500).toFixed(1));
+new Chart(document.getElementById('areaDeltaBar'), {
+  type: 'bar',
+  data: {
+    labels: blocks.map(b => b.name),
+    datasets: [{
+      label: 'Area Δ (μm²)',
+      data: areaDelta,
+      backgroundColor: areaDelta.map(d => d > 0 ? CRED+'bb' : CGREEN+'bb'),
+      borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: true,
+    plugins: { ...pluginsBase, legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d44' },
+           title: { display: true, text: 'μm²', color: '#8b949e' } },
+      y: { ticks: { color: '#8b949e', font: { size: 11 } }, grid: { display: false } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────
+// 5. POWER BAR (grouped)
+// ─────────────────────────────────────────────────────────────────────
+new Chart(document.getElementById('powerBar'), {
+  type: 'bar',
+  data: {
+    labels: blocks.map(b => b.name),
+    datasets: [
+      { label: '500 MHz', backgroundColor: C500+'cc', data: blocks.map(b => +b.p500.toFixed(4)) },
+      { label: '1 GHz',  backgroundColor: C1G +'cc', data: blocks.map(b => +b.p1g.toFixed(4))  }
+    ]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { ...pluginsBase, tooltip: { ...pluginsBase.tooltip, callbacks: {
+      label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toFixed(4)} mW`
+    }}},
+    scales: {
+      x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d44' },
+           title: { display: true, text: 'mW', color: '#8b949e' } },
+      y: { ticks: { color: '#8b949e', font: { size: 11 } }, grid: { display: false } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────
+// 6. POWER STACKED (Internal vs Switching)
+// ─────────────────────────────────────────────────────────────────────
+new Chart(document.getElementById('powerStack'), {
+  type: 'bar',
+  data: {
+    labels: blocks.map(b => b.name),
+    datasets: [
+      { label: '500 Internal', backgroundColor: C500+'99', stack: '500', data: blocks.map(b => +b.p500int.toFixed(4)) },
+      { label: '500 Switching', backgroundColor: C500+'dd', stack: '500', data: blocks.map(b => +b.p500sw.toFixed(4)) },
+      { label: '1G Internal',  backgroundColor: C1G +'99', stack: '1g',  data: blocks.map(b => +b.p1gint.toFixed(4)) },
+      { label: '1G Switching', backgroundColor: C1G +'dd', stack: '1g',  data: blocks.map(b => +b.p1gsw.toFixed(4)) },
+    ]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { ...pluginsBase, tooltip: { ...pluginsBase.tooltip, callbacks: {
+      label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toFixed(4)} mW`
+    }}},
+    scales: {
+      x: { stacked: true, ticks: { color: '#8b949e' }, grid: { color: '#30363d44' },
+           title: { display: true, text: 'mW', color: '#8b949e' } },
+      y: { stacked: true, ticks: { color: '#8b949e', font: { size: 11 } }, grid: { display: false } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────
+// 7. COMPILE TIME BAR
+// ─────────────────────────────────────────────────────────────────────
+new Chart(document.getElementById('compileBar'), {
+  type: 'bar',
+  data: {
+    labels: ['Resource\nSharing', 'Logic\nOpt.', 'Mapping\nOpt.', 'Total\nCPU'],
+    datasets: [
+      { label: '500 MHz', backgroundColor: C500+'cc', data: [2.42, 2.68, 41.89, 120.30] },
+      { label: '1 GHz',  backgroundColor: C1G +'cc', data: [5.27, 2.71, 36.69, 111.90] }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: { ...pluginsBase, tooltip: { ...pluginsBase.tooltip, callbacks: {
+      label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}s`
+    }}},
+    scales: {
+      x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d44' } },
+      y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d44' },
+           title: { display: true, text: 'seconds', color: '#8b949e' } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────
+// 8. BLOCK TABLE
+// ─────────────────────────────────────────────────────────────────────
+const tbody = document.getElementById('blockTableBody');
+blocks.forEach(b => {
+  const delta = ((b.p1g - b.p500) / b.p500 * 100).toFixed(0);
+  const areaFill500 = (b.a500 / 60409 * 100).toFixed(1);
+  const areaFill1g  = (b.a1g  / 60519 * 100).toFixed(1);
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td><code style="color:var(--cyan);font-size:12px">${b.name}</code></td>
+    <td class="num" style="color:var(--accent1)">${b.a500.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+    <td class="num" style="color:var(--accent2)">${b.a1g.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+    <td class="num" style="color:var(--accent1)">${b.p500.toFixed(4)}</td>
+    <td class="num" style="color:var(--accent2)">${b.p1g.toFixed(4)}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div class="pbar-wrap" style="width:80px"><div class="pbar" style="width:${areaFill500}%;background:var(--accent1)"></div></div>
+        <span style="font-size:11px;color:var(--muted)">${b.pct500a}%</span>
+      </div>
+    </td>
+    <td>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div class="pbar-wrap" style="width:80px"><div class="pbar" style="width:${b.pct500p}%;background:var(--purple)"></div></div>
+        <span style="font-size:11px;color:var(--muted)">${b.pct500p}%</span>
+      </div>
+    </td>
+    <td><span class="kpi-delta delta-up">+${delta}%</span></td>
+  `;
+  tbody.appendChild(row);
+});
+</script>
+</body>
+</html>
