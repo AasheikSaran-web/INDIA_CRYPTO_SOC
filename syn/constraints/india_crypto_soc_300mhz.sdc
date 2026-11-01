@@ -78,4 +78,4 @@ set_max_delay 2.400 \
 
 set_timing_derate -late  1.05 -cell_delay -data
 set_timing_derate -early 0.95 -cell_delay -data
-
+ 
